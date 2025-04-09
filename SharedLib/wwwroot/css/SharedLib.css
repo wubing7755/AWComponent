@@ -3,3 +3,8 @@
     color: linen;
     opacity: 1;
 }
+
+.aw-divider {
+    display: block;
+    height: 30px;
+}

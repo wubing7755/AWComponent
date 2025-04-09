@@ -6,32 +6,25 @@ namespace SharedLibrary.Components;
 /// <summary>
 /// 分隔器
 /// </summary>
-public sealed class Divider : AWComponentBase
+public class Divider : AWComponentBase
 {
-    [CascadingParameter]
-    public string? CascadingStyle { get; set; }
-
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
+    protected sealed override string BaseCssClass => "aw-divider";
 
-        Style ??= CascadingStyle ??= "display: block; height: 30px;";
-    }
+    protected virtual string DividerClass => BuildCssClass();
+
+    protected virtual string DividerStyle => BuildStyle();
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         int seq = 0;
 
         builder.OpenElement(seq++, "div");
-        builder.AddAttribute(seq++, "style", Style);
-
-        if (AdditionalAttributes is not null)
-        {
-            builder.AddMultipleAttributes(seq++, AdditionalAttributes);
-        }
+        builder.AddMultipleAttributes(seq++, SafeAttributes);
+        builder.AddAttribute(seq++, "class", DividerClass);
+        builder.AddAttribute(seq++, "style", DividerStyle);
 
         // SVG Dotted
         builder.OpenElement(seq++, "svg");

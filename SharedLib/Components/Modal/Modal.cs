@@ -30,6 +30,12 @@ public class ModalDialog : AWComponentBase
 
     private bool IsVisible { get; set; } = false;
 
+    protected sealed override string BaseCssClass => "aw-modal";
+
+    protected virtual string ModalClass => BuildCssClass();
+
+    protected virtual string ModalStyle => BuildStyle();
+
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         if (!IsVisible) return;

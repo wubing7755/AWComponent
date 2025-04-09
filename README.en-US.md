@@ -1,4 +1,4 @@
-﻿# AWComponent - Blazor 自定义组件库
+# AWComponent - Blazor Component Library
 
 ![.NET Version](https://img.shields.io/badge/.NET-6.0-blueviolet)
 [![Blazor Version](https://img.shields.io/badge/Blazor-WebAssembly%20.NET%206.0-blue)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
@@ -7,59 +7,62 @@
 [![CN](https://img.shields.io/badge/语言-中文-red)](README.md)
 
 🌐 **Choose Language**: 
-[English](README.en-US.md) | [中文](README.md) 
+[English](README.en-US.md) | 
+[中文](README.md)
 
-基于 **Blazor (.NET 6.0)** 的高质量自定义组件库，提供可复用的 UI 组件和模块化解决方案。
-
----
-
-## 🚀 功能特性
-
-- **开箱即用**：预置多种企业级 UI 组件
-- **主题定制**：通过 CSS 变量轻松自定义样式
-- **高性能**：基于 .NET 6.0 优化渲染逻辑
-- **完整文档**：内置示例页面和代码片段
+Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and high performance
 
 ---
 
-## 📦 快速开始
+## 🚀 Key Features
 
-### 前置条件
+- **Production-Ready**: 20+ enterprise UI components
+- **Theming**: Dynamic skinning via CSS variables
+- **Optimized Performance**: Enhanced virtual DOM rendering
+- **i18n Support**: Built-in EN/CN localization
+- **Type Safety**: Strongly-typed C# components
+
+---
+
+## 📦 Quick Start
+
+### Prerequisites
+
 - [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
 - IDE: Visual Studio 2022
 
-### 安装与运行
+### Installation
 
-1. **克隆仓库**：
+1. **Clone Repository**：
 
    ```bash
    git clone https://github.com/your-username/AWComponent.git
    ```
 
-2. **运行程序**:
+2. **Run Server**:
 
     ```bash
     cd AWComponent/AW/Server
     dotnet run
     ```
 
-    访问`https://localhost:7208`查看运行效果
+    Visit`https://localhost:7208`for demo
 
-## 📂 项目架构
+## 📂 Project Structure
 
 ```text
 AWComponent/
-├── SharedLibrary/         # 共享组件库
-│   ├── Components/        # 可复用组件
+├── SharedLibrary/         # Shared Component Library
+│   ├── Components/        # Base Components
 │   └── ...
 │
 ├── AW.Client/...
 ├── AW.Server/...
 ├── AW.Shared/...
-└── AWComponent.sln        # 解决方案文件
+└── AWComponent.sln        # Solution File
 ```
 
-## 🔧 组件使用示例
+## 🔧  Component Demo
 
 ```csharp
 @using SharedLibrary.Components
@@ -74,12 +77,12 @@ AWComponent/
 }
 ```
 
-## 🧩 支持组件
+## 🧩 Component List
 
-|组件类型|组件名|
+|Category|Components|
 |---|---|
-|基础组件|Button、Divider、Input、Label、Select、Modal|
+|Basic|Button、Divider、Input、Label、Select、Modal|
 
-## 📚 文档资源
+## 📚 Resources
 
-- [Blazor 官方文档](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-6.0)
+- [Blazor Official Docs](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-6.0)

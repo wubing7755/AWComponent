@@ -20,7 +20,7 @@ public class Button : AWComponentBase
     [Parameter]
     public Action<MouseEventArgs>? OnMouseLeave { get; set; }
 
-    protected override string BaseCssClass => "aw-btn";
+    protected sealed override string BaseCssClass => "aw-btn";
 
     protected virtual string ButtonClass => BuildCssClass();
 

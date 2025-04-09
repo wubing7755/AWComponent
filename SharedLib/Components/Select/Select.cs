@@ -21,6 +21,12 @@ public class Select : AWComponentBase
     [Parameter]
     public RenderFragment<string>? OptionTemplate { get; set; }
 
+    protected sealed override string BaseCssClass => "aw-select";
+
+    protected virtual string SelectClass => BuildCssClass();
+
+    protected virtual string SelectStyle => BuildStyle();
+
     private void OnValueChanged(ChangeEventArgs args)
     {
         var value = args.Value?.ToString();
@@ -40,14 +46,9 @@ public class Select : AWComponentBase
 
         builder.OpenElement(seq++, "select");
 
-        if (AdditionalAttributes is not null)
-        {
-            builder.AddMultipleAttributes(seq++, AdditionalAttributes);
-        }
-
-        builder.AddAttribute(seq++, "class", CssClass);
-        builder.AddAttribute(seq++, "style", Style);
-        builder.AddAttribute(seq++, "disabled", Disabled);
+        builder.AddMultipleAttributes(seq++, SafeAttributes);
+        builder.AddAttribute(seq++, "class", SelectClass);
+        builder.AddAttribute(seq++, "style", SelectStyle);
 
         builder.AddAttribute(seq++, "value", Value);
         builder.AddAttribute(seq++, "onchange", OnValueChanged);
