@@ -1,17 +1,44 @@
 ﻿@inherits LayoutComponentBase
+@inject IJSRuntime JsRuntime
 
 <div class="page">
-    <div class="sidebar">
+    <aside class="sidebar" id="draggable-sidebar">
+        <div class="resize-handle"></div>
         <NavMenu />
-    </div>
+    </aside>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+        <header class="top-row">
+            <a class="top-link" href="https://github.com/wubing7755/AWComponent?" target="_blank">
+                <span class="link-icon"></span>
+                <span class="link-text">GitHub</span>
+            </a>
+        </header>
 
-        <article class="content px-4">
+        <article class="content">
             @Body
         </article>
     </main>
 </div>
+
+@code {
+    private IJSObjectReference? _module;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // 使用InvokeAsync确保组件上下文正确
+            await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/sidebarDrag.js");
+            await JsRuntime.InvokeVoidAsync("initSidebarDrag");
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+}
+
