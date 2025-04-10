@@ -116,7 +116,50 @@ main {
     border-bottom: 1px solid var(--glass-border);
 }
 
+.theme-toggle {
+    /*
+     * 主题切换按钮
+     */
+    --icon-size: 24px;
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+    margin-right: 12px;
+}
+
+.theme-toggle:hover {
+    opacity: 1;
+}
+
+.theme-toggle svg {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    fill: currentColor;
+}
+
+.theme-toggle .sun {
+    display: none;
+}
+
+.theme-toggle .moon {
+    display: block;
+}
+
+[data-theme="light"] .theme-toggle .sun {
+    display: block;
+}
+
+[data-theme="light"] .theme-toggle .moon {
+    display: none;
+}
+
 .top-link {
+    /*
+     * Github Link
+     */
     display: flex;
     align-items: center;
     color: var(--text-secondary);
@@ -191,4 +234,32 @@ main {
                 var(--primary-500) 100%
         );
     }
+}
+
+[data-theme="dark"] .page {
+    --glass-bg: rgba(17, 24, 39, 0.98);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --surface-1: rgba(31, 41, 55, 1);
+    --surface-2: rgba(17, 24, 39, 1);
+    --text-primary: var(--primary-200);
+    --text-secondary: rgba(203, 213, 225, 1);
+    background-color: var(--glass-bg);
+}
+
+[data-theme="dark"] .sidebar {
+    background: var(--glass-bg);
+    border-right-color: var(--glass-border);
+}
+
+[data-theme="dark"] .top-row {
+    background: var(--glass-bg);
+    border-bottom-color: var(--glass-border);
+}
+
+[data-theme="dark"] .nav-menu {
+    background: rgba(var(--surface-1), 0.98);
+}
+
+[data-theme="dark"] .nav-link.active {
+    background: linear-gradient( 135deg, var(--primary-700) 0%, var(--primary-500) 100% );
 }
