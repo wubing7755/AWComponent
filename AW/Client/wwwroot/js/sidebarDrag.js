@@ -3,15 +3,24 @@
      * 侧边栏拖拽
      */
 
-    const sidebar = document.getElementById('draggable-sidebar');
-    const resizeHandle = sidebar.querySelector('.resize-handle');
-    const main = document.querySelector('main');
-    const MIN_WIDTH = 210;
-    const MAX_WIDTH = 400;
+    const SELECTORS = {
+        main: 'main',
+        sidebar: '#draggable-sidebar',
+        resizeHandle: '.resize-handle'
+    }
+
+    const DIMENSIONS = {
+        minWidth: 210,
+        maxWidth: 400
+    }
+
+    const main = document.querySelector(SELECTORS.main);
+    const sidebar = document.querySelector(SELECTORS.sidebar);
+    const resizeHandle = sidebar.querySelector(SELECTORS.resizeHandle);
 
     if (!sidebar || !resizeHandle || !main) {
-        console.error('Drag elements not found');
-        return;
+        console.error('Drag elements not found', {main, resizeHandle, sidebar});
+        return () => { };
     }
 
     let isDragging = false;
@@ -20,34 +29,31 @@
     let translateX = 0;
     let newWidth = 0;
 
-    const getCurrentWidth = () =>
-        parseInt(window.getComputedStyle(sidebar).width, 10);
-
-    const handleDown = function (e) {
+    const handleMouseDown = function (e) {
         isDragging = true;
         startX = e.clientX;
-        startWidth = getCurrentWidth();
+        startWidth = parseInt(window.getComputedStyle(sidebar).width, 10);
 
         document.body.style.cursor = 'col-resize';
         document.body.style.userSelect = 'none';
         e.preventDefault();
     };
 
-    const handleMove = function (e) {
+    const handleMouseMove = function (e) {
         if (!isDragging) return;
 
         // 侧边栏宽度： 210 ~ 400 px
-        newWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, startWidth + e.clientX - startX));
+        newWidth = Math.max(
+            DIMENSIONS.minWidth,
+            Math.min(DIMENSIONS.maxWidth, startWidth + e.clientX - startX));
         translateX = newWidth - startWidth;
 
         resizeHandle.style.transform = `translateX(${translateX}px)`;
     };
 
-    const handleUp = function (e) {
+    const handleMouseUp = function (e) {
         if (!isDragging) return;
         isDragging = false;
-
-        newWidth = startWidth + translateX;
 
         requestAnimationFrame(() => {
             sidebar.style.width = `${newWidth}px`;
@@ -59,19 +65,9 @@
         document.body.style.userSelect = '';
     };
 
-    // 事件绑定
-    resizeHandle.addEventListener('mousedown', handleDown);
-    document.addEventListener('mousemove', handleMove, { passive: true });
-    document.addEventListener('mouseup', handleUp);
-    document.addEventListener('mouseleave', handleUp);
-
-    // 清理函数
-    return () => {
-        resizeHandle.removeEventListener('mousedown', handleDown);
-        document.removeEventListener('mousemove', handleMove);
-        document.removeEventListener('mouseup', handleUp);
-        document.removeEventListener('mouseleave', handleUp);
-    }
+    resizeHandle.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove, { passive: true });
+    document.addEventListener('mouseup', handleMouseUp);
 }
 
 window.initSidebarDrag = initSidebarDrag;

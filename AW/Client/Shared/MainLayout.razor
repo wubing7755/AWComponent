@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject IJSRuntime JsRuntime
+@implements IDisposable
 
 <div class="page">
     <aside class="sidebar" id="draggable-sidebar">
@@ -12,10 +13,18 @@
             <!-- Light / Dark Mode -->
             <button class="theme-toggle" title="切换主题">
                 <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path d="M12 18c-3.309 0-6-2.691-6-6s2.691-6 6-6 6 2.691 6 6-2.691 6-6 6zm0-10c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4zm0-4a1 1 0 0 1-1-1V2a1 1 0 0 1 2 0v1a1 1 0 0 1-1 1zm0 20a1 1 0 0 1-1-1v-1a1 1 0 0 1 2 0v1a1 1 0 0 1-1 1zM5.64 6.64a.997.997 0 0 1-.707-.293l-.707-.707a.999.999 0 1 1 1.414-1.414l.707.707A.999.999 0 0 1 5.64 6.64zm14.14 14.14a.997.997 0 0 1-.707-.293l-.707-.707a.999.999 0 1 1 1.414-1.414l.707.707a.999.999 0 0 1-.707 1.707zM2 12a1 1 0 0 1 1-1h1a1 1 0 0 1 0 2H3a1 1 0 0 1-1-1zm18 0a1 1 0 0 1 1-1h1a1 1 0 0 1 0 2h-1a1 1 0 0 1-1-1zM5.64 17.36a.999.999 0 0 1-.707-1.707l.707-.707a.999.999 0 1 1 1.414 1.414l-.707.707a.997.997 0 0 1-.707.293zm12.02-12.02a.997.997 0 0 1-.707-.293l-.707-.707a.999.999 0 1 1 1.414-1.414l.707.707A.999.999 0 0 1 17.66 5.34z" />
+                    <circle cx="12" cy="12" r="4" fill="#7c3aed" />
+                    <path d="M12 3v2m0 14v2M5.64 5.64l1.42 1.42m9.9 9.9l1.42 1.42M3 12h2m14 0h2M5.64 18.36l1.42-1.42m9.9-9.9l1.42-1.42"
+                          stroke="#7c3aed"
+                          stroke-width="2"
+                          stroke-linecap="round" />
                 </svg>
+
                 <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path d="M12 22c5.523 0 10-4.477 10-10 0-.463-.694-.54-.933-.143a6.5 6.5 0 1 1-8.924-8.924C12.54 2.693 12.463 2 12 2 6.477 2 2 6.477 2 12s4.477 10 10 10z" />
+                    <path d="M12 22c5.523 0 10-4.477 10-10 0-.463-.694-.54-.933-.143a6.5 6.5 0 1 1-8.924-8.924C12.54 2.693 12.463 2 12 2 6.477 2 2 6.477 2 12s4.477 10 10 10z"
+                          stroke="#7c3aed"
+                          stroke-width="2"
+                          stroke-linecap="round" />
                 </svg>
             </button>
 
@@ -34,7 +43,7 @@
 
 @code {
     private IJSObjectReference? _module;
-    
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -44,16 +53,18 @@
                 "import", 
                 "./js/scriptsInOne.js"
             );
-            
+
             await _module.InvokeVoidAsync("ScriptsInOne.initialize");
         }
     }
-    public async ValueTask DisposeAsync()
+
+    public async void Dispose()
     {
-        if (_module is not null)
+        if(_module is not null)
         {
             await _module.DisposeAsync();
         }
     }
+
 }
 

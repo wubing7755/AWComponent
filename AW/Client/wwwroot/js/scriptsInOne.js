@@ -1,43 +1,37 @@
-﻿// 使用 ES6 模块导出方式
-export const ScriptsInOne = (() => {
-    // 保存原始初始化函数引用
-    let _sidebarDrag;
-    let _themeToggle;
-
+﻿export const ScriptsInOne = (() => {
     return {
-        initialize: function () {
+        initialize() {
             console.log('Initializing scripts...');
 
             // 挂载侧边栏拖拽
             if (typeof initSidebarDrag === 'function') {
                 console.log('Initializing sidebar drag');
-                _sidebarDrag = window.initSidebarDrag;
-                _sidebarDrag();
+                window.initSidebarDrag();
             }
 
             // 挂载主题切换
             if (typeof initThemeToggle === 'function') {
                 console.log('Initializing theme toggle');
-                _themeToggle = window.initThemeToggle;
-                _themeToggle();
+                window.initThemeToggle();
             }
+
+            // 关闭页面前执行销毁任务
+            window.addEventListener('beforeunload', () => this.cleanup());
         },
-
-        cleanup: function () {
-            console.log('Cleaning up scripts...');
-
-            // 执行侧边栏清理
-            if (typeof _sidebarDragCleanup === 'function') {
-
-            }
-
+        cleanup() {
             // 执行主题切换清理
-            if (typeof _themeToggleCleanup === 'function') {
+            document.documentElement.removeAttribute('data-theme');
+        },
+        forcecleanup() {
+            /**
+             * 强制清除
+             */
 
-            }
+            this.cleanup();
+
+            localStorage.removeItem('theme');
         }
     };
 })();
 
-// 仍然保持全局访问（可选）
 window.ScriptsInOne = ScriptsInOne;
