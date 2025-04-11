@@ -8,3 +8,14 @@
     display: block;
     height: 30px;
 }
+
+.aw-btn {
+    width: 100px;
+    height: 50px;
+}
+
+.aw-card {
+    width: 200px;
+    height: 10px;
+    background-color: aliceblue;
+}

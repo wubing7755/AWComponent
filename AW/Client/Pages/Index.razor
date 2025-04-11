@@ -1,9 +1,15 @@
 ﻿@page "/"
 @using SharedLibrary.Components
 
-<Divider Style="@Style" />
+<Button CssClass="aw-card">
+    <Divider Style="@Style" />
+</Button>
 
-<Button OnClick="ShowDialog">Open Modal</Button>
+<Button CssClass="aw-card">
+    <Button OnClick="ShowDialog">Open Modal</Button>
+</Button>
+
+
 
 <Divider Style="@Style" />
 
@@ -39,10 +45,12 @@
 
 <Divider Style="@Style" />
 
+<Input @ref="_input" TValue="string"
+       Type="InputType.Text" 
+       @bind-Value="InputValue"
+       OnEnter="OnEnter"></Input>
 
-<Input Type="InputType.Button"></Input>
-
-<Input Type="InputType.Color"></Input>
+@InputValue
 
 <Divider Style="@Style" />
 
@@ -51,11 +59,15 @@
 @code {
     private ModalDialog _dialog = new ModalDialog();
 
+    private Input<string> _input = new Input<string>();
+
     private const string Style = "display: block; height: 30px; color:green;";
 
     private bool shouldRender = true;
 
     public string SelectedValue { get; set; } = string.Empty;
+
+    public string InputValue { get; set; } = string.Empty;
 
     private HashSet<string> Options = new HashSet<string>()
     {
@@ -77,6 +89,12 @@
     {
         _dialog.SetVisible(false);
 
+        return Task.CompletedTask;
+    }
+
+    private Task OnEnter(string value)
+    {
+        Console.WriteLine("Key Enter");
         return Task.CompletedTask;
     }
 }
