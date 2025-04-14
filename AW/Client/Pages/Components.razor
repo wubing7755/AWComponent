@@ -1,1 +1,8 @@
 ﻿@page "/components"
+@using SharedLibrary.Components
+
+<Input TValue="string" Type="InputType.Checkbox" Value="InputValue"></Input>
+
+@code{
+    private string InputValue { get; set; } = "123";
+}
