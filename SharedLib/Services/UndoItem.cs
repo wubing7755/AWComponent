@@ -3,7 +3,7 @@ namespace SharedLibrary.Services;
 
 public interface IUndoItem
 {
-    public  
+    //public  
 }
 
 public class UndoItem
