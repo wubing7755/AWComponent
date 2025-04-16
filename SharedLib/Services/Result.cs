@@ -199,11 +199,14 @@ public readonly struct Result<T> : IResult<T>
 
     public static Result<T> Fail(IError error) => new Result<T>(ResultType.Error, default!, error);
 
-    public static Result FromException(Exception ex, string? message = null)
-    => new(ResultType.Error, new Error(
-        message ?? ex.Message,
-        ErrorType.Unknown,
-        exception: ex));
+    public static Result<T> FromException(Exception ex, string? message = null)
+    {
+        T? t = default;
+        return new Result<T>(ResultType.Error, t, new Error(
+                message ?? ex.Message,
+                ErrorType.Unknown,
+                exception: ex));
+    }
 
     public static implicit operator Result<T>(T data) => Success(data);
 
