@@ -23,6 +23,12 @@ public static class ResultExtensions
         return data != null || (error.Data is T && error.Data == null);
     }
 
+    public static Result<T> OnSuccess<T>(this Result<T> result, Action<T> handleResult)
+    {
+        if(result.IsSuccess) handleResult(result.Data);
+        return result;
+    }
+
     public static Result<T> OnFailure<T>(this Result<T> result, Action<IError> handleError)
     {
         if (!result.IsSuccess) handleError(result.Error!);

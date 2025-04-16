@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Xml.Linq;
-
-namespace SharedLibrary.Services;
+﻿namespace SharedLibrary.Services;
 
 #region EnumType
 
@@ -19,10 +16,10 @@ public enum ErrorType
 {
     /// <summary> 未知错误 </summary>
     Unknown,
-    /// <summary> 系统错误 </summary>
-    System,
     /// <summary> 一般性错误 </summary>
     Custom,
+    /// <summary> 系统错误 </summary>
+    System
 }
 
 #endregion
@@ -40,7 +37,7 @@ public interface IResult
 
 public interface IResult<out T> : IResult
 {
-    T? Data { get; }
+    T Data { get; }
 }
 
 public interface IError
@@ -49,14 +46,14 @@ public interface IError
 
     ErrorType Code { get; }
 
-    IReadOnlyCollection<Error> Errors { get; }
+    IReadOnlyCollection<IError> Errors { get; }
 
     Exception? Exception { get; }
 }
 
 public interface IError<out T> : IError
 {
-    T? Data { get; }
+    T Data { get; }
 }
 
 #endregion
@@ -69,43 +66,42 @@ public readonly struct Error : IError
 
     public ErrorType Code { get; }
 
-    public IReadOnlyCollection<Error> Errors { get; }
+    public IReadOnlyCollection<IError> Errors { get; }
 
     public Exception? Exception { get; }
 
     public Error(
         string message, 
         ErrorType code = ErrorType.Unknown, 
-        IReadOnlyCollection<Error>? errors = null, 
+        IReadOnlyCollection<IError>? errors = null, 
         Exception? exception = null)
     {
-        Message = message ?? throw new ArgumentNullException(nameof(message));
+        Message = message;
         Code = code;
-        Errors = errors ?? Array.Empty<Error>();
+        Errors = errors ?? Array.Empty<IError>();
         Exception = exception;
     }
 }
-
 
 public readonly struct Error<T> : IError<T>
 {
     public string Message { get; }
     public ErrorType Code { get; }
-    public T? Data { get; }
-    public IReadOnlyCollection<Error> Errors { get; }
+    public T Data { get; }
+    public IReadOnlyCollection<IError> Errors { get; }
     public Exception? Exception { get; }
 
     public Error(
         string message,
         ErrorType code = ErrorType.Unknown,
-        T? data = default,
-        IReadOnlyCollection<Error>? errors = null,
+        T data = default!,
+        IReadOnlyCollection<IError>? errors = null,
         Exception? exception = null)
     {
-        Message = message ?? throw new ArgumentNullException(nameof(message));
+        Message = message;
         Code = code;
         Data = data;
-        Errors = errors ?? Array.Empty<Error>();
+        Errors = errors ?? Array.Empty<IError>();
         Exception = exception;
     }
 }
@@ -119,38 +115,49 @@ public readonly struct Result : IResult
 
     public bool IsSuccess => Type is ResultType.Ok;
 
-    public Result(ResultType type, IError? error = null)
+    public Result(ResultType type)
     {
+        Type = type;
+        Error = null;
+    }
+
+    public Result(ResultType type, IError error)
+    {
+        if(type == ResultType.Error && error == null)
+            throw new ArgumentNullException(nameof(error), "Error cannot be null when type is Error.");
+
         Type = type;
         Error = type == ResultType.Error ? error : null;
     }
 
-    public static Result Success() => new Result(ResultType.Ok);
+    public static Result Success() 
+            => new Result(ResultType.Ok);
 
-    public static Result Fail() => new Result(ResultType.Error);
+    public static Result Fail(IError error) 
+            => new Result(ResultType.Error, error);
 
-    public static Result Fail(string message, ErrorType code = ErrorType.Unknown, object? data = null, IReadOnlyCollection<Error>? errors = null)
-    {
-        return new Result(ResultType.Error, new Error(message, code, data, errors));
-    }
-
-    public static Result Fail(IError error)
-    {
-        return new Result(ResultType.Error, error);
-    }
+    public static Result Fail(string message, ErrorType code = ErrorType.Unknown)
+            => new Result(ResultType.Error, new Error(message, code));
 
     public static implicit operator Result(Error error) => Fail(error);
+
+    public static implicit operator Result(Exception ex) => FromException(ex);
 
     public void Deconstruct(out bool isSuccess, out IError? error)
     {
         isSuccess = IsSuccess;
-        error = Error;
+        error = Error ?? (IsSuccess ? null : new Error("Unknown error"));
     }
+
+    public static Result FromException(Exception ex, string? message = null)
+        => new Result(
+            ResultType.Error,
+            new Error(message ?? ex.Message, ErrorType.System, exception: ex));
 }
 
 public readonly struct Result<T> : IResult<T>
 {
-    public T? Data { get; }
+    public T Data { get; }
 
     public ResultType Type { get; }
 
@@ -158,43 +165,64 @@ public readonly struct Result<T> : IResult<T>
 
     public bool IsSuccess => Type is ResultType.Ok;
 
-    public Result(ResultType type, T? data = default, IError? error = null)
+    public Result(T data)
     {
+        if(data == null)
+            throw new ArgumentNullException(nameof(data), "Data cannot be null.");
+
+        Type = ResultType.Ok;
+        Data = data;
+        Error = null;
+    }
+
+    public Result(ResultType type, T data, IError error)
+    {
+        if(type == ResultType.Error && error == null)
+            throw new ArgumentNullException(nameof(error), "Error cannot be null when type is Error.");
+
         Type = type;
         Data = data;
         Error = type == ResultType.Error ? error : null;
     }
 
-    public static Result<T> Success(T data) => new Result<T>(ResultType.Ok, data, null);
+    public static Result<T> Success(T data) => new Result<T>(data);
 
     public static Result<T> Fail(T data)
     {
-        return new Result<T>(ResultType.Error, default, new Error<T>(string.Empty, ErrorType.Unknown, data, null));
+        return new Result<T>(ResultType.Error, data, new Error<T>(string.Empty, ErrorType.Unknown, data, null));
     }
 
-    public static Result<T> Fail(string message, T data, ErrorType code = ErrorType.Unknown, IReadOnlyCollection<Error>? errors = null)
+    public static Result<T> Fail(string message, T data, ErrorType code = ErrorType.Unknown, IReadOnlyCollection<IError>? errors = null)
     {
-        return new Result<T>(ResultType.Error, default, new Error<T>(message, code, data, errors));    
+        return new Result<T>(ResultType.Error, data, new Error<T>(message, code, data, errors));    
     }
 
-    public static Result<T> Fail(IError error) => new Result<T>(ResultType.Error, default, error);
+    public static Result<T> Fail(IError error) => new Result<T>(ResultType.Error, default!, error);
 
     public static Result FromException(Exception ex, string? message = null)
     => new(ResultType.Error, new Error(
         message ?? ex.Message,
-        ErrorType.System,
+        ErrorType.Unknown,
         exception: ex));
 
     public static implicit operator Result<T>(T data) => Success(data);
 
     public static implicit operator Result<T>(Error error) => Fail(error);
 
+    public static implicit operator Result<T>(Exception ex) => FromException<T>(ex);
+
     public void Deconstruct(out bool isSuccess, out T? data, out IError? error)
     {
         isSuccess = IsSuccess;
-        data = Data;
-        error = Error;
+        data = IsSuccess ? Data : default;
+        error = Error ?? (IsSuccess ? null : new Error("Unknown error"));
     }
+
+    public static Result<T> FromException<T>(Exception ex, string? message = null)
+            => new Result<T>(
+                ResultType.Error,
+                default!,
+                new Error(message ?? ex.Message, ErrorType.System, exception: ex));
 }
 
 #endregion
