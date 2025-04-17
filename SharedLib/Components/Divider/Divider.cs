@@ -37,7 +37,7 @@ public class Divider : AWComponentBase
         builder.AddAttribute(seq++, "y1", "50%");
         builder.AddAttribute(seq++, "x2", "100%");
         builder.AddAttribute(seq++, "y2", "50%");
-        builder.AddAttribute(seq++, "stroke", "green");
+        builder.AddAttribute(seq++, "stroke", "black");
         builder.AddAttribute(seq++, "stroke-width", "1");
         builder.AddAttribute(seq++, "stroke-dasharray", "5 3");
         builder.CloseElement();

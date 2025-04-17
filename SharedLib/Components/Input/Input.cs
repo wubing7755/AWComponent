@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
 
@@ -54,16 +55,35 @@ public class Input<TValue> : AWComponentBase where TValue : class
   
         builder.OpenElement(seq++, "input");
 
+        BuildComponentAttributes(builder, ref seq);
+
+        // add element reference
+        builder.AddElementReferenceCapture(seq++, async capturedRef =>
+        {
+            inputElement = capturedRef;
+
+            if (InputRefChanged.HasDelegate)
+            {
+                await InputRefChanged.InvokeAsync(capturedRef);
+            }
+        });
+
+
+        builder.CloseElement();
+    }
+
+    protected virtual void BuildComponentAttributes(RenderTreeBuilder builder, ref int seq)
+    {
         builder.AddAttribute(seq++, "type", Type);
         builder.AddAttribute(seq++, "value", BindConverter.FormatValue(currentValue));
         builder.AddAttribute(seq++, "oninput", EventCallback.Factory.CreateBinder<TValue>(
-                    this, __value => currentValue = __value, currentValue));
+                    this, __value => currentValue = __value, currentValue ?? default(TValue)!));
         builder.AddAttribute(seq++, "onblur", EventCallback.Factory.Create<FocusEventArgs>(this, async _ =>
         {
             if (OnBlur != null)
             {
                 await ValueChanged.InvokeAsync(currentValue);
-                await OnBlur.Invoke(currentValue);
+                await OnBlur.Invoke(currentValue ?? default(TValue)!);
             }
         }));
         builder.AddAttribute(seq++, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, async args =>
@@ -73,27 +93,11 @@ public class Input<TValue> : AWComponentBase where TValue : class
                 if (OnEnter != null)
                 {
                     await ValueChanged.InvokeAsync(currentValue);
-                    await OnEnter.Invoke(currentValue);
+                    await OnEnter.Invoke(currentValue ?? default(TValue)!);
                 }
             }
         }));
-
-
         builder.AddAttribute(seq++, "autocomplete", AutocompleteFactory.GetAutocomplete(Autocomplete));
-
-        // add element reference
-        builder.AddElementReferenceCapture(seq++, async capturedRef =>
-        {
-            inputElement = capturedRef;
-
-            if(InputRefChanged.HasDelegate)
-            {
-                await InputRefChanged.InvokeAsync(capturedRef);
-            }
-        });
-
-
-        builder.CloseElement();
     }
 }
 
@@ -406,4 +410,91 @@ public static class AutocompleteFactory
     {
         return _autocompleteMappings.TryGetValue(type, value: out autocompleteValue);
     }
+}
+
+public class FileInput<TValue> : Input<TValue> where TValue : FileModel
+{
+    [Parameter]
+    public bool Multiple { get; set; } = false;
+
+    [Parameter]
+    public FileType FileType { get; set; }
+
+    protected override void BuildComponentAttributes(RenderTreeBuilder builder, ref int seq)
+    {
+        builder.AddAttribute(seq++, "type", InputType.File);
+
+        builder.AddAttribute(seq++, "multiple", Multiple);
+
+        switch (FileType)
+        {
+            case FileType.Archive:
+                builder.AddAttribute(seq++, "accept", ".zip,.rar,.7z");
+                break;
+            default:
+                break;
+        }
+
+        builder.AddAttribute(seq, "onchange", EventCallback.Factory.Create<ChangeEventArgs>
+            (this, async args => await HandleFileChange(args)));
+    }
+
+    private async Task HandleFileChange(ChangeEventArgs args)
+    {
+        var filePath = args.Value;
+
+        if (!Multiple)
+        {
+            //await UploadFile(args.File);
+        }
+        else
+        {
+            //var files = args.GetMultipleFiles();
+
+            //foreach(var file in files)
+            //{
+            //    await UploadFile(file);
+            //}
+        }
+    }
+
+    private async Task UploadFile(IBrowserFile file)
+    {
+        if (Value == null) return;
+
+        Value.FileName = file.Name;
+        Value.Size = file.Size;
+        Value.File = file;
+
+        await ValueChanged.InvokeAsync(Value);
+    }
+}
+
+public class FileModel
+{
+    public string? FileName { get; set; }
+
+    public long Size { get; set; }
+
+    public string FormatSize => FormatFileSize(Size);
+
+    public IBrowserFile? File { get; set; }
+
+    private static string FormatFileSize(long bytes)
+    {
+        if (bytes == 0) return "0 Bytes";
+        const int scale = 1024;
+        string[] units = { "Bytes", "KB", "MB", "GB", "TB" };
+        int digitGroups = (int)(Math.Log(bytes) / Math.Log(scale));
+        return $"{bytes / Math.Pow(scale, digitGroups):F2} {units[digitGroups]}";
+    }
+}
+
+public enum FileType
+{
+    Image,
+    Video,
+    Audio,
+    Document,
+    Archive
 }

@@ -3,6 +3,16 @@
 
 <Input TValue="string" Type="InputType.Checkbox" Value="InputValue"></Input>
 
+<Divider />
+
+<!-- Test 文件上传 -->
+
+<FileInput TValue="FileModel" 
+           Value="FileModel"
+           FileType="FileType.Archive" />
+
 @code{
     private string InputValue { get; set; } = "123";
+
+    private FileModel FileModel { get; set; } = new FileModel();
 }
