@@ -7,9 +7,9 @@ namespace SharedLibrary.Components;
 
 public class Input<TValue> : AWComponentBase where TValue : class
 {
-    private ElementReference inputElement;
+    protected ElementReference inputElement;
 
-    private TValue? currentValue;
+    protected TValue? currentValue;
 
     [Parameter]
     public InputType Type { get; set; } = InputType.Text;
@@ -445,28 +445,26 @@ public class FileInput<TValue> : Input<TValue> where TValue : FileModel
 
         if (!Multiple)
         {
-            //await UploadFile(args.File);
+            var file = await JsInterop.GetLocalFile(inputElement);
+       
+            if(file is not null)
+            {
+                if(currentValue is null)
+                {
+                    currentValue = Activator.CreateInstance<TValue>();
+                }
+                currentValue.FileName = file.Name;
+                currentValue.Size = file.Size;
+                currentValue.File = file;
+            
+                await ValueChanged.InvokeAsync(currentValue);
+            }
         }
         else
         {
-            //var files = args.GetMultipleFiles();
 
-            //foreach(var file in files)
-            //{
-            //    await UploadFile(file);
-            //}
+            var files = await JsInterop.GetLocalFiles(inputElement);
         }
-    }
-
-    private async Task UploadFile(IBrowserFile file)
-    {
-        if (Value == null) return;
-
-        Value.FileName = file.Name;
-        Value.Size = file.Size;
-        Value.File = file;
-
-        await ValueChanged.InvokeAsync(Value);
     }
 }
 
