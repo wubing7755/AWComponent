@@ -70,6 +70,14 @@ public readonly struct Error : IError
 
     public Exception? Exception { get; }
 
+    public Error()
+    {
+        Message = string.Empty;
+        Code = ErrorType.Unknown;
+        Errors = Array.Empty<IError>();
+        Exception = null;
+    }
+
     public Error(
         string message, 
         ErrorType code = ErrorType.Unknown, 
@@ -106,7 +114,6 @@ public readonly struct Error<T> : IError<T>
     }
 }
 
-
 public readonly struct Result : IResult
 {
     public ResultType Type { get; }
@@ -130,8 +137,9 @@ public readonly struct Result : IResult
         Error = type == ResultType.Error ? error : null;
     }
 
-    public static Result Success() 
-            => new Result(ResultType.Ok);
+    public static Result Ok => new Result(ResultType.Ok);
+
+    public static Result NotOk => Fail(new Error());
 
     public static Result Fail(IError error) 
             => new Result(ResultType.Error, error);

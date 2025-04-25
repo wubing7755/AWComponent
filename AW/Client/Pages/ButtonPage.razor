@@ -1,0 +1,17 @@
+﻿@page "/button"
+@using SharedLibrary.Components
+
+<Button OnClick="ConvertToXML">Convert to XML</Button>
+
+@code{
+    private void ConvertToXML(MouseEventArgs args)
+    {
+        var person = new Person
+            {
+                Name = "hello",
+                Age = "world"
+            };
+
+        XmlWriter.WriteToFile(person);
+    }
+}
