@@ -40,6 +40,16 @@ public class AWJsInterop : IAsyncDisposable
         return await module.InvokeAsync<IEnumerable<IBrowserFile>>("GetLocalFiles", inputElement);
     }
 
+    public static async Task DownloadFileAsync(IJSRuntime jsRuntime, string filename, byte[] data, string? mimeType = null)
+    {
+        await jsRuntime.InvokeVoidAsync("downloadFile", filename, data, mimeType);
+    }
+
+    public static async Task DownloadTextAsync(IJSRuntime jsRuntime, string filename, string text, string? mimeType = null)
+    {
+        await jsRuntime.InvokeVoidAsync("downloadFile", filename, text, mimeType);
+    }
+
     public async ValueTask DisposeAsync()
     {
         if (moduleTask.IsValueCreated)

@@ -59,7 +59,7 @@ public class ResultTests : TestBase
     public void Success_Result_ShouldHaveCorrectProperties()
     {
         // Act
-        var result = Result.Success();
+        var result = Result.Ok;
         // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(ResultType.Ok, result.Type);
@@ -127,7 +127,7 @@ public class ResultTests : TestBase
     public void Deconstruct_ShouldReturnCorrectValues()
     {
         // Arrange
-        var successResult = Result.Success();
+        var successResult = Result.Ok;
         var error = new Error("Test error");
         var failResult = Result.Fail(error);
         // Act
