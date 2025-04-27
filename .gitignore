@@ -40,6 +40,8 @@ bld/
 
 .idea/
 
+nuget.config
+
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 

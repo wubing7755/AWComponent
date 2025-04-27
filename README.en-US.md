@@ -77,6 +77,36 @@ AWComponent/
 }
 ```
 
+## NuGet Package Integration
+
+1. Install the AWComponent NuGet package
+
+   ```bash
+   dotnet add package AWComponent --version 0.0.1-beta
+   ```
+
+2. Service Configuration(Program.cs)
+
+```csharp
+builder.AddAWComponentServices();
+```
+
+3. Global Configuration(appsettings.json)
+
+```json
+{
+  "JsModules": {
+    "SharedLib": "./_content/SharedLibrary/js/SharedLib.js"
+  }
+}
+```
+
+4. Add namespace in _Imports.razor：
+
+```csharp
+@using AWComponent.Components
+```
+
 ## 🧩 Component List
 
 |Category|Components|

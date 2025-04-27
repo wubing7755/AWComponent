@@ -12,7 +12,7 @@ public class Button : AWComponentBase
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter, NotNull]
-    public Action<MouseEventArgs>? OnClick { get; set; }
+    public Func<MouseEventArgs, Task>? OnClick { get; set; }
 
     [Parameter]
     public Action<MouseEventArgs>? OnMouseEnter { get; set; }
@@ -44,11 +44,15 @@ public class Button : AWComponentBase
             builder.AddAttribute(seq++, "disabled", "true");
         }
 
-        builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, HandleClick));
+        builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async(args) =>
+        {
+            await HandleClick(args);
+        }));
+
         builder.AddAttribute(seq++, "onmouseenter", OnMouseEnter);
         builder.AddAttribute(seq++, "onmouseleave", OnMouseLeave);
 
-        builder.AddContent(seq++, ChildContent);
+        builder.AddContent(seq, ChildContent);
         builder.CloseElement();
     }
 
@@ -66,13 +70,10 @@ public class Button : AWComponentBase
                attributeName.Equals("autofocus", StringComparison.OrdinalIgnoreCase);
     }
 
-    private void HandleClick(MouseEventArgs args)
+    private async Task HandleClick(MouseEventArgs args)
     {
-        OnClick?.Invoke(args);
+        await OnClick.Invoke(args);
 
-        EventBus.Publish<ButtonClickedEvent>(new ButtonClickedEvent(this.ObjectId.ToString()));
-
-        // 调用JavaScript方法
-        JsInterop.SayHello();
+        EventBus.Publish<ButtonClickedEvent>(new (this.ObjectId.ToString()));
     }
 }

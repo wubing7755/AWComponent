@@ -4,6 +4,19 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<PackageId>wubing7755.AWComponent</PackageId>
+	<Title>Blazor AWComponent</Title>
+	<PackageVersion>0.0.1-beta</PackageVersion>
+
+	<Authors>wubing7755</Authors>
+	<Description>
+		🚀 Blazor Component Library
+		· Production-Ready: 20+ enterprise UI components
+		· Theming: Dynamic skinning via CSS variables
+		· Optimized Performance: Enhanced virtual DOM rendering
+		· i18n Support: Built-in EN/CN localization
+		· Type Safety: Strongly-typed C# components
+	</Description>
   </PropertyGroup>
 
 
@@ -32,6 +45,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SecureLocalization.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Logs\" />
   </ItemGroup>
 
 </Project>

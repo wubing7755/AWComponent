@@ -21,7 +21,7 @@ FileType="FileType.Archive" />
 
     private FileModel FileModel { get; set; } = new FileModel();
 
-    private async void DownloadFile(MouseEventArgs args)
+    private async Task DownloadFile(MouseEventArgs args)
     {
         var name = FileModel.FileName;
 

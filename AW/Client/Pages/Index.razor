@@ -28,7 +28,7 @@
 
 <Button Disabled=true>Disabled</Button>
 
-<Button Disabled=false OnClick="(arg) => {}">Enabled</Button>
+<Button Disabled=false OnClick="async(arg) => {}">Enabled</Button>
 
 <Divider Style="@Style" />
 
@@ -46,9 +46,9 @@
 <Divider Style="@Style" />
 
 <Input @ref="_input" TValue="string"
-       Type="InputType.Text" 
-       @bind-Value="InputValue"
-       OnEnter="OnEnter"></Input>
+Type="InputType.Text" 
+@bind-Value="InputValue"
+OnEnter="OnEnter"></Input>
 
 @InputValue
 
@@ -80,9 +80,10 @@
 
     // protected override bool ShouldRender() => shouldRender;
 
-    private void ShowDialog(MouseEventArgs args)
+    private Task ShowDialog(MouseEventArgs args)
     {
         _dialog.SetVisible(true);
+        return Task.CompletedTask;
     }
 
     private Task ClosDialog()

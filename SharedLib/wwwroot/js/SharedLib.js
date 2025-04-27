@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-function SayHello() {
+function TestConnection() {
     console.log("Test Connection");
 };
 
@@ -149,4 +149,4 @@ function downloadFile(filename, data, mimeType) {
 
 window.downloadFile = downloadFile;
 
-export { SayHello, GetNativeFile, GetLocalFile, GetLocalFiles, downloadFile };
+export { TestConnection, GetNativeFile, GetLocalFile, GetLocalFiles, downloadFile };

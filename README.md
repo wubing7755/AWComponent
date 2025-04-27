@@ -74,6 +74,36 @@ AWComponent/
 }
 ```
 
+## NuGet 包集成
+
+1. 安装 AWComponent NuGet 包：
+
+   ```bash
+   dotnet add package AWComponent --version 0.0.1-beta
+   ```
+
+2. 服务配置(Program.cs)
+
+    ```csharp
+    builder.AddAWComponentServices();
+    ```
+
+3. 全局配置(appsettings.json)
+
+    ```json
+    {
+      "JsModules": {
+        "SharedLib": "./_content/SharedLibrary/js/SharedLib.js"
+      }
+    }
+    ```
+
+4. _Imports.razor 中添加命名空间：
+
+    ```csharp
+    @using AWComponent.Components
+    ```
+
 ## 🧩 支持组件
 
 |组件类型|组件名|

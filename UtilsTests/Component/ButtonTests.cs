@@ -18,7 +18,7 @@ public class ButtonTests : TestContext
 
     protected IRenderedComponent<Button> RenderButton(
         RenderFragment? childContent = null,
-        Action<MouseEventArgs>? onClick = null)
+        Func<MouseEventArgs, Task>? onClick = null)
     {
         return RenderComponent<Button> (parameters => parameters
             .Add(p => p.ChildContent, childContent)
@@ -29,7 +29,7 @@ public class ButtonTests : TestContext
     public void TestCreateButton()
     {
         // Arrange
-        var mockClick = new Mock<Action<MouseEventArgs>>();
+        var mockClick = new Mock<Func<MouseEventArgs, Task>>();
         var content = "<p>★</p>";
         var cut = RenderButton(
            childContent: builder => builder.AddMarkupContent(0, content),

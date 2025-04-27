@@ -1,22 +1,25 @@
 ﻿@page "/button"
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
+@using SharedLibrary.JsInterop
 @using SharedLibrary.Models
 @using SharedLibrary.Utils
-@inject IJSRuntime jSRuntime
+@inject AWJsInterop awJsInterop
 
 <SharedLibrary.Components.Button OnClick="ConvertToXML"></SharedLibrary.Components.Button>
 
 
 @code{
-    private async void ConvertToXML(MouseEventArgs args)
+    private async Task ConvertToXML(MouseEventArgs args)
     {
+        var xmlWriter = new XmlWriter(awJsInterop);
+
         var person = new Person
             {
                 Name = "hello",
                 Age = "world"
             };
-        await XmlWriter.Initialize(jSRuntime);
-        await XmlWriter.WriteToFile(person);
+
+        await xmlWriter.WriteToFile(person, "Person.xml");
     }
 } 

@@ -1,24 +1,31 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
+using SharedLibrary.Options;
 using SharedLibrary.Services;
 
 namespace SharedLibrary.JsInterop;
 
-public class AWJsInterop : IAsyncDisposable
+public interface IJsInterop
+{
+
+}
+
+public class AWJsInterop : IJsInterop, IAsyncDisposable
 {
     private readonly Lazy<Task<IJSObjectReference>> moduleTask;
 
-    public AWJsInterop(IJSRuntime jsRuntime)
+    public AWJsInterop(IJSRuntime jsRuntime, IOptions<JsModuleOptions> options)
     {
         moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-            "import", "./_content/SharedLibrary/js/SharedLib.js").AsTask());
+            "import", options.Value.SharedLib).AsTask());
     }
 
-    public async void SayHello()
+    public async Task TestConnection()
     {
         var module = await moduleTask.Value;
-        await module.InvokeVoidAsync("SayHello");
+        await module.InvokeVoidAsync("TestConnection");
     }
 
     public async Task<IBrowserFile> GetLocalFile(ElementReference inputElement)
@@ -40,14 +47,18 @@ public class AWJsInterop : IAsyncDisposable
         return await module.InvokeAsync<IEnumerable<IBrowserFile>>("GetLocalFiles", inputElement);
     }
 
-    public static async Task DownloadFileAsync(IJSRuntime jsRuntime, string filename, byte[] data, string? mimeType = null)
+    public async Task DownloadFileAsync(string filename, byte[] data, string? mimeType = null)
     {
-        await jsRuntime.InvokeVoidAsync("downloadFile", filename, data, mimeType);
+        var module = await moduleTask.Value;
+
+        await module.InvokeVoidAsync("downloadFile", filename, data, mimeType);
     }
 
-    public static async Task DownloadTextAsync(IJSRuntime jsRuntime, string filename, string text, string? mimeType = null)
+    public async Task DownloadTextAsync(string filename, string text, string? mimeType = null)
     {
-        await jsRuntime.InvokeVoidAsync("downloadFile", filename, text, mimeType);
+        var module = await moduleTask.Value;
+
+        await module.InvokeVoidAsync("downloadFile", filename, text, mimeType);
     }
 
     public async ValueTask DisposeAsync()
