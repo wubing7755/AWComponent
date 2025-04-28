@@ -4,9 +4,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	<PackageId>wubing7755.AWComponent</PackageId>
+	<PackageId>AWComponent</PackageId>
 	<Title>Blazor AWComponent</Title>
-	<PackageVersion>0.0.1-beta</PackageVersion>
+	<PackageVersion>0.0.1</PackageVersion>
 
 	<Authors>wubing7755</Authors>
 	<Description>
@@ -17,6 +17,11 @@
 		· i18n Support: Built-in EN/CN localization
 		· Type Safety: Strongly-typed C# components
 	</Description>
+
+	<!-- 禁用默认Content包含 -->
+	<EnableDefaultContentItems>false</EnableDefaultContentItems>
+	<!-- 确保静态资源基础路径正确 -->
+	<StaticWebAssetBasePath>_content/SharedLibrary</StaticWebAssetBasePath>
   </PropertyGroup>
 
 
@@ -45,6 +50,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SecureLocalization.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+	<Content Include="wwwroot\js\SharedLib.js" Pack="true" PackagePath="staticwebassets\wwwroot\js\" />
   </ItemGroup>
 
   <ItemGroup>

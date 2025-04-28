@@ -43,7 +43,7 @@ public class Divider : AWComponentBase
         builder.CloseElement();
         builder.CloseElement();
 
-        if (ChildContent != null)
+        if (ChildContent is not null)
         {
             builder.AddMarkupContent(seq++, "<div style=\"text-align:center;margin-top:-15px;\">");
             builder.OpenElement(seq++, "span");

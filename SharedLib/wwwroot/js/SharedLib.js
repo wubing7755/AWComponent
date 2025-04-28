@@ -1,101 +1,103 @@
 ﻿"use strict";
 
-function TestConnection() {
+// Test connection
+export function testConnection() {
     console.log("Test Connection");
 };
 
-function GetNativeFile(inputElement) {
-    return inputElement.files[0];
-}
-
-/// 基于 Blazor WebAssembly 的 JavaScript 互操作 (JS interop) 文件读取 + .NET 异步流处理 
-
-/**
- * upload a single file
- * @param {any} inputElement
- */
-function GetLocalFile(inputElement) {
-    if (inputElement.files.length == 0) return null;
-
-    console.log("upload file ...");
-
-    const file = inputElement.files[0];
-
-    const fileObj = {
-        getAttribute: (attr) => {
-            const attributes = {
-                name: file.name,
-                lastModified: new Date(file.lastModified).toISOString(),
-                size: file.size,
-                contentType: file.type,
-            }
-
-            return attributes[attr] || "not find";
-        },
-        getAttributes: () => {
-            return {
-                name: file.name,
-                lastModified: new Date(file.lastModified).toISOString(),
-                size: file.size,
-                contentType: file.type,
-            }
-        },
-        getStreamReference: () => file
-    };
-
-    return fileObj;
-}
-
-/**
- * upload local files
- * @param {any} inputElement
- */
-function GetLocalFiles(inputElement) {
-    console.log("upload files ...");
-
-
-
-}
-
-class ChunkUploader {
-    constructor(file, chunkSize = 5 * 1024 * 1024) {
-        this.file = file;
-        this.chunkSize = chunkSize;
-        this.chunks = Math.ceil(file.size / chunkSize);
-        this.uploaded = 0;
+// single file upload
+export class FileHandler {
+    constructor(file) {
+        this._file = file;
     }
 
-    async upload() {
-        for (let i = 0; i < this.chunks; i++) {
-            const chunk = this.file.slice(
-                i * this.chunkSize,
-                Math.min((i + 1) * this.chunkSize, this.file.size)
-            );
+    get filename() {
+        return this._file.name;
+    }
 
-            const formData = new FormData();
-            formData.append('chunk', chunk);
-            formData.append('chunkIndex', i);
-            formData.append('totalChunks', this.chunks);
-            formData.append('fileName', this.file.name);
+    get size() {
+        return this._file.size;
+    }
 
-            await fetch('/api/upload/chunk', {
-                method: 'POST',
-                body: formData
-            });
+    get lastModified() {
+        return this._file.lastModified;
+    }
 
-            this.uploaded++;
-            updateProgress(this.uploaded / this.chunks * 100);
-        }
+    get contentType() {
+        return this._file.contentType;
+    }
+
+    getAttributes() {
+        return {
+            filename: this._file.name,
+            size: this._file.size,
+            lastModified: new Date(this._file.lastModified).toISOString(),
+            contentType: this._file.type
+        };
+    }
+
+    getStreamReference() {
+        return this._file;
     }
 }
 
-/**
- * 通用浏览器文件下载工具
- * @param {string} filename - 下载的文件名
- * @param {string|Blob|Uint8Array} data - 文件数据（支持 Base64/Blob/二进制数组/文本）
- * @param {string} [mimeType] - 可选 MIME 类型（如未提供则自动推断）
- */
-function downloadFile(filename, data, mimeType) {
+// multi files upload
+export class MultiFileHandler {
+    constructor(files) {
+        this._handlers = files.map(file => new FileHandler(file));
+    }
+
+    get count() {
+        return this._handlers.length;
+    }
+
+    get totalSize() {
+        return this._handlers.reduce((sum, handler) => sum + handler.size, 0);
+    }
+
+    getHandler(index) {
+        return this._handlers[index] || null;
+    }
+
+    getAllAttributes() {
+        return this._handlers.map(handler => handler.getAttributes());
+    }
+
+    getAllStreamReferences() {
+        return this._handlers.map(handler => handler.getStreamReference());
+    }
+}
+
+export function createFileHandler(inputElement) {
+    const files = Array.from(inputElement.files);
+
+    if (file.length > 1) {
+        return new MultiFileHandler(files);
+    }
+    else {
+        return new FileHandler(files[0]);
+    }
+}
+
+export function getFileAttributes(instance) {
+    if (instance instanceof MultiFileHandler) {
+        return instance.getAllAttributes();
+    }
+    else {
+        return instance.getAttributes();
+    }
+}
+
+export function getFileStreamReference(instance) {
+    if (instance instanceof MultiFileHandler) {
+        return instance.getAllStreamReferences();
+    }
+    else {
+        instance.getStreamReference();
+    }
+}
+
+export function downloadFile(filename, data, mimeType) {
     // 1. 自动推断 MIME 类型（如果未显式指定）
     if (!mimeType) {
         const ext = filename.split('.').pop().toLowerCase();
@@ -147,6 +149,34 @@ function downloadFile(filename, data, mimeType) {
     }, 100);
 }
 
-window.downloadFile = downloadFile;
+class ChunkUploader {
+    constructor(file, chunkSize = 5 * 1024 * 1024) {
+        this.file = file;
+        this.chunkSize = chunkSize;
+        this.chunks = Math.ceil(file.size / chunkSize);
+        this.uploaded = 0;
+    }
 
-export { TestConnection, GetNativeFile, GetLocalFile, GetLocalFiles, downloadFile };
+    async upload() {
+        for (let i = 0; i < this.chunks; i++) {
+            const chunk = this.file.slice(
+                i * this.chunkSize,
+                Math.min((i + 1) * this.chunkSize, this.file.size)
+            );
+
+            const formData = new FormData();
+            formData.append('chunk', chunk);
+            formData.append('chunkIndex', i);
+            formData.append('totalChunks', this.chunks);
+            formData.append('fileName', this.file.name);
+
+            await fetch('/api/upload/chunk', {
+                method: 'POST',
+                body: formData
+            });
+
+            this.uploaded++;
+            updateProgress(this.uploaded / this.chunks * 100);
+        }
+    }
+}

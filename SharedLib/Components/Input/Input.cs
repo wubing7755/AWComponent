@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace SharedLibrary.Components;
 
-public class Input<TValue> : AWComponentBase where TValue : class
+public class Input<TValue> : AWComponentBase
 {
     protected ElementReference inputElement;
 
@@ -58,7 +57,7 @@ public class Input<TValue> : AWComponentBase where TValue : class
         BuildComponentAttributes(builder, ref seq);
 
         // add element reference
-        builder.AddElementReferenceCapture(seq++, async capturedRef =>
+        builder.AddElementReferenceCapture(seq, async capturedRef =>
         {
             inputElement = capturedRef;
 
@@ -80,9 +79,8 @@ public class Input<TValue> : AWComponentBase where TValue : class
                     this, __value => currentValue = __value, currentValue ?? default(TValue)!));
         builder.AddAttribute(seq++, "onblur", EventCallback.Factory.Create<FocusEventArgs>(this, async _ =>
         {
-            if (OnBlur != null)
+            if (OnBlur is not null)
             {
-                await ValueChanged.InvokeAsync(currentValue);
                 await OnBlur.Invoke(currentValue ?? default(TValue)!);
             }
         }));
@@ -90,12 +88,15 @@ public class Input<TValue> : AWComponentBase where TValue : class
         {
             if (args.Key == "Enter")
             {
-                if (OnEnter != null)
+                if (OnEnter is not null)
                 {
-                    await ValueChanged.InvokeAsync(currentValue);
                     await OnEnter.Invoke(currentValue ?? default(TValue)!);
                 }
             }
+        }));
+        builder.AddAttribute(seq++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, async args =>
+        {
+            await ValueChanged.InvokeAsync(currentValue);
         }));
         builder.AddAttribute(seq++, "autocomplete", AutocompleteFactory.GetAutocomplete(Autocomplete));
     }

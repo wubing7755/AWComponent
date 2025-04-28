@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using SharedLibrary.Services;
 
 namespace AW
 {
@@ -12,6 +13,9 @@ namespace AW
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
+
+            // add signalR service
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
 

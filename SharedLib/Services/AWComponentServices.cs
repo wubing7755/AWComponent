@@ -10,7 +10,7 @@ namespace SharedLibrary.Services;
 
 public static class AWComponentServices
 {
-    public static WebAssemblyHostBuilder AddAWComponentServices(this WebAssemblyHostBuilder builder)
+    public static WebAssemblyHostBuilder AddClientServices(this WebAssemblyHostBuilder builder)
     {
         _ = builder.Services.AddLocalization(options =>
         {

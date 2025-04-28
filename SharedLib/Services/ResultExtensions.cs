@@ -20,7 +20,7 @@ public static class ResultExtensions
     public static bool TryGetData<T>(this IError<T> error, [MaybeNullWhen(false)] out T data)
     {
         data = error.Data is T t ? t : default;
-        return data != null || (error.Data is T && error.Data == null);
+        return data is not null || (error.Data is T && error.Data == null);
     }
 
     public static Result<T> OnSuccess<T>(this Result<T> result, Action<T> handleResult)

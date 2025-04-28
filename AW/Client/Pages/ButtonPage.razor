@@ -1,13 +1,14 @@
 ﻿@page "/button"
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.JSInterop
-@using SharedLibrary.JsInterop
-@using SharedLibrary.Models
-@using SharedLibrary.Utils
 @inject AWJsInterop awJsInterop
 
-<SharedLibrary.Components.Button OnClick="ConvertToXML"></SharedLibrary.Components.Button>
+<Button OnClick="ConvertToXML">ConvertToXML</Button>
 
+<Divider />
+
+<FileInput TValue="UpFileModel" ValueChanged="OnFileChanged">上传文件</FileInput>
+
+<FileInput TValue="UpFileModel" Multiple="true" MultipleValueChanged="OnFilesChanged">上传文件s</FileInput>
 
 @code{
     private async Task ConvertToXML(MouseEventArgs args)
@@ -21,5 +22,16 @@
             };
 
         await xmlWriter.WriteToFile(person, "Person.xml");
+    }
+
+    private async Task OnFileChanged(UpFileModel fileModel)
+    {
+        var zipHelper = new ZipHelper();
+        await zipHelper.DecodingZip(fileModel);
+    }
+
+    private async Task OnFilesChanged(IEnumerable<UpFileModel> fileModels)
+    {
+        
     }
 } 

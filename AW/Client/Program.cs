@@ -14,7 +14,7 @@ namespace AW.Client
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-            builder.AddAWComponentServices();
+            builder.AddClientServices();
 
             await builder.Build().RunAsync();
         }

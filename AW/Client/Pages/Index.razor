@@ -1,17 +1,17 @@
 ﻿@page "/"
-@using SharedLibrary.Components
+@inject AWJsInterop awJsInterop
 
-<Button CssClass="aw-card">
-    <Divider Style="@Style" />
-</Button>
+<Button OnClick="TestConnection">Test Connection</Button>
+
+<Divider />
+
+<Button CssClass="aw-card">Click</Button>
 
 <Button CssClass="aw-card">
     <Button OnClick="ShowDialog">Open Modal</Button>
 </Button>
 
-
-
-<Divider Style="@Style" />
+<Divider />
 
 <ModalDialog @ref="_dialog" OnClose="ClosDialog">
     <BodyContent>
@@ -24,13 +24,13 @@
     Should Render?
 </label>
 
-<Divider Style="@Style" />
+<Divider />
 
 <Button Disabled=true>Disabled</Button>
 
 <Button Disabled=false OnClick="async(arg) => {}">Enabled</Button>
 
-<Divider Style="@Style" />
+<Divider />
 
 <Select Options="Options" @bind-Value="@SelectedValue">
     <OptionTemplate>
@@ -43,7 +43,7 @@
     选中项： @SelectedValue
 </div>
 
-<Divider Style="@Style" />
+<Divider />
 
 <Input @ref="_input" TValue="string"
 Type="InputType.Text" 
@@ -52,7 +52,7 @@ OnEnter="OnEnter"></Input>
 
 @InputValue
 
-<Divider Style="@Style" />
+<Divider />
 
 <Label Text="说明"></Label>
 
@@ -60,8 +60,6 @@ OnEnter="OnEnter"></Input>
     private ModalDialog _dialog = new ModalDialog();
 
     private Input<string> _input = new Input<string>();
-
-    private const string Style = "display: block; height: 30px; color:green;";
 
     private bool shouldRender = true;
 
@@ -77,8 +75,6 @@ OnEnter="OnEnter"></Input>
         "option 4",
         "option 5"
     };
-
-    // protected override bool ShouldRender() => shouldRender;
 
     private Task ShowDialog(MouseEventArgs args)
     {
@@ -97,6 +93,11 @@ OnEnter="OnEnter"></Input>
     {
         Console.WriteLine("Key Enter");
         return Task.CompletedTask;
+    }
+
+    private async Task TestConnection(MouseEventArgs args)
+    {
+        await awJsInterop.TestConnection();
     }
 }
 

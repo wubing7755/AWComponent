@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
+using SharedLibrary.Components;
 using SharedLibrary.Options;
 using SharedLibrary.Services;
 
@@ -25,26 +26,45 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
     public async Task TestConnection()
     {
         var module = await moduleTask.Value;
-        await module.InvokeVoidAsync("TestConnection");
+        await module.InvokeVoidAsync("testConnection");
     }
 
-    public async Task<IBrowserFile> GetLocalFile(ElementReference inputElement)
+    public async Task<UpFileModel> GetLocalFile(ElementReference inputElement)
     {
         var module = await moduleTask.Value;
 
-        var result = await module.InvokeAsync<IJSObjectReference>("GetLocalFile", inputElement);
-        var browserFile = await result.InvokeAsync<BrowserFile>("getAttributes");
+        // 使用工厂函数创建实例
+        var fileHandler = await module.InvokeAsync<IJSObjectReference>("createFileHandler", inputElement);
 
-        browserFile.JsFileReference = result;
+        // 获取文件属性
+        var browserFile = await module.InvokeAsync<UpFileModel>("getFileAttributes", fileHandler);
+
+        // 获取流引用
+        var objRef = await module.InvokeAsync<IJSStreamReference>("getFileStreamReference", fileHandler);
+
+        browserFile.JsStreamReference = objRef;
+
+        // 释放 JS 对象引用
+        await fileHandler.DisposeAsync();
 
         return browserFile;
     }
 
-    public async Task<IEnumerable<IBrowserFile>> GetLocalFiles(ElementReference inputElement)
+    public async Task<IEnumerable<UpFileModel>> GetLocalFiles(ElementReference inputElement)
     {
         var module = await moduleTask.Value;
 
-        return await module.InvokeAsync<IEnumerable<IBrowserFile>>("GetLocalFiles", inputElement);
+        // 使用工厂函数创建实例
+        var fileHandler = await module.InvokeAsync<IJSObjectReference>("createFileHandler", inputElement);
+        
+        // 获取文件属性
+        var browserFiles = await module.InvokeAsync<UpFileModel[]>("getFileAttributes", fileHandler);
+
+
+        // 释放 JS 对象引用
+        await fileHandler.DisposeAsync();
+
+        return browserFiles;
     }
 
     public async Task DownloadFileAsync(string filename, byte[] data, string? mimeType = null)

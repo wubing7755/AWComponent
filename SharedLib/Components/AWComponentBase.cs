@@ -143,7 +143,7 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
     /// <param name="sequence">Sequence number for rendering</param>
     protected void MergeAttributes(RenderTreeBuilder builder, int seq)
     {
-        if (SafeAttributes != null)
+        if (SafeAttributes is not null)
         {
             builder.AddMultipleAttributes(seq, SafeAttributes);
         }
