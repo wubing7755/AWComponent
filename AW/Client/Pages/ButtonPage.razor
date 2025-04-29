@@ -6,9 +6,11 @@
 
 <Divider />
 
-<FileInput TValue="UpFileModel" ValueChanged="OnFileChanged">上传文件</FileInput>
+<FileInput TValue="UpFileInfo"
+           ValueChanged="OnFileChanged"
+           MIMEType="MIMEType.Text">上传文件</FileInput>
 
-<FileInput TValue="UpFileModel" Multiple="true" MultipleValueChanged="OnFilesChanged">上传文件s</FileInput>
+<FileInput TValue="UpFileInfo" Multiple="true" MultipleValueChanged="OnFilesChanged">上传文件s</FileInput>
 
 @code{
     private async Task ConvertToXML(MouseEventArgs args)
@@ -24,13 +26,13 @@
         await xmlWriter.WriteToFile(person, "Person.xml");
     }
 
-    private async Task OnFileChanged(UpFileModel fileModel)
+    private async Task OnFileChanged(UpFileInfo upFileInfo)
     {
-        var zipHelper = new ZipHelper();
-        await zipHelper.DecodingZip(fileModel);
+        var textHelper = new TextFileHelper();
+        await textHelper.DecodingText(upFileInfo);
     }
 
-    private async Task OnFilesChanged(IEnumerable<UpFileModel> fileModels)
+    private async Task OnFilesChanged(IEnumerable<UpFileInfo> browserFile)
     {
         
     }

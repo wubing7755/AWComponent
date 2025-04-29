@@ -5,6 +5,7 @@ export function testConnection() {
     console.log("Test Connection");
 };
 
+/* ------------------------ FILE UPLOAD ------------------------ */
 // single file upload
 export class FileHandler {
     constructor(file) {
@@ -27,17 +28,29 @@ export class FileHandler {
         return this._file.contentType;
     }
 
-    getAttributes() {
+    getFileInfo() {
         return {
-            filename: this._file.name,
+            name: this._file.name,
             size: this._file.size,
             lastModified: new Date(this._file.lastModified).toISOString(),
             contentType: this._file.type
         };
     }
 
-    getStreamReference() {
-        return this._file;
+    async getFileContent() {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                const base64 = btoa(
+                    String.fromCharCode(...new Uint8Array(reader.result))
+                );
+                resolve(base64);
+            };
+
+            reader.onerror = (e) => reject(e);
+            reader.readAsArrayBuffer(this._file);
+        });
     }
 }
 
@@ -59,19 +72,20 @@ export class MultiFileHandler {
         return this._handlers[index] || null;
     }
 
-    getAllAttributes() {
-        return this._handlers.map(handler => handler.getAttributes());
+    getFilesInfo() {
+        return this._handlers.map(handler => handler.getFileInfo());
     }
 
-    getAllStreamReferences() {
-        return this._handlers.map(handler => handler.getStreamReference());
+    async getFilesContent() {
+        const promises = this._handlers.map(handler => handler.getFileContent());
+        return await Promise.all(promises);
     }
 }
 
 export function createFileHandler(inputElement) {
-    const files = Array.from(inputElement.files);
+    const files = Array.from(inputElement.files || []);
 
-    if (file.length > 1) {
+    if (files.length > 1) {
         return new MultiFileHandler(files);
     }
     else {
@@ -79,24 +93,36 @@ export function createFileHandler(inputElement) {
     }
 }
 
-export function getFileAttributes(instance) {
+export function getFilesInfo(instance) {
     if (instance instanceof MultiFileHandler) {
-        return instance.getAllAttributes();
+        return instance.getFilesInfo();
     }
     else {
-        return instance.getAttributes();
+        return instance.getFileInfo();
     }
 }
 
-export function getFileStreamReference(instance) {
+export function getFilesData(instance) {
     if (instance instanceof MultiFileHandler) {
-        return instance.getAllStreamReferences();
+        return instance.getFilesData();
     }
     else {
-        instance.getStreamReference();
+        return instance.getFileData();
     }
 }
 
+export function getFilesContent(instance) {
+    if (instance instanceof MultiFileHandler) {
+        return instance.getFilesContent();
+    }
+    else {
+        return instance.getFileContent();
+    }
+}
+
+/* ------------------------ FILE UPLOAD ------------------------ */
+
+/* ------------------------ FILE DOWNLOAD ------------------------ */
 export function downloadFile(filename, data, mimeType) {
     // 1. 自动推断 MIME 类型（如果未显式指定）
     if (!mimeType) {
@@ -148,35 +174,4 @@ export function downloadFile(filename, data, mimeType) {
         URL.revokeObjectURL(url);
     }, 100);
 }
-
-class ChunkUploader {
-    constructor(file, chunkSize = 5 * 1024 * 1024) {
-        this.file = file;
-        this.chunkSize = chunkSize;
-        this.chunks = Math.ceil(file.size / chunkSize);
-        this.uploaded = 0;
-    }
-
-    async upload() {
-        for (let i = 0; i < this.chunks; i++) {
-            const chunk = this.file.slice(
-                i * this.chunkSize,
-                Math.min((i + 1) * this.chunkSize, this.file.size)
-            );
-
-            const formData = new FormData();
-            formData.append('chunk', chunk);
-            formData.append('chunkIndex', i);
-            formData.append('totalChunks', this.chunks);
-            formData.append('fileName', this.file.name);
-
-            await fetch('/api/upload/chunk', {
-                method: 'POST',
-                body: formData
-            });
-
-            this.uploaded++;
-            updateProgress(this.uploaded / this.chunks * 100);
-        }
-    }
-}
+/* ------------------------ FILE DOWNLOAD ------------------------ */

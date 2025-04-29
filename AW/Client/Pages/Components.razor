@@ -4,37 +4,19 @@
 @using System.Text
 
 <Input TValue="bool" 
-Type="InputType.Checkbox" 
-Value="InputValue"
-ValueChanged="CheckBoxChanged"></Input>
+Type="InputType.Checkbox"
+Value="_inputValue"
+ValueChanged="CheckBoxChanged" />
 
 <Divider />
 
-<!-- Test 文件上传 -->
-
-<FileInput TValue="UpFileModel"
-Value="_fileModel"
-           MIMEType="MIMEType.Zip" />
-
-<Button OnClick="DecodingZip">Decoding Zip File</Button>
-
+@_inputValue
 
 @code{
-    private bool InputValue = false;
-
-    private UpFileModel _fileModel { get; set; } = new UpFileModel();
+    private bool _inputValue = false;
 
     private async Task CheckBoxChanged(bool arg)
     {
-
-    }
-
-    private async Task DecodingZip(MouseEventArgs args)
-    {
-        if (_fileModel?.Type == MIMEType.Zip)
-        {
-            var zipHelper = new ZipHelper();
-            await zipHelper.DecodingZip(_fileModel);
-        }
+        _inputValue = !arg;
     }
 }

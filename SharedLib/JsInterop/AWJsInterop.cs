@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
-using SharedLibrary.Components;
+using SharedLibrary.Models;
 using SharedLibrary.Options;
-using SharedLibrary.Services;
 
 namespace SharedLibrary.JsInterop;
 
@@ -29,42 +28,37 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
         await module.InvokeVoidAsync("testConnection");
     }
 
-    public async Task<UpFileModel> GetLocalFile(ElementReference inputElement)
+    public async Task<UpFileInfo> GetLocalFile(ElementReference inputElement)
     {
         var module = await moduleTask.Value;
-
-        // 使用工厂函数创建实例
         var fileHandler = await module.InvokeAsync<IJSObjectReference>("createFileHandler", inputElement);
+        var upFileInfo = await module.InvokeAsync<UpFileInfo>("getFilesInfo", fileHandler);
 
-        // 获取文件属性
-        var browserFile = await module.InvokeAsync<UpFileModel>("getFileAttributes", fileHandler);
+        var base64 = await module.InvokeAsync<string>("getFilesContent", fileHandler);
+        var stream = new MemoryStream(Convert.FromBase64String(base64));
+        upFileInfo.SetFileStream(stream);
 
-        // 获取流引用
-        var objRef = await module.InvokeAsync<IJSStreamReference>("getFileStreamReference", fileHandler);
-
-        browserFile.JsStreamReference = objRef;
-
-        // 释放 JS 对象引用
         await fileHandler.DisposeAsync();
-
-        return browserFile;
+        return upFileInfo;
     }
 
-    public async Task<IEnumerable<UpFileModel>> GetLocalFiles(ElementReference inputElement)
+    public async Task<IEnumerable<UpFileInfo>> GetLocalFiles(ElementReference inputElement)
     {
         var module = await moduleTask.Value;
-
-        // 使用工厂函数创建实例
         var fileHandler = await module.InvokeAsync<IJSObjectReference>("createFileHandler", inputElement);
-        
-        // 获取文件属性
-        var browserFiles = await module.InvokeAsync<UpFileModel[]>("getFileAttributes", fileHandler);
+        var upFileInfos = await module.InvokeAsync<UpFileInfo[]>("getFilesInfo", fileHandler);
 
+        var base64s = await module.InvokeAsync<string[]>("getFilesContent", fileHandler);
 
-        // 释放 JS 对象引用
+        for (int i = 0; i < upFileInfos.Length && i < base64s.Length; i++)
+        {
+            var bytes = Convert.FromBase64String(base64s[i]);
+            var stream = new MemoryStream(bytes);
+            upFileInfos[i].SetFileStream(stream);
+        }
+
         await fileHandler.DisposeAsync();
-
-        return browserFiles;
+        return upFileInfos;
     }
 
     public async Task DownloadFileAsync(string filename, byte[] data, string? mimeType = null)
@@ -83,10 +77,17 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (moduleTask.IsValueCreated)
+        try
         {
-            var module = await moduleTask.Value;
-            await module.DisposeAsync();
+            if (moduleTask.IsValueCreated)
+            {
+                var module = await moduleTask.Value;
+                await module.DisposeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"模块释放失败: {ex.Message}");
         }
     }
 }

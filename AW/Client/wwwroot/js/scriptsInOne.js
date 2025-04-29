@@ -5,13 +5,11 @@
 
             // 挂载侧边栏拖拽
             if (typeof initSidebarDrag === 'function') {
-                console.log('Initializing sidebar drag');
                 window.initSidebarDrag();
             }
 
             // 挂载主题切换
             if (typeof initThemeToggle === 'function') {
-                console.log('Initializing theme toggle');
                 window.initThemeToggle();
             }
 

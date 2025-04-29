@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using SharedLibrary.JsInterop;
+﻿using SharedLibrary.JsInterop;
 using SharedLibrary.Services;
 using System.Text;
 using System.Xml.Serialization;
