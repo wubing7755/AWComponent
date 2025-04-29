@@ -19,10 +19,7 @@
     </BodyContent>
 </ModalDialog>
 
-<label>
-    <input type="checkbox" @bind="shouldRender" />
-    Should Render?
-</label>
+<Label ColorType="ColorType.Blue">这是一个标签</Label>
 
 <Divider />
 
@@ -53,8 +50,6 @@ OnEnter="OnEnter"></Input>
 @InputValue
 
 <Divider />
-
-<Label Text="说明"></Label>
 
 @code {
     private ModalDialog _dialog = new ModalDialog();

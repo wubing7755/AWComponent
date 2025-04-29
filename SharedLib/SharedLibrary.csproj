@@ -56,8 +56,4 @@
 	<Content Include="wwwroot\js\SharedLib.js" Pack="true" PackagePath="staticwebassets\wwwroot\js\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Logs\" />
-  </ItemGroup>
-
 </Project>

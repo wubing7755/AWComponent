@@ -1,4 +1,6 @@
 ﻿
+using SharedLibrary.Enums;
+
 namespace SharedLibrary.Models;
 
 public static class UpFileInfoExtension
@@ -52,31 +54,4 @@ public static class UpFileInfoExtension
             _ => MIMEType.Unknown
         };
     }
-
-
-}
-
-public enum MIMEType
-{
-    Unknown,
-    Zip,
-    Rar,
-    SevenZip,
-    Gzip,
-    Tar,
-    PDF,
-    Word,
-    Excel,
-    PowerPoint,
-    Text,
-    CSV,
-    JPEG,
-    PNG,
-    GIF,
-    SVG,
-    WebP,
-    MP3,
-    MP4,
-    AVI,
-    Archive
 }

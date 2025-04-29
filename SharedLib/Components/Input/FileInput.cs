@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using SharedLibrary.Models;
 using Microsoft.JSInterop;
+using SharedLibrary.Enums;
 
 namespace SharedLibrary.Components;
 

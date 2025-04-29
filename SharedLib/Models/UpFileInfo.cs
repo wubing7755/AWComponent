@@ -75,5 +75,3 @@ public class UpFileInfo : IBrowserFile, ICloneable
         return Clone();
     }
 }
-
-
