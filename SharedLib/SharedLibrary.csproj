@@ -38,17 +38,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Resources\SecureLocalization.Designer.cs">
+    <Compile Update="Resources\SecureLocalization.zh.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>SecureLocalization.resx</DependentUpon>
+      <DependentUpon>SecureLocalization.zh.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Resources\SecureLocalization.resx">
+    <EmbeddedResource Update="Resources\SecureLocalization.zh.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>SecureLocalization.Designer.cs</LastGenOutput>
+      <LastGenOutput>SecureLocalization.zh.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

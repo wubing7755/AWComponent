@@ -55,6 +55,7 @@ public class Input<TValue> : AWComponentBase
         builder.OpenElement(seq++, "input");
 
         BuildComponentAttributes(builder, ref seq);
+        RenderFilteredAttributes(builder, seq++);
 
         // add element reference
         builder.AddElementReferenceCapture(seq, async capturedRef =>

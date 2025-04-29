@@ -8,51 +8,53 @@ using SharedLibrary.JsInterop;
 
 namespace SharedLibrary.Components;
 
-#region Utils
-
 /// <summary>
-/// Defines responsive breakpoints for UI components.
+/// Defines the component hierarchy with core functionality distribution
 /// </summary>
 /// <remarks>
-/// Values represent minimum viewport widths in pixels.
+/// Component inheritance chain:
+/// <para>
+/// 1. <see cref="SecureComponentBase"/> (Security and localization foundation)
+/// 2. <see cref="ResponsiveComponentBase"/> (UI and behavior foundation)
+/// 3. <see cref="AWComponentBase"/> (Business logic and form integration)
+/// </para>
 /// </remarks>
-public enum Breakpoint
-{
-    None = 0,
-    ExtraSmall = 256,
-    Small = 512,
-    Medium = 640,
-    Large = 1024,
-    ExtraLarge = 2048,
-    Custom          // 自定义
-}
+/*
 
-/// <summary>
-/// Contains theme configuration settings for component styling.
-/// </summary>
-public class ThemeSettings
-{
-    /// <summary>
-    /// Primary brand color
-    /// </summary>
-    public string PrimaryColor { get; set; } = "#2563eb";
+Component Hierarchy Feature Matrix:
+================================================================================
+| Base Class              | Key Features                                       |
+|-------------------------|----------------------------------------------------|
+| SecureComponentBase     | - Theme management                                 |
+|                         | - Localization services (Localizer)                |
+|                         | - Attribute security filtering (SafeAttributes)    |
+|-------------------------|----------------------------------------------------|
+| ResponsiveComponentBase | - CSS class composition (CssClass)                 |
+|                         | - Inline style handling (Style)                    |
+|                         | - Disabled state management                        |
+|                         | - Component building pipeline (BuildComponent)     |
+|-------------------------|----------------------------------------------------|
+| AWComponentBase         | - Form validation context (EditContext)            |
+|                         | - Cross-component communication (EventBus)         |
+|                         | - JavaScript interoperability (JsInterop)          |
+|                         | - Debounce                                         |
+================================================================================
 
-    public string FontFamily { get; set; } = "Fira Code";
-}
+*/
 
-#endregion
 
 #region SecureComponentBase
 
 /// <summary>
 /// Abstract base class for all components in the system.
+/// 提供核心安全功能的基底层
 /// </summary>
 /// <remarks>
 /// Implements core functionality including:
+/// - Localization support
+/// - Theme propagation
 /// - Attribute safety filtering
 /// - Resource disposal management
-/// - Theme propagation
-/// - Localization support
 /// </remarks>
 public abstract class SecureComponentBase : ComponentBase, IDisposable
 {
@@ -64,11 +66,34 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
     private bool _disposed;
     private IReadOnlyDictionary<string, object>? _safeAttributes;
 
+    /// <summary>
+    /// Unique identifier for component instance tracking
+    /// 组件实例唯一标识符
+    /// </summary>
     public Guid ObjectId { get; protected set; }
+
+    /// <summary>
+    /// Gets the localized string resources for this component.
+    /// 国际化文本资源
+    /// </summary>
+    /// <remarks>
+    /// usage: Localizer["bingbing"]
+    /// </remarks>
+    [Inject]
+    protected IStringLocalizer<SecureComponentBase>? Localizer { get; set; }
+
+    /// <summary>
+    /// Cascading parameter providing theme settings to descendant components.
+    /// </summary>
+    [CascadingParameter]
+    protected ThemeSettings? Theme { get; set; }
+
+    #region Attributes
 
     /// <summary>
     /// Gets or sets a collection of additional attributes that will be applied 
     /// to the created element.
+    /// 经过安全过滤的HTML属性
     /// </summary>
     /// <remarks>
     /// This parameter captures all unmatched attribute values passed to the component. 
@@ -78,19 +103,8 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
     public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
     /// <summary>
-    /// Gets the localized string resources for this component.
-    /// </summary>
-    [Inject]
-    protected IStringLocalizer<SecureComponentBase>? L { get; set; }
-
-    /// <summary>
-    /// Cascading parameter providing theme settings to descendant components.
-    /// </summary>
-    [CascadingParameter]
-    protected ThemeSettings? Theme { get; set; }
-
-    /// <summary>
     /// Gets the safely filtered attributes after applying security rules.
+    /// 经过安全过滤的HTML属性
     /// </summary>
     /// <value>
     /// Read-only dictionary containing only allowed attributes based on 
@@ -108,7 +122,7 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
     protected virtual IReadOnlyDictionary<string, object>? FilterAttributes(IReadOnlyDictionary<string, object>? attributes)
     {
 
-        if (attributes == null) return null;
+        if (attributes is null) return null;
         var filtered = new Dictionary<string, object>();
         foreach (var attr in attributes)
         {
@@ -122,6 +136,7 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
 
     /// <summary>
     /// Determines if a given attribute is allowed to be rendered.
+    /// 判断属性是否通过安全策略
     /// </summary>
     /// <param name="attributeName">Name of the HTML attribute</param>
     /// <returns>
@@ -133,6 +148,8 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
     /// </remarks>
     protected virtual bool IsAttributeAllowed(string attributeName)
     {
+        // Security: Block all event handlers to prevent XSS
+        // 安全措施：阻止所有事件处理器属性防止XSS
         return !attributeName.StartsWith("on", StringComparison.OrdinalIgnoreCase);
     }
 
@@ -141,13 +158,15 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
     /// </summary>
     /// <param name="builder">Target render tree builder</param>
     /// <param name="sequence">Sequence number for rendering</param>
-    protected void MergeAttributes(RenderTreeBuilder builder, int seq)
+    protected void RenderFilteredAttributes(RenderTreeBuilder builder, int seq)
     {
         if (SafeAttributes is not null)
         {
             builder.AddMultipleAttributes(seq, SafeAttributes);
         }
     }
+
+    #endregion
 
     /// <summary>
     /// Releases managed resources used by this component.
@@ -170,6 +189,17 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
     /// Performs application-defined tasks associated with freeing, 
     /// releasing, or resetting unmanaged resources.
     /// </summary>
+    /// <remarks>
+    /// Execution order:
+    /// 1. DisposeManagedResources()
+    /// 2. DisposeUnmanagedResources()
+    /// 3. GC.SuppressFinalize()
+    /// 
+    /// 执行顺序：
+    /// 1. 释放托管资源
+    /// 2. 释放非托管资源
+    /// 3. 抑制终结器
+    /// </remarks>
     public void Dispose()
     {
         if (_disposed) return;
@@ -191,6 +221,7 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
 
 /// <summary>
 /// Base class for presentational UI components with styling support.
+/// 具备响应式设计能力的表现层
 /// </summary>
 /// <remarks>
 /// Extends <see cref="SecureComponentBase"/> with:
@@ -304,6 +335,11 @@ public abstract class ResponsiveComponentBase : SecureComponentBase
                attributeName.Equals("style", StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// Template method for component-specific rendering
+    /// 组件特定渲染的模板方法
+    /// </summary>
+    /// <param name="builder">Blazor render tree builder</param>
     protected sealed override void BuildRenderTree(RenderTreeBuilder builder)
     {
         BuildComponent(builder);
@@ -318,11 +354,13 @@ public abstract class ResponsiveComponentBase : SecureComponentBase
 
 /// <summary>
 /// Base class for business logic components with form integration.
+/// 包含领域特定功能的业务逻辑层
 /// </summary>
 /// <remarks>
 /// Extends <see cref="ResponsiveComponentBase"/> with:
 /// - EditContext integration for form validation
-/// - Event bus communication
+/// - Event bus
+/// - JS interop
 /// - Debounced action handling
 /// </remarks>
 public abstract class AWComponentBase : ResponsiveComponentBase
@@ -339,7 +377,6 @@ public abstract class AWComponentBase : ResponsiveComponentBase
     [Inject]
     protected IEventBus EventBus { get; set; } = null!;
 
-
     /// <summary>
     /// Provides JavaScript interop functionality for the component.
     /// </summary>
@@ -352,8 +389,22 @@ public abstract class AWComponentBase : ResponsiveComponentBase
     protected bool HasValidationErrors =>
         EditContext?.GetValidationMessages().Any() ?? false;
 
+    #region Event
+
+    /// <summary>
+    /// Publishes the event.
+    /// 发布事件到事件总线
+    /// </summary>
+    /// <typeparam name="TEvent">The type of the event.</typeparam>
+    /// <param name="event">The event.</param>
+    protected void PublishEvent<TEvent>(TEvent @event) where TEvent : class
+    {
+        EventBus.Publish(@event);
+    }
+
     /// <summary>
     /// Subscribes to events of specified type through the event bus.
+    /// 订阅事件
     /// </summary>
     /// <typeparam name="TEvent">Type of event to handle</typeparam>
     /// <param name="handler">Event handler delegate</param>
@@ -362,12 +413,29 @@ public abstract class AWComponentBase : ResponsiveComponentBase
         EventBus.Subscribe(handler);
     }
 
-    /// <inheritdoc/>
-    protected override void DisposeManagedResources()
+    /// <summary>
+    /// Unsubscribes all events.
+    /// 取消该组件订阅的所有事件
+    /// </summary>
+    protected void UnsubscribeAllEvents()
     {
         EventBus.UnsubscribeAll(this);
-        base.DisposeManagedResources();
     }
+
+    /// <summary>
+    /// Unsubscribes the event.
+    /// 取消订阅特定事件处理器
+    /// </summary>
+    /// <typeparam name="TEvent">The type of the event.</typeparam>
+    /// <param name="handler">The handler.</param>
+    protected void UnsubscribeEvent<TEvent>(Action<TEvent> handler) where TEvent : class
+    {
+        EventBus.Unsubscribe(handler);
+    }
+
+    #endregion
+
+    #region Debounce
 
     /// <summary>
     /// Creates a debounced version of the specified action.
@@ -391,6 +459,15 @@ public abstract class AWComponentBase : ResponsiveComponentBase
     {
         return Debouncer.Execute(action, milliseconds);
     }
+
+    #endregion
+
+    /// <inheritdoc/>
+    protected override void DisposeManagedResources()
+    {
+        EventBus.UnsubscribeAll(this);
+        base.DisposeManagedResources();
+    }
 }
 
 #endregion
@@ -399,7 +476,15 @@ public abstract class AWComponentBase : ResponsiveComponentBase
 
 /// <summary>
 /// Provides debounce functionality for high-frequency events.
+/// 使用CancellationTokenSource实现防抖模式
 /// </summary>
+/// /// <remarks>
+/// Usage example (使用示例):
+/// <code>
+/// var debouncedSave = Debouncer.Execute(SaveData, 1000);
+/// input.OnChange += debouncedSave;
+/// </code>
+/// </remarks>
 public static class Debouncer
 {
     /// <summary>
@@ -470,6 +555,42 @@ public interface IEventBus
     /// <typeparam name="TEvent">The type of the event to unsubscribe from.</typeparam>
     /// <param name="handler">The event handler delegate to remove.</param>
     void Unsubscribe<TEvent>(Action<TEvent> handler);
+}
+
+#endregion
+
+#region Utils
+
+/// <summary>
+/// Layout Breakpoint. Defines responsive breakpoints for UI components.
+/// 布局断裂点。定义响应式布局的标准断点。
+/// </summary>
+/// <remarks>
+/// Values represent minimum viewport widths in pixels.
+/// </remarks>
+public enum Breakpoint
+{
+    None = 0,
+    ExtraSmall = 256,
+    Small = 512,
+    Medium = 640,
+    Large = 1024,
+    ExtraLarge = 2048,
+    Custom
+}
+
+/// <summary>
+/// Contains theme configuration settings for component styling.
+/// 主题配置容器
+/// </summary>
+public class ThemeSettings
+{
+    /// <summary>
+    /// Primary brand color
+    /// </summary>
+    public string PrimaryColor { get; set; } = "#2563eb";
+
+    public string FontFamily { get; set; } = "Fira Code";
 }
 
 #endregion

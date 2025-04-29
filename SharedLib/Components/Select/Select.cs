@@ -56,6 +56,8 @@ public class Select : AWComponentBase
         builder.OpenElement(seq++, "option");
         builder.AddAttribute(seq++, "value", "");
         builder.AddAttribute(seq++, "selected", string.IsNullOrEmpty(Value));
+        RenderFilteredAttributes(builder, seq++);
+
         builder.AddContent(seq++, Placeholder);
         builder.CloseElement();
 

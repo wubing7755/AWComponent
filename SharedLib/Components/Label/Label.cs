@@ -71,6 +71,7 @@ public class Label : AWComponentBase
         };
 
         builder.AddAttribute(seq++, "style", $"color: {colorStyle};");
+        RenderFilteredAttributes(builder, seq++);
 
         if (ChildContent is not null)
         {

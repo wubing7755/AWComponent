@@ -51,6 +51,7 @@ public class Button : AWComponentBase
 
         builder.AddAttribute(seq++, "onmouseenter", OnMouseEnter);
         builder.AddAttribute(seq++, "onmouseleave", OnMouseLeave);
+        RenderFilteredAttributes(builder, seq++);
 
         builder.AddContent(seq, ChildContent);
         builder.CloseElement();
