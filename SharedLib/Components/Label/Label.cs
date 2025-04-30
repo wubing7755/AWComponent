@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Rendering;
 using SharedLibrary.Enums;
 using SharedLibrary.Events;
+using SharedLibrary.Utils;
 
 namespace SharedLibrary.Components;
 
@@ -52,25 +53,7 @@ public class Label : AWComponentBase
     {
         int seq = 0;
         builder.OpenElement(seq++, "label");
-
-        var colorStyle = ColorType switch
-        {
-            ColorType.Blue => "Blue",
-            ColorType.Red => "Red",
-            ColorType.Green => "Green",
-            ColorType.Yellow => "Yellow",
-            ColorType.Orange => "Orange",
-            ColorType.Purple => "Purple",
-            ColorType.Black => "Black",
-            ColorType.White => "White",
-            ColorType.Gray => "Gray",
-            ColorType.Brown => "Brown",
-            ColorType.Cyan => "Cyan",
-            ColorType.Magenta => "Magenta",
-            _ => "Black" // Default color
-        };
-
-        builder.AddAttribute(seq++, "style", $"color: {colorStyle};");
+        builder.AddAttribute(seq++, "style", $"color: {ColorHelper.ConvertToString(ColorType)};");
         RenderFilteredAttributes(builder, seq++);
 
         if (ChildContent is not null)

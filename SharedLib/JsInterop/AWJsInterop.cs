@@ -138,7 +138,7 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
     public async Task UploadFilesAsync(ElementReference inputElement, string url)
     {
         var module = await moduleTask.Value;
-        var chunkSize = 1024 * 100;
+        var chunkSize = 1024 * 1024 * 10;
 
         await module.InvokeVoidAsync("uploadFiles", inputElement, url, chunkSize);
     }
