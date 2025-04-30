@@ -7,7 +7,7 @@ export function testConnection() {
 
 /* ------------------------ FILE UPLOAD ------------------------ */
 // single file upload
-export class FileHandler {
+class FileHandler {
     constructor(file) {
         this._file = file;
     }
@@ -38,24 +38,35 @@ export class FileHandler {
     }
 
     async getFileContent() {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
+        const maxBase64Size = 1024 * 100;
 
-            reader.onload = () => {
-                const base64 = btoa(
-                    String.fromCharCode(...new Uint8Array(reader.result))
-                );
-                resolve(base64);
-            };
+        if (this._file.size <= maxBase64Size) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
 
-            reader.onerror = (e) => reject(e);
-            reader.readAsArrayBuffer(this._file);
-        });
+                // 开始读取文件
+                reader.readAsArrayBuffer(this._file);
+
+                // onload 事件在读取操作完成时触发
+                reader.onload = () => {
+                    const base64 = btoa(
+                        String.fromCharCode(...new Uint8Array(reader.result))
+                    );
+                    resolve(base64);
+                };
+
+                // onerror 事件在读取操作失败时触发
+                reader.onerror = (e) => reject(e);
+            });
+        } else {
+            console.log("File too large to convert to Base64");
+            return null;
+        }
     }
 }
 
 // multi files upload
-export class MultiFileHandler {
+class MultiFileHandler {
     constructor(files) {
         this._handlers = files.map(file => new FileHandler(file));
     }
@@ -99,15 +110,6 @@ export function getFilesInfo(instance) {
     }
     else {
         return instance.getFileInfo();
-    }
-}
-
-export function getFilesData(instance) {
-    if (instance instanceof MultiFileHandler) {
-        return instance.getFilesData();
-    }
-    else {
-        return instance.getFileData();
     }
 }
 
@@ -174,4 +176,89 @@ export function downloadFile(filename, data, mimeType) {
         URL.revokeObjectURL(url);
     }, 100);
 }
+
 /* ------------------------ FILE DOWNLOAD ------------------------ */
+
+/* ------------------------ FILE UPLOAD ------------------------ */
+
+export async function uploadFile(inputElement, url, chunkSize) {
+    const files = inputElement.files;
+    if (!files || files.length === 0) {
+        throw new Error("No files selected");
+    }
+
+    const file = files[0];
+    await chunkFileUpLoad(file, url, chunkSize);
+}
+
+export async function uploadFiles(inputElement, url, chunkSize) {
+    const files = inputElement.files;
+    if (!files || files.length === 0) {
+        throw new Error("No files selected");
+    }
+
+    for (const file of files) {
+        await chunkFileUpLoad(file, url, chunkSize);
+    }
+}
+
+// 文件分块上传核心逻辑
+async function chunkFileUpLoad(file, url, chunkSize) {
+    const totalChunks = Math.ceil(file.size / chunkSize);
+
+    const uploadPromises = [];
+    for (let i = 0; i < totalChunks; i++) {
+        const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
+
+        const formData = new FormData();
+        formData.append("fileName", file.name);
+        formData.append("chunkIndex", i);
+        formData.append("totalChunks", totalChunks);
+        formData.append("chunkData", chunk, `${file.name}.part${i}`);
+
+        uploadPromises.push(() => retryableUpload(url, formData, 3));
+    }
+
+    // 限制最大并发
+    await uploadPromisesLimit(uploadPromises, 3);
+}
+
+// 带重试的上传函数
+async function retryableUpload(url, formData, maxRetries) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return;
+        } catch (err) {
+            if (attempt === maxRetries - 1) throw err;
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+    }
+}
+
+/**
+ * 限制并发上传
+ * @param {any} uploadPromises 由函数组成的数组
+ * @param {any} limit
+ */
+async function uploadPromisesLimit(uploadPromises, limit) {
+    const executing = [];
+    for (const promise of uploadPromises) {
+        const p = promise().then(() => {
+            executing.splice(executing.indexOf(p), 1);
+        });
+        executing.push(p);
+        if (executing.length >= limit) {
+            await Promise.race(executing);
+        }
+    }
+}
+
+/* ------------------------ FILE UPLOAD ------------------------ */

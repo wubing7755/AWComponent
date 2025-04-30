@@ -42,6 +42,10 @@ bld/
 
 nuget.config
 
+uploads/
+
+*.http
+
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 

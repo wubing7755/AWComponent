@@ -8,6 +8,10 @@ namespace SharedLibrary.Components;
 
 public class Button : AWComponentBase
 {
+    /**
+     * 小知识：隐式子内容
+     * Blazor 会自动将组件标签内的内容（如文本、HTML 或其他组件）赋值给它
+     */
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
