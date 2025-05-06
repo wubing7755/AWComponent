@@ -22,7 +22,11 @@ public class Label : AWComponentBase
 
     protected override void OnInitialized()
     {
-        EventBus.Subscribe<ButtonClickedEvent>(HandleButtonClick);
+        EventBus.Subscribe<ButtonClickedEvent>(e =>
+        {
+            RequestRenderOnNextEvent();
+            HandleButtonClick(e);
+        });
 
         _deb = Debounce(() =>
         {
@@ -40,11 +44,12 @@ public class Label : AWComponentBase
                     Text = $"{_time} - {_id}";
                 }
 
+                RequestRenderOnNextEvent();
+
                 /*
                     取消订阅，只有第一次单击按钮才会触发事件
                  */
                 EventBus.Unsubscribe<ButtonClickedEvent>(HandleButtonClick);
-                StateHasChanged();
             });
         }, 3000);
     }

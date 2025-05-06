@@ -229,10 +229,19 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
 /// - Inline style merging
 /// - Responsive breakpoint handling
 /// </remarks>
-public abstract class ResponsiveComponentBase : SecureComponentBase
+public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEvent
 {
+    private bool _shouldRenderAfterEvent = false;
+    private bool _isEventHandling;
+
     protected virtual string BaseCssClass => string.Empty;
     protected virtual string BaseStyle => string.Empty;
+
+    /// <summary>
+    /// Indicates whether to enable render optimization for event handling.
+    /// 开启自定义渲染
+    /// </summary>
+    protected virtual bool EnableRenderOptimization => true;
 
     /// <summary>
     /// Gets or sets the CSS class string applied to the root element.
@@ -346,6 +355,66 @@ public abstract class ResponsiveComponentBase : SecureComponentBase
     }
 
     protected abstract void BuildComponent(RenderTreeBuilder builder);
+
+    Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem item, object? arg)
+    {
+        // 1. 标记事件处理中状态
+        _isEventHandling = true;
+        try
+        {
+            // 2. 执行原始回调
+            var task = item.InvokeAsync(arg);
+
+            // 3. 根据条件决定是否触发渲染
+            if (EnableRenderOptimization && !_shouldRenderAfterEvent)
+            {
+                // 跳过渲染
+                return task;
+            }
+
+            // 4. 异步等待回调完成后触发渲染
+            return HandleEventWithRendering(task);
+        }
+        finally
+        {
+            // 5. 重置标记
+            _isEventHandling = false;
+            _shouldRenderAfterEvent = false;
+        }
+    }
+
+    private async Task HandleEventWithRendering(Task originalTask)
+    {
+        try
+        {
+            await originalTask;
+        }
+        finally
+        {
+            // 确保即使回调抛出异常也能恢复UI状态
+            // 防止嵌套事件重复渲染
+            if (!_isEventHandling)
+            {
+                StateHasChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 标记下一次事件处理需要触发渲染
+    /// </summary>
+    protected void RequestRenderOnNextEvent()
+    {
+        _shouldRenderAfterEvent = true;
+    }
+
+    /// <summary>
+    /// 强制立即渲染
+    /// </summary>
+    protected void ForceImmediateRender()
+    {
+        StateHasChanged();
+    }
 }
 
 #endregion

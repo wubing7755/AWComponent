@@ -262,3 +262,95 @@ async function uploadPromisesLimit(uploadPromises, limit) {
 }
 
 /* ------------------------ FILE UPLOAD ------------------------ */
+
+/* ------------------------ SVG Elements Start ------------------------ */
+
+export async function initializeSVGElement(inputElement, dotNetObjRef, x, y) {
+    const dragState = {
+        isDragging: false,
+        startX: 0,
+        startY: 0,
+        currentX: x,
+        currentY: y
+    };
+
+    // 初始化元素位置
+    updateElementPosition(inputElement, dragState.currentX, dragState.currentY);
+    inputElement.style.cursor = 'move';
+
+    // 开始拖拽
+    const startDrag = (e) => {
+        if (e.button !== 0) return; // 只响应左键点击
+
+        const svgPoint = getSVGPoint(inputElement, e.clientX, e.clientY);
+        dragState.isDragging = true;
+        dragState.startX = svgPoint.x - dragState.currentX;
+        dragState.startY = svgPoint.y - dragState.currentY;
+
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    // 拖拽
+    const drag = (e) => {
+        if (!dragState.isDragging) return;
+
+        const svgPoint = getSVGPoint(inputElement, e.clientX, e.clientY);
+        dragState.currentX = svgPoint.x - dragState.startX;
+        dragState.currentY = svgPoint.y - dragState.startY;
+
+        updateElementPosition(inputElement, dragState.currentX, dragState.currentY);
+        dotNetObjRef.invokeMethodAsync('UpdatePosition', dragState.currentX, dragState.currentY);
+
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    // 结束拖拽
+    const endDrag = () => {
+        dragState.isDragging = false;
+    };
+
+    // 添加事件监听器
+    setupEventListeners(inputElement, startDrag, drag, endDrag);
+
+    // 返回清理函数，便于后续移除事件监听
+    return () => {
+        cleanupEventListeners(inputElement, startDrag, drag, endDrag);
+    };
+}
+
+// 辅助函数：更新元素位置
+function updateElementPosition(inputElement, x, y) {
+    inputElement.setAttribute('transform', `translate(${x}, ${y})`);
+}
+
+// 辅助函数：获取SVG坐标点
+function getSVGPoint(inputElement, clientX, clientY) {
+    const svg = inputElement.ownerSVGElement;
+    const pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+
+// 辅助函数：设置事件监听器
+function setupEventListeners(inputElement, startDrag, drag, endDrag) {
+    inputElement.addEventListener('mousedown', startDrag);
+    const svg = inputElement.ownerSVGElement;
+    svg.addEventListener('mousemove', drag);
+    svg.addEventListener('mouseup', endDrag);
+    svg.addEventListener('mouseleave', endDrag);
+}
+
+// 辅助函数：清理事件监听器
+function cleanupEventListeners(inputElement, startDrag, drag, endDrag) {
+    inputElement.removeEventListener('mousedown', startDrag);
+    const svg = inputElement.ownerSVGElement;
+    svg.removeEventListener('mousemove', drag);
+    svg.removeEventListener('mouseup', endDrag);
+    svg.removeEventListener('mouseleave', endDrag);
+}
+
+
+/* ------------------------ SVG Elements End ------------------------ */

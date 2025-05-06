@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
+using SharedLibrary.Components;
 using SharedLibrary.Models;
 using SharedLibrary.Options;
 
@@ -141,6 +141,20 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
         var chunkSize = 1024 * 1024 * 10;
 
         await module.InvokeVoidAsync("uploadFiles", inputElement, url, chunkSize);
+    }
+
+    /// <summary>
+    /// 拖动SVG元素
+    /// </summary>
+    /// <returns></returns>
+    public async Task InitializeDraggableSVGElement(
+        ElementReference inputElement, 
+        DotNetObjectReference<DraggableSVGElement> dotNetObjRef,
+        double x,
+        double y)
+    {
+        var module = await moduleTask.Value;
+        await module.InvokeVoidAsync("initializeSVGElement", inputElement, dotNetObjRef, x, y);
     }
 
     public async ValueTask DisposeAsync()

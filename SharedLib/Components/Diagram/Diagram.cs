@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
+using Microsoft.AspNetCore.Components.Web;
 using SharedLibrary.Enums;
 using SharedLibrary.Models;
 using SharedLibrary.Utils;
-using System.Diagnostics.CodeAnalysis;
 
 namespace SharedLibrary.Components;
 
+/**
+ * 拖动画布上元素：
+ *      
+ */
 public class Diagram : AWComponentBase
 {
     /// <summary>
@@ -48,8 +52,12 @@ public class Diagram : AWComponentBase
     [Parameter] 
     public string AxisDashArray { get; set; } = "30.9 5";
 
+    [Parameter]
+    public Func<MouseEventArgs, Task>? OnClick { get; set; }
 
     private readonly float Version = 1.1f;
+
+    public Point DragPoint { get; set; } = new Point();
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
@@ -59,12 +67,33 @@ public class Diagram : AWComponentBase
         builder.AddAttribute(seq++, "xmlns", "http://www.w3.org/2000/svg");
         builder.AddAttribute(seq++, "version", $"{Version}");
         builder.AddAttribute(seq++, "viewBox", $"{ViewBox.MinX} {ViewBox.MinY} {ViewBox.Width} {ViewBox.Height}");
+        
+        // OnClick
+        //builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async (args) =>
+        //{
+        //    await HandleClick(args);
+        //}));
 
-         /**
-         * "[align] [meetOrSlice]"
-         * align： viewBox在视口中的对齐方式
-         * meetOrSlice： 如何适应宽高比，默认为meet
-         */
+        // OnMouseDown
+        builder.AddAttribute(seq++, "onmousedown", EventCallback.Factory.Create<MouseEventArgs>(this, async (args) =>
+        {
+            await HandleMouseDown(args);
+        }));
+
+        // OnMouseMove
+        //builder.AddAttribute(seq++, "onmousemove", EventCallback.Factory.Create<MouseEventArgs>(this, async (args) =>
+        //{
+        //    await HandleMouseMove(args);
+        //}));
+
+        // OnMouseUp
+        
+
+        /**
+        * "[align] [meetOrSlice]"
+        * align： viewBox在视口中的对齐方式
+        * meetOrSlice： 如何适应宽高比，默认为meet
+        */
         builder.AddAttribute(seq++, "preserveAspectRatio", $"{nameof(SvgAlign.xMidYMid)} {nameof(SvgMeetOrSlice.meet)}");
         builder.AddAttribute(seq++, "width", Width);
         builder.AddAttribute(seq++, "height", Height);
@@ -118,4 +147,26 @@ public class Diagram : AWComponentBase
         builder.CloseElement();
         builder.CloseElement();
     }
+
+    //private async Task HandleClick(MouseEventArgs args)
+    //{
+    //    RequestRenderOnNextEvent();
+
+    //    if (OnClick is not null)
+    //    {
+    //        await OnClick.Invoke(args);
+    //    }
+    //}
+
+    private async Task HandleMouseDown(MouseEventArgs args)
+    {
+        DragPoint.SetPointXY(args.ClientX, args.ClientY);
+        await Task.CompletedTask;
+    }
+
+    //private async Task HandleMouseMove(MouseEventArgs args)
+    //{
+    //    DragPoint.SetPointXY(args.ClientX, args.ClientY);
+    //    await Task.CompletedTask;
+    //}
 }

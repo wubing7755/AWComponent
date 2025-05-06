@@ -77,11 +77,12 @@ public class Button : AWComponentBase
 
     private async Task HandleClick(MouseEventArgs args)
     {
-        if(OnClick is not null)
+        RequestRenderOnNextEvent();
+
+        if (OnClick is not null)
         {
             await OnClick.Invoke(args);
         }
-
-        EventBus.Publish<ButtonClickedEvent>(new (this.ObjectId.ToString()));
+        EventBus.Publish<ButtonClickedEvent>(new(this.ObjectId.ToString()));
     }
 }
