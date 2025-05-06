@@ -144,17 +144,23 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
     }
 
     /// <summary>
-    /// 拖动SVG元素
+    /// 添加拖动SVG元素的监听器
     /// </summary>
     /// <returns></returns>
-    public async Task InitializeDraggableSVGElement(
+    public async Task CreateSVGDragController(
         ElementReference inputElement, 
         DotNetObjectReference<DraggableSVGElement> dotNetObjRef,
         double x,
         double y)
     {
         var module = await moduleTask.Value;
-        await module.InvokeVoidAsync("initializeSVGElement", inputElement, dotNetObjRef, x, y);
+        await module.InvokeVoidAsync("createSVGDragController", inputElement, dotNetObjRef, x, y);
+    }
+
+    public async Task DisposeSVGDragController(ElementReference inputElement)
+    {
+        var module = await moduleTask.Value;
+        await module.InvokeVoidAsync("disposeSVGDragController", inputElement);
     }
 
     public async ValueTask DisposeAsync()

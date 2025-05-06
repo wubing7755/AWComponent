@@ -265,92 +265,160 @@ async function uploadPromisesLimit(uploadPromises, limit) {
 
 /* ------------------------ SVG Elements Start ------------------------ */
 
-export async function initializeSVGElement(inputElement, dotNetObjRef, x, y) {
-    const dragState = {
-        isDragging: false,
-        startX: 0,
-        startY: 0,
-        currentX: x,
-        currentY: y
-    };
+class SVGDragController {
+    /**
+     * 构造函数
+     * @param {SVGElement} element 
+     * @param {Object} dotNetObjRef 
+     * @param {number} initialX 
+     * @param {number} initialY 
+     */
+    constructor(element, dotNetObjRef, initialX, initialY) {
+        if (!element || !(element instanceof SVGElement)) {
+            throw new Error('Invalid SVG element provided');
+        }
 
-    // 初始化元素位置
-    updateElementPosition(inputElement, dragState.currentX, dragState.currentY);
-    inputElement.style.cursor = 'move';
+        this.element = element;
+        this.dotNetObjRef = dotNetObjRef;
+        this.svg = element.ownerSVGElement;
 
-    // 开始拖拽
-    const startDrag = (e) => {
-        if (e.button !== 0) return; // 只响应左键点击
+        // 拖拽状态
+        this.state = {
+            isDragging: false,
+            startOffset: { x: 0, y: 0 },
+            position: { x: initialX, y: initialY }
+        };
 
-        const svgPoint = getSVGPoint(inputElement, e.clientX, e.clientY);
-        dragState.isDragging = true;
-        dragState.startX = svgPoint.x - dragState.currentX;
-        dragState.startY = svgPoint.y - dragState.currentY;
+        // 绑定事件处理器，确保this上下文正确
+        this.handleMouseDown = this.handleMouseDown.bind(this);
+        this.handleMouseMove = this.handleMouseMove.bind(this);
+        this.handleMouseUp = this.handleMouseUp.bind(this);
+    }
 
-        e.preventDefault();
-        e.stopPropagation();
-    };
+    /**
+     * 初始化SVG元素拖拽功能
+     * @param {SVGElement} element - 要添加拖拽功能的SVG元素
+     * @param {Object} dotNetObjRef - Blazor组件引用
+     * @param {number} initialX - 初始X坐标
+     * @param {number} initialY - 初始Y坐标
+     * @returns {Function} 清理函数，用于移除事件监听
+     */
+    initialize() {
+        this.element.style.cursor = 'move';
+        this.element.setAttribute('data-draggable', 'true');
+        this.element.addEventListener('mousedown', this.handleMouseDown);
+        this.svg.addEventListener('mousemove', this.handleMouseMove);
+        this.svg.addEventListener('mouseup', this.handleMouseUp);
+        this.svg.addEventListener('mouseleave', this.handleMouseUp);
+    }
 
-    // 拖拽
-    const drag = (e) => {
-        if (!dragState.isDragging) return;
+    /**
+     * 清理事件监听
+     */
+    dispose() {
+        this.element.removeEventListener('mousedown', this.handleMouseDown);
+        this.svg.removeEventListener('mousemove', this.handleMouseMove);
+        this.svg.removeEventListener('mouseup', this.handleMouseUp);
+        this.svg.removeEventListener('mouseleave', this.handleMouseUp);
 
-        const svgPoint = getSVGPoint(inputElement, e.clientX, e.clientY);
-        dragState.currentX = svgPoint.x - dragState.startX;
-        dragState.currentY = svgPoint.y - dragState.startY;
+        this.element.style.cursor = '';
+        this.element.removeAttribute('data-draggable');
+    }
 
-        updateElementPosition(inputElement, dragState.currentX, dragState.currentY);
-        dotNetObjRef.invokeMethodAsync('UpdatePosition', dragState.currentX, dragState.currentY);
+    /**
+     * 鼠标按下事件处理
+     * @param {MouseEvent} event 
+     */
+    handleMouseDown(event) {
+        // 只响应左键点击
+        if (event.button !== 0) return;
 
-        e.preventDefault();
-        e.stopPropagation();
-    };
+        const svgPoint = this.getSVGPoint(event.clientX, event.clientY);
 
-    // 结束拖拽
-    const endDrag = () => {
-        dragState.isDragging = false;
-    };
+        this.state.isDragging = true;
+        this.state.startOffset = {
+            x: svgPoint.x - this.state.position.x,
+            y: svgPoint.y - this.state.position.y
+        };
 
-    // 添加事件监听器
-    setupEventListeners(inputElement, startDrag, drag, endDrag);
+        event.preventDefault();
+        event.stopPropagation();
+    }
 
-    // 返回清理函数，便于后续移除事件监听
-    return () => {
-        cleanupEventListeners(inputElement, startDrag, drag, endDrag);
-    };
+    /**
+     * 鼠标移动事件处理
+     * @param {MouseEvent} event 
+     */
+    handleMouseMove(event) {
+        if (!this.state.isDragging) return;
+
+        const svgPoint = this.getSVGPoint(event.clientX, event.clientY);
+
+        this.state.position = {
+            x: svgPoint.x - this.state.startOffset.x,
+            y: svgPoint.y - this.state.startOffset.y
+        };
+
+        this.notifyPositionUpdate();
+
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    /**
+     * 鼠标释放事件处理
+     */
+    handleMouseUp() {
+        this.state.isDragging = false;
+    }
+
+    /**
+     * 通知.NET位置更新
+     */
+    async notifyPositionUpdate() {
+        try {
+            await this.dotNetObjRef.invokeMethodAsync(
+                'UpdatePosition',
+                this.state.position.x,
+                this.state.position.y
+            );
+        } catch (error) {
+            console.error('Failed to notify position update:', error);
+            // 可以考虑在这里添加重试逻辑或错误上报
+        }
+    }
+
+    /**
+     * 获取SVG坐标系中的点
+     * @param {number} clientX 
+     * @param {number} clientY 
+     * @returns {SVGPoint}
+     */
+    getSVGPoint(clientX, clientY) {
+        const point = this.svg.createSVGPoint();
+        point.x = clientX;
+        point.y = clientY;
+        return point.matrixTransform(this.svg.getScreenCTM().inverse());
+    }
 }
 
-// 辅助函数：更新元素位置
-function updateElementPosition(inputElement, x, y) {
-    inputElement.setAttribute('transform', `translate(${x}, ${y})`);
+const controllerInstances = new WeakMap();
+
+export async function createSVGDragController(inputElement, dotNetObjRef, x, y) {
+    const controller = new SVGDragController(inputElement, dotNetObjRef, x, y);
+    controllerInstances.set(inputElement, controller);
+    controller.initialize();
 }
 
-// 辅助函数：获取SVG坐标点
-function getSVGPoint(inputElement, clientX, clientY) {
-    const svg = inputElement.ownerSVGElement;
-    const pt = svg.createSVGPoint();
-    pt.x = clientX;
-    pt.y = clientY;
-    return pt.matrixTransform(svg.getScreenCTM().inverse());
-}
+export async function disposeSVGDragController(inputElement) {
+    if (!inputElement || !controllerInstances.has(inputElement)) {
+        console.warn('No drag controller found for element:', inputElement);
+        return;
+    }
 
-// 辅助函数：设置事件监听器
-function setupEventListeners(inputElement, startDrag, drag, endDrag) {
-    inputElement.addEventListener('mousedown', startDrag);
-    const svg = inputElement.ownerSVGElement;
-    svg.addEventListener('mousemove', drag);
-    svg.addEventListener('mouseup', endDrag);
-    svg.addEventListener('mouseleave', endDrag);
+    const controller = controllerInstances.get(inputElement);
+    controller.dispose();
+    controllerInstances.delete(inputElement);
 }
-
-// 辅助函数：清理事件监听器
-function cleanupEventListeners(inputElement, startDrag, drag, endDrag) {
-    inputElement.removeEventListener('mousedown', startDrag);
-    const svg = inputElement.ownerSVGElement;
-    svg.removeEventListener('mousemove', drag);
-    svg.removeEventListener('mouseup', endDrag);
-    svg.removeEventListener('mouseleave', endDrag);
-}
-
 
 /* ------------------------ SVG Elements End ------------------------ */

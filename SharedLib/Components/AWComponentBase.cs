@@ -56,7 +56,7 @@ Component Hierarchy Feature Matrix:
 /// - Attribute safety filtering
 /// - Resource disposal management
 /// </remarks>
-public abstract class SecureComponentBase : ComponentBase, IDisposable
+public abstract class SecureComponentBase : ComponentBase, IDisposable, IAsyncDisposable
 {
     public SecureComponentBase()
     {
@@ -64,6 +64,7 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
     }
 
     private bool _disposed;
+    private bool _disposedAsync;
     private IReadOnlyDictionary<string, object>? _safeAttributes;
 
     /// <summary>
@@ -178,12 +179,29 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
     protected virtual void DisposeManagedResources() { }
 
     /// <summary>
+    /// Releases managed resources used by this component asynchronously.
+    /// </summary>
+    /// <remarks>
+    /// Override this method to dispose any IDisposable/IAsyncDisposable resources 
+    /// created by your component that require async disposal.
+    /// </remarks>
+    protected virtual ValueTask DisposeManagedResourcesAsync() => ValueTask.CompletedTask;
+
+    /// <summary>
     /// Releases unmanaged resources used by this component.
     /// </summary>
     /// <remarks>
     /// Always call base.DisposeUnmanagedResources() when overriding.
     /// </remarks>
     protected virtual void DisposeUnmanagedResources() { }
+
+    /// <summary>
+    /// Releases unmanaged resources used by this component asynchronously.
+    /// </summary>
+    /// <remarks>
+    /// Always call base.DisposeUnmanagedResourcesAsync() when overriding.
+    /// </remarks>
+    protected virtual ValueTask DisposeUnmanagedResourcesAsync() => ValueTask.CompletedTask;
 
     /// <summary>
     /// Performs application-defined tasks associated with freeing, 
@@ -206,6 +224,17 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable
         DisposeManagedResources();
         DisposeUnmanagedResources();
         _disposed = true;
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposedAsync) return;
+
+        await DisposeManagedResourcesAsync().ConfigureAwait(false);
+        await DisposeUnmanagedResourcesAsync().ConfigureAwait(false);
+
+        _disposedAsync = true;
         GC.SuppressFinalize(this);
     }
 
@@ -536,6 +565,13 @@ public abstract class AWComponentBase : ResponsiveComponentBase
     {
         EventBus.UnsubscribeAll(this);
         base.DisposeManagedResources();
+    }
+
+    /// <inheritdoc/>
+    protected override async ValueTask DisposeManagedResourcesAsync()
+    {
+        EventBus.UnsubscribeAll(this);
+        await base.DisposeManagedResourcesAsync().ConfigureAwait(false);
     }
 }
 

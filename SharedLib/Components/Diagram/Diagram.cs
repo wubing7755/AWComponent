@@ -55,39 +55,26 @@ public class Diagram : AWComponentBase
     [Parameter]
     public Func<MouseEventArgs, Task>? OnClick { get; set; }
 
-    private readonly float Version = 1.1f;
+    private List<DraggableSVGElement> Elements { get; } = new();
 
-    public Point DragPoint { get; set; } = new Point();
+    private readonly float Version = 1.1f;
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         int seq = 0;
 
+        builder.OpenElement(seq++, "div");
+        builder.AddAttribute(seq++, "tabindex", "0");
+        // HandleKeyDown
+        builder.AddAttribute(seq++, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, async (args) =>
+        {
+            await HandleKeyDown(args);
+        }));
+
         builder.OpenElement(seq++, "svg");
         builder.AddAttribute(seq++, "xmlns", "http://www.w3.org/2000/svg");
         builder.AddAttribute(seq++, "version", $"{Version}");
         builder.AddAttribute(seq++, "viewBox", $"{ViewBox.MinX} {ViewBox.MinY} {ViewBox.Width} {ViewBox.Height}");
-        
-        // OnClick
-        //builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async (args) =>
-        //{
-        //    await HandleClick(args);
-        //}));
-
-        // OnMouseDown
-        builder.AddAttribute(seq++, "onmousedown", EventCallback.Factory.Create<MouseEventArgs>(this, async (args) =>
-        {
-            await HandleMouseDown(args);
-        }));
-
-        // OnMouseMove
-        //builder.AddAttribute(seq++, "onmousemove", EventCallback.Factory.Create<MouseEventArgs>(this, async (args) =>
-        //{
-        //    await HandleMouseMove(args);
-        //}));
-
-        // OnMouseUp
-        
 
         /**
         * "[align] [meetOrSlice]"
@@ -142,31 +129,44 @@ public class Diagram : AWComponentBase
         });
         builder.CloseElement();
 
-        builder.AddContent(seq, ChildContent);
+        builder.OpenComponent<CascadingValue<Diagram>>(seq++);
+        builder.AddAttribute(seq++, "Value", this);
+        builder.AddAttribute(seq++, "ChildContent", (RenderFragment)(childBuilder =>
+        {
+            childBuilder.AddContent(seq, ChildContent);
+        }));
+        builder.CloseComponent();
 
+        builder.CloseElement();
         builder.CloseElement();
         builder.CloseElement();
     }
 
-    //private async Task HandleClick(MouseEventArgs args)
-    //{
-    //    RequestRenderOnNextEvent();
-
-    //    if (OnClick is not null)
-    //    {
-    //        await OnClick.Invoke(args);
-    //    }
-    //}
-
-    private async Task HandleMouseDown(MouseEventArgs args)
+    public void AddSVGElement(DraggableSVGElement element)
     {
-        DragPoint.SetPointXY(args.ClientX, args.ClientY);
+        Elements.Add(element);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        Console.WriteLine($"Key pressed: {args.Key}, Code: {args.Code}");
+
+        // 处理方向键
+        switch (args.Code)
+        {
+            case "Delete":
+                for (int i = Elements.Count - 1; i >= 0; i--)
+                {
+                    if (Elements[i].IsSelected)
+                    {
+                        Elements[i].IsDeleted = true;
+                        Elements.RemoveAt(i);
+                        ForceImmediateRender();
+                    }
+                }
+                break;
+        }
+
         await Task.CompletedTask;
     }
-
-    //private async Task HandleMouseMove(MouseEventArgs args)
-    //{
-    //    DragPoint.SetPointXY(args.ClientX, args.ClientY);
-    //    await Task.CompletedTask;
-    //}
 }
