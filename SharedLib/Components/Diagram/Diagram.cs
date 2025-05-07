@@ -2,14 +2,17 @@
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
 using SharedLibrary.Enums;
+using SharedLibrary.Interfaces;
 using SharedLibrary.Models;
 using SharedLibrary.Utils;
 
 namespace SharedLibrary.Components;
 
 /**
- * 拖动画布上元素：
- *      
+ * 画布功能：
+ *      ① 添加元素
+ *      ② 拖动元素
+ *      ③ 复制粘贴元素
  */
 public class Diagram : AWComponentBase
 {
@@ -55,7 +58,10 @@ public class Diagram : AWComponentBase
     [Parameter]
     public Func<MouseEventArgs, Task>? OnClick { get; set; }
 
-    private List<DraggableSVGElement> Elements { get; } = new();
+    [Inject]
+    public IDiagramService DiagramService { get; set; } = null!;
+
+    private int ChildElementCount { get; set; } = 0;
 
     private readonly float Version = 1.1f;
 
@@ -65,6 +71,8 @@ public class Diagram : AWComponentBase
 
         builder.OpenElement(seq++, "div");
         builder.AddAttribute(seq++, "tabindex", "0");
+        // 去除聚焦时元素显示的边框
+        builder.AddAttribute(seq++, "style", "outline: none;");
         // HandleKeyDown
         builder.AddAttribute(seq++, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, async (args) =>
         {
@@ -85,6 +93,8 @@ public class Diagram : AWComponentBase
         builder.AddAttribute(seq++, "width", Width);
         builder.AddAttribute(seq++, "height", Height);
         builder.AddAttribute(seq++, "style", $"background-color: {ColorHelper.ConvertToString(ColorType)};");
+
+        #region 坐标轴
 
         /* 翻转坐标系，与笛卡尔坐标系保持一致 */
         builder.OpenElement(seq++, "g");
@@ -129,22 +139,30 @@ public class Diagram : AWComponentBase
         });
         builder.CloseElement();
 
+        #endregion
+
+        /* 渲染声明式子内容（ChildContent） */
         builder.OpenComponent<CascadingValue<Diagram>>(seq++);
         builder.AddAttribute(seq++, "Value", this);
         builder.AddAttribute(seq++, "ChildContent", (RenderFragment)(childBuilder =>
         {
-            childBuilder.AddContent(seq, ChildContent);
+            childBuilder.AddContent(seq++, ChildContent);
+
+            /* 渲染动态添加的元素（Elements） */
+            foreach (var element in DiagramService.Elements.Where(e => !e.IsDeleted))
+            {
+                // 触发子组件的渲染逻辑
+                childBuilder.OpenComponent(seq++, element.GetType());
+                childBuilder.AddAttribute(seq++, "key", element.GetHashCode());
+                childBuilder.AddAttribute(seq++, "Data", element);
+                childBuilder.CloseComponent();
+            }
         }));
         builder.CloseComponent();
 
         builder.CloseElement();
         builder.CloseElement();
         builder.CloseElement();
-    }
-
-    public void AddSVGElement(DraggableSVGElement element)
-    {
-        Elements.Add(element);
     }
 
     private async Task HandleKeyDown(KeyboardEventArgs args)
@@ -155,16 +173,52 @@ public class Diagram : AWComponentBase
         switch (args.Code)
         {
             case "Delete":
-                for (int i = Elements.Count - 1; i >= 0; i--)
+                for (int i = DiagramService.ElementCount - 1; i >= 0; i--)
                 {
-                    if (Elements[i].IsSelected)
+                    if (DiagramService.Elements[i].IsSelected)
                     {
-                        Elements[i].IsDeleted = true;
-                        Elements.RemoveAt(i);
+                        DiagramService.Elements[i].IsDeleted = true;
                         ForceImmediateRender();
                     }
                 }
                 break;
+        }
+
+        // Ctrl + C
+        if(args.CtrlKey)
+        {
+            switch(args.Code)
+            {
+                case "KeyC":
+                    for (int i = DiagramService.ElementCount - 1; i >= 0; i--)
+                    {
+                        if (DiagramService.Elements[i].IsSelected)
+                        {
+                            DiagramService.Elements[i].IsCopyed = true;
+                        }
+                    }
+                    break;
+                case "KeyV":
+                    for (int i = DiagramService.ElementCount - 1; i >= 0; i--)
+                    {
+                        var element = DiagramService.Elements[i];
+                        if (element.IsCopyed)
+                        {
+                            element.IsCopyed = false;
+                            if (element is Rect other)
+                            {
+
+                                var rect = new Rect();
+
+                                DiagramService.Add(rect);
+                                await InvokeAsync(StateHasChanged);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         await Task.CompletedTask;

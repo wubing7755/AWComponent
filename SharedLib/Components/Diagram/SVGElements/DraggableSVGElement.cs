@@ -1,16 +1,22 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using SharedLibrary.Models;
+using SharedLibrary.Interfaces;
 
 namespace SharedLibrary.Components;
 
+/**
+ * 两种方案：① 在ChildContent中使用SVG元素，② 在Elements中添加SVG元素并渲染
+ */
 public abstract class DraggableSVGElement : AWComponentBase
 {
-    private bool _jsInteropInitialized;
+    protected bool _jsInteropInitialized;
     protected ElementReference inputElement;
     protected DotNetObjectReference<DraggableSVGElement>? DotNetHelper;
 
-    [Parameter] 
+    [CascadingParameter]
+    public Diagram Diagram { get; set; }
+
+    [Parameter]
     public double X { get; set; }
 
     [Parameter] 
@@ -22,21 +28,39 @@ public abstract class DraggableSVGElement : AWComponentBase
     [Parameter]
     public double Height { get; set; }
 
-    [Parameter] 
-    public EventCallback<Point> OnPositionChanged { get; set; }
+    [Parameter]
+    public string Fill { get; set; } = "red";
 
+    public object? Data { get; set; }
+
+    [Inject]
+    public IDiagramService DiagramService { get; set; } = null!;
+
+    /// <summary>
+    /// 选中
+    /// </summary>
     public bool IsSelected { get; set; } = false;
 
+    /// <summary>
+    /// 删除
+    /// </summary>
     public bool IsDeleted { get; set; } = false;
+
+    /// <summary>
+    /// 复制
+    /// </summary>
+    public bool IsCopyed { get; set; } = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && !_jsInteropInitialized && DotNetHelper is null)
         {
+            Console.WriteLine($"id: {inputElement.Id} -- ctx is null: {inputElement.Context is null}");
             DotNetHelper = DotNetObjectReference.Create(this);
             try
             {
-                await JsInterop.CreateSVGDragController(inputElement, DotNetHelper, X, Y);
+
+                await JsInterop.InitializeDraggableSVGElement(inputElement, DotNetHelper, X, Y);
                 _jsInteropInitialized = true;
             }
             catch
@@ -63,7 +87,7 @@ public abstract class DraggableSVGElement : AWComponentBase
         {
             if (_jsInteropInitialized)
             {
-                await JsInterop.DisposeSVGDragController(inputElement);
+                await JsInterop.CleanUpDraggableSVGElement(inputElement);
             }
             DotNetHelper.Dispose();
             DotNetHelper = null;
@@ -77,12 +101,25 @@ public abstract class DraggableSVGElement : AWComponentBase
         // 采用笛卡尔坐标系，与SVG坐标Y轴相反
         Y = -y;
 
-        if (OnPositionChanged.HasDelegate)
-        {
-            await OnPositionChanged.InvokeAsync(new Point(X, Y));
-        }
-
-        IsSelected = true;
         StateHasChanged();
+
+        await Task.CompletedTask;
     }
+
+    [JSInvokable]
+    public virtual async Task SelectedElement()
+    {
+        this.IsSelected = true;
+
+        await Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public virtual async Task UnSelectedElement()
+    {
+        this.IsSelected = false;
+
+        await Task.CompletedTask;
+    }
+
 }

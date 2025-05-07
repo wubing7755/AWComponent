@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharedLibrary.Components;
 using SharedLibrary.Events;
+using SharedLibrary.Interfaces;
 using SharedLibrary.JsInterop;
 using SharedLibrary.Options;
 
@@ -24,6 +25,8 @@ public static class AWComponentServices
         builder.Services.AddSingleton<IEventBus, EventBus>();
 
         builder.Services.AddScoped<AWJsInterop>();
+
+        builder.Services.AddSingleton<IDiagramService, DiagramService>();
 
         return builder;
     }

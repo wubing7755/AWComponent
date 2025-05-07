@@ -284,6 +284,7 @@ class SVGDragController {
 
         // 拖拽状态
         this.state = {
+            isSelected: false,
             isDragging: false,
             startOffset: { x: 0, y: 0 },
             position: { x: initialX, y: initialY }
@@ -293,6 +294,7 @@ class SVGDragController {
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseMove = this.handleMouseMove.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
+        this.handleDocumentClick = this.handleDocumentClick.bind(this);
     }
 
     /**
@@ -309,7 +311,7 @@ class SVGDragController {
         this.element.addEventListener('mousedown', this.handleMouseDown);
         this.svg.addEventListener('mousemove', this.handleMouseMove);
         this.svg.addEventListener('mouseup', this.handleMouseUp);
-        this.svg.addEventListener('mouseleave', this.handleMouseUp);
+        document.addEventListener('click', this.handleDocumentClick);
     }
 
     /**
@@ -319,7 +321,7 @@ class SVGDragController {
         this.element.removeEventListener('mousedown', this.handleMouseDown);
         this.svg.removeEventListener('mousemove', this.handleMouseMove);
         this.svg.removeEventListener('mouseup', this.handleMouseUp);
-        this.svg.removeEventListener('mouseleave', this.handleMouseUp);
+        document.removeEventListener('click', this.handleDocumentClick);
 
         this.element.style.cursor = '';
         this.element.removeAttribute('data-draggable');
@@ -329,17 +331,20 @@ class SVGDragController {
      * 鼠标按下事件处理
      * @param {MouseEvent} event 
      */
-    handleMouseDown(event) {
+    async handleMouseDown(event) {
         // 只响应左键点击
         if (event.button !== 0) return;
 
         const svgPoint = this.getSVGPoint(event.clientX, event.clientY);
 
+        this.state.isSelected = true;
         this.state.isDragging = true;
         this.state.startOffset = {
             x: svgPoint.x - this.state.position.x,
             y: svgPoint.y - this.state.position.y
         };
+
+        await this.dotNetObjRef.invokeMethodAsync('SelectedElement');
 
         event.preventDefault();
         event.stopPropagation();
@@ -368,8 +373,23 @@ class SVGDragController {
     /**
      * 鼠标释放事件处理
      */
-    handleMouseUp() {
+    async handleMouseUp() {
         this.state.isDragging = false;
+    }
+
+    async handleDocumentClick(event) {
+        // 检查点击是否发生在当前控制器管理的元素或其子元素上
+        const isClickOnSelfOrChild = this.element.contains(event.target) ||
+            event.target === this.element;
+
+        // 检查点击是否发生在SVG画布内（包括所有子元素）
+        const isClickInSVG = this.svg.contains(event.target);
+
+        // 如果点击在SVG画布内，在当前元素/子元素外，且当前元素/子元素是选中状态
+        if ((isClickInSVG && !isClickOnSelfOrChild) && this.state.isSelected) {
+            this.state.isSelected = false;
+            await this.dotNetObjRef.invokeMethodAsync('UnSelectedElement');
+        }
     }
 
     /**
@@ -404,13 +424,13 @@ class SVGDragController {
 
 const controllerInstances = new WeakMap();
 
-export async function createSVGDragController(inputElement, dotNetObjRef, x, y) {
+export async function initializeDraggableSVGElement(inputElement, dotNetObjRef, x, y) {
     const controller = new SVGDragController(inputElement, dotNetObjRef, x, y);
     controllerInstances.set(inputElement, controller);
     controller.initialize();
 }
 
-export async function disposeSVGDragController(inputElement) {
+export async function cleanUpDraggableSVGElement(inputElement) {
     if (!inputElement || !controllerInstances.has(inputElement)) {
         console.warn('No drag controller found for element:', inputElement);
         return;

@@ -169,6 +169,8 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable, IAsyncDi
 
     #endregion
 
+    #region Dispose
+
     /// <summary>
     /// Releases managed resources used by this component.
     /// </summary>
@@ -242,6 +244,8 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable, IAsyncDi
     /// Finalizer ensuring unmanaged resources are released
     /// </summary>
     ~SecureComponentBase() => DisposeUnmanagedResources();
+
+    #endregion
 }
 
 #endregion
