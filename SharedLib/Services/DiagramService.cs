@@ -5,14 +5,14 @@ namespace SharedLibrary.Services;
 
 public class DiagramService : IDiagramService
 {
-    private readonly List<DraggableSVGElement> _elements = new();
-    public IReadOnlyList<DraggableSVGElement> Elements => _elements;
+    private readonly List<SvgElementBase> _elements = new();
+    public IReadOnlyList<SvgElementBase> Elements => _elements;
 
     public int ElementCount => _elements.Count;
 
     public event Action? OnChange;
 
-    public void Add(DraggableSVGElement e)
+    public void Add(SvgElementBase e)
     {
         if(!_elements.Contains(e))
         {
@@ -22,7 +22,12 @@ public class DiagramService : IDiagramService
         OnChange?.Invoke();
     }
 
-    public void Remove(DraggableSVGElement e)
+    public bool Contains(SvgElementBase e)
+    {
+        return _elements.Contains(e);
+    }
+
+    public void Remove(SvgElementBase e)
     {
         _elements.Remove(e);
 

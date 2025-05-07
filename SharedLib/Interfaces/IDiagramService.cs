@@ -4,15 +4,17 @@ namespace SharedLibrary.Interfaces;
 
 public interface IDiagramService
 {
-    IReadOnlyList<DraggableSVGElement> Elements { get; }
+    IReadOnlyList<SvgElementBase> Elements { get; }
 
     int ElementCount { get; }
 
-    void Add(DraggableSVGElement e);
+    void Add(SvgElementBase e);
 
-    void Remove(DraggableSVGElement e);
+    void Remove(SvgElementBase e);
 
     void RemoveAt(int index);
+
+    bool Contains(SvgElementBase e);
 
     event Action? OnChange;
 }

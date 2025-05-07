@@ -61,9 +61,8 @@ public class Diagram : AWComponentBase
     [Inject]
     public IDiagramService DiagramService { get; set; } = null!;
 
-    private int ChildElementCount { get; set; } = 0;
-
     private readonly float Version = 1.1f;
+    private readonly string SvgNamespace = "http://www.w3.org/2000/svg";
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
@@ -74,13 +73,10 @@ public class Diagram : AWComponentBase
         // 去除聚焦时元素显示的边框
         builder.AddAttribute(seq++, "style", "outline: none;");
         // HandleKeyDown
-        builder.AddAttribute(seq++, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, async (args) =>
-        {
-            await HandleKeyDown(args);
-        }));
+        builder.AddAttribute(seq++, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleKeyDown));
 
         builder.OpenElement(seq++, "svg");
-        builder.AddAttribute(seq++, "xmlns", "http://www.w3.org/2000/svg");
+        builder.AddAttribute(seq++, "xmlns", SvgNamespace);
         builder.AddAttribute(seq++, "version", $"{Version}");
         builder.AddAttribute(seq++, "viewBox", $"{ViewBox.MinX} {ViewBox.MinY} {ViewBox.Width} {ViewBox.Height}");
 
@@ -104,10 +100,7 @@ public class Diagram : AWComponentBase
         builder.OpenElement(seq++, "circle");
         builder.AddMultipleAttributes(seq++, new Dictionary<string, object>
         {
-            {"cx", "0" },
-            {"cy", "0" },
-            {"r", "5" },
-            {"fill", "red" }
+            {"cx", "0" }, {"cy", "0" }, {"r", "5" }, {"fill", "red" }
         });
         builder.CloseElement();
 
@@ -142,25 +135,22 @@ public class Diagram : AWComponentBase
         #endregion
 
         /* 渲染声明式子内容（ChildContent） */
-        builder.OpenComponent<CascadingValue<Diagram>>(seq++);
-        builder.AddAttribute(seq++, "Value", this);
-        builder.AddAttribute(seq++, "ChildContent", (RenderFragment)(childBuilder =>
+        builder.AddContent(seq, childBuilder =>
         {
-            childBuilder.AddContent(seq++, ChildContent);
+            int childSeq = 0;
+            childBuilder.AddContent(childSeq++, ChildContent);
 
             /* 渲染动态添加的元素（Elements） */
             foreach (var element in DiagramService.Elements.Where(e => !e.IsDeleted))
             {
                 // 触发子组件的渲染逻辑
-                childBuilder.OpenComponent(seq++, element.GetType());
-                childBuilder.AddAttribute(seq++, "key", element.GetHashCode());
-                childBuilder.AddAttribute(seq++, "Data", element);
+                childBuilder.OpenComponent(childSeq++, element.GetType());
+                childBuilder.AddAttribute(childSeq++, "key", element.ObjectId);
                 childBuilder.CloseComponent();
             }
-        }));
-        builder.CloseComponent();
+        });
 
-        builder.CloseElement();
+        builder.CloseElement(); // 关闭g标签
         builder.CloseElement();
         builder.CloseElement();
     }
@@ -169,7 +159,6 @@ public class Diagram : AWComponentBase
     {
         Console.WriteLine($"Key pressed: {args.Key}, Code: {args.Code}");
 
-        // 处理方向键
         switch (args.Code)
         {
             case "Delete":
@@ -182,43 +171,33 @@ public class Diagram : AWComponentBase
                     }
                 }
                 break;
-        }
-
-        // Ctrl + C
-        if(args.CtrlKey)
-        {
-            switch(args.Code)
-            {
-                case "KeyC":
-                    for (int i = DiagramService.ElementCount - 1; i >= 0; i--)
+            case "KeyC" when args.CtrlKey:
+                for (int i = DiagramService.ElementCount - 1; i >= 0; i--)
+                {
+                    if (DiagramService.Elements[i].IsSelected)
                     {
-                        if (DiagramService.Elements[i].IsSelected)
+                        DiagramService.Elements[i].IsCopyed = true;
+                    }
+                }
+                break;
+            case "KeyV" when args.CtrlKey:
+                for (int i = DiagramService.ElementCount - 1; i >= 0; i--)
+                {
+                    var element = DiagramService.Elements[i];
+                    if (element.IsCopyed)
+                    {
+                        element.IsCopyed = false;
+                        if (element is Rect other)
                         {
-                            DiagramService.Elements[i].IsCopyed = true;
+
+                            var rect = new Rect();
+
+                            DiagramService.Add(rect);
+                            await InvokeAsync(StateHasChanged);
                         }
                     }
-                    break;
-                case "KeyV":
-                    for (int i = DiagramService.ElementCount - 1; i >= 0; i--)
-                    {
-                        var element = DiagramService.Elements[i];
-                        if (element.IsCopyed)
-                        {
-                            element.IsCopyed = false;
-                            if (element is Rect other)
-                            {
-
-                                var rect = new Rect();
-
-                                DiagramService.Add(rect);
-                                await InvokeAsync(StateHasChanged);
-                            }
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
+                }
+                break;
         }
 
         await Task.CompletedTask;

@@ -149,7 +149,7 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
     /// <returns></returns>
     public async Task InitializeDraggableSVGElement(
         ElementReference inputElement, 
-        DotNetObjectReference<DraggableSVGElement> dotNetObjRef,
+        DotNetObjectReference<SvgElementBase> dotNetObjRef,
         double x,
         double y)
     {
