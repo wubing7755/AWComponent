@@ -20,8 +20,6 @@ public class DiagramService : IDiagramService
     private readonly List<DraggableSvgElementModel> _elements;
     public IReadOnlyList<DraggableSvgElementModel> Elements => _elements.AsReadOnly();
 
-    private ActionUndoItem<DraggableSvgElementModel> undoItem;
-
     public int ElementCount => _elements.Count;
 
     public event Action? OnChange;
@@ -65,6 +63,7 @@ public class DiagramService : IDiagramService
                     if (Elements[i].IsSelected)
                     {
                         Elements[i].IsDeleted = true;
+                        _undoService.Do(UndoFactory.SvgElementDeleteUndoItem(Elements[i]));
                     }
                 }
                 break;
@@ -88,8 +87,7 @@ public class DiagramService : IDiagramService
                             var rectM = new RectModel();
                             Add(rectM);
 
-                            undoItem = UndoFactory.SvgElementUndoItem(rectM);
-                            _undoService.Do(undoItem);
+                            _undoService.Do(UndoFactory.SvgElementPasteUndoItem(rectM));
                         }
 
                         element.IsCopyed = false;

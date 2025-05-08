@@ -7,7 +7,7 @@ public abstract class DraggableSvgElement<TValue> : SvgElementBase<TValue> where
 {
     protected override async ValueTask InitializeElementAsync()
     {
-        await JsInterop.InitializeDraggableSVGElement(ElementRef, DotNetRef, 0, 0);
+        await JsInterop.InitializeDraggableSVGElement(ElementRef, DotNetRef, Model.X, Model.Y);
     }
 
     [JSInvokable]

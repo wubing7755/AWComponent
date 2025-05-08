@@ -37,9 +37,11 @@ public class UndoService : IUndoService
     {
         lock (_syncRoot)
         {
+            if (!CanRedo)
+                return Result.Fail("无法进行恢复操作");
+
             if (!_redoStack.TryPop(out var item))
                 return Result.NotOk;
-
             var res = item.Redo();
             if (res.IsSuccess)
             {
@@ -57,6 +59,9 @@ public class UndoService : IUndoService
     {
         lock (_syncRoot)
         {
+            if (!CanUndo)
+                return Result.Fail("无法进行撤销操作");
+
             if (!_undoStack.TryPop(out var item))
                 return Result.NotOk;
 

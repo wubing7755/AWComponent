@@ -1,6 +1,4 @@
-﻿using Microsoft.JSInterop;
-
-namespace SharedLibrary.Models;
+﻿namespace SharedLibrary.Models;
 
 public abstract class DraggableSvgElementModel : SvgElementModel
 {
