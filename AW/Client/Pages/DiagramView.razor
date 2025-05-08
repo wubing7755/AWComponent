@@ -1,9 +1,20 @@
 ﻿@page "/diagramView"
 @using SharedLibrary.Components
+@using SharedLibrary.Interfaces
+@inject IDiagramService DS
+
+<Button OnClick="AddRect">+ Rect +</Button>
+
+<Divider />
 
 <!-- 使用笛卡尔坐标系 -->
-<Diagram>
-    <Rect/>
-@*     <Rect X="0" Y="0" Width="20" Height="20" Fill="red" />
-    <Rect X="0" Y="0" Width="20" Height="20" Fill="blue" /> *@
-</Diagram>
+<Diagram></Diagram>
+
+@code {
+    private Task AddRect(MouseEventArgs args)
+    {
+        var rect = new Rect();
+        DS.Add(rect);
+        return Task.CompletedTask;
+    }
+}

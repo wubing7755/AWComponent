@@ -1,4 +1,7 @@
-﻿using Microsoft.JSInterop;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using SharedLibrary.Interfaces;
+using SharedLibrary.Services;
 
 namespace SharedLibrary.Components;
 
@@ -16,8 +19,6 @@ public abstract class DraggableSvgElement : SvgElementBase
         Y = -y;
 
         StateHasChanged();
-
-        await Task.CompletedTask;
     }
 
     protected override async ValueTask InitializeElementAsync()

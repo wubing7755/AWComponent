@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
 using SharedLibrary.Enums;
+using SharedLibrary.Events;
 using SharedLibrary.Interfaces;
 using SharedLibrary.Models;
 using SharedLibrary.Utils;
@@ -40,8 +41,8 @@ public class Diagram : AWComponentBase
     [Parameter]
     public ColorType ColorType { get; set; } = ColorType.Black;
 
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
+    //[Parameter]
+    //public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
     /// 显式坐标轴
@@ -63,6 +64,13 @@ public class Diagram : AWComponentBase
 
     private readonly float Version = 1.1f;
     private readonly string SvgNamespace = "http://www.w3.org/2000/svg";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        DiagramService.OnChange += ForceImmediateRender;
+    }
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
@@ -135,71 +143,33 @@ public class Diagram : AWComponentBase
         #endregion
 
         /* 渲染声明式子内容（ChildContent） */
-        builder.AddContent(seq, childBuilder =>
+        builder.AddContent(seq++, childBuilder =>
         {
-            int childSeq = 0;
-            childBuilder.AddContent(childSeq++, ChildContent);
-
             /* 渲染动态添加的元素（Elements） */
             foreach (var element in DiagramService.Elements.Where(e => !e.IsDeleted))
             {
                 // 触发子组件的渲染逻辑
-                childBuilder.OpenComponent(childSeq++, element.GetType());
-                childBuilder.AddAttribute(childSeq++, "key", element.ObjectId);
+                childBuilder.OpenComponent(seq++, element.GetType());
                 childBuilder.CloseComponent();
             }
         });
 
-        builder.CloseElement(); // 关闭g标签
+        builder.CloseElement();
         builder.CloseElement();
         builder.CloseElement();
     }
 
-    private async Task HandleKeyDown(KeyboardEventArgs args)
+    /// <summary>
+    /// 允许自定义键盘处理事件
+    /// </summary>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    public virtual async Task HandleKeyDown(KeyboardEventArgs args)
     {
-        Console.WriteLine($"Key pressed: {args.Key}, Code: {args.Code}");
+        var keyEvent = new DiagramKeyEvent(args.Code, args.CtrlKey, args.AltKey, args.ShiftKey);
+        EventBus.Publish<DiagramKeyEvent>(keyEvent);
 
-        switch (args.Code)
-        {
-            case "Delete":
-                for (int i = DiagramService.ElementCount - 1; i >= 0; i--)
-                {
-                    if (DiagramService.Elements[i].IsSelected)
-                    {
-                        DiagramService.Elements[i].IsDeleted = true;
-                        ForceImmediateRender();
-                    }
-                }
-                break;
-            case "KeyC" when args.CtrlKey:
-                for (int i = DiagramService.ElementCount - 1; i >= 0; i--)
-                {
-                    if (DiagramService.Elements[i].IsSelected)
-                    {
-                        DiagramService.Elements[i].IsCopyed = true;
-                    }
-                }
-                break;
-            case "KeyV" when args.CtrlKey:
-                for (int i = DiagramService.ElementCount - 1; i >= 0; i--)
-                {
-                    var element = DiagramService.Elements[i];
-                    if (element.IsCopyed)
-                    {
-                        element.IsCopyed = false;
-                        if (element is Rect other)
-                        {
-
-                            var rect = new Rect();
-
-                            DiagramService.Add(rect);
-                            await InvokeAsync(StateHasChanged);
-                        }
-                    }
-                }
-                break;
-        }
-
+        ForceImmediateRender();
         await Task.CompletedTask;
     }
 }

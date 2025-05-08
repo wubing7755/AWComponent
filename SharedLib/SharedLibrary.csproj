@@ -56,4 +56,8 @@
 	<Content Include="wwwroot\js\SharedLib.js" Pack="true" PackagePath="staticwebassets\wwwroot\js\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Command\" />
+  </ItemGroup>
+
 </Project>

@@ -12,26 +12,15 @@ public class Rect : DraggableSvgElement
 
     public string Fill { get; set; } = "red";
 
-    [Inject]
-    public IDiagramService DiagramService { get; set; } = null!;
-
     public override void Render(RenderTreeBuilder builder)
     {
-        if(!DiagramService.Contains(this))
-        {
-            DiagramService.Add(this);
-        }
-
-        int seq = 25;
+        int seq = 0;
         builder.OpenElement(seq++, "rect");
-        builder.AddMultipleAttributes(seq++, new Dictionary<string, object>
-        {
-            { "x", X },
-            { "y", Y },
-            { "width", Width},
-            { "height", Height },
-            { "fill", Fill }
-        });
+        builder.AddAttribute(seq++, "x", X);
+        builder.AddAttribute(seq++, "y", Y);
+        builder.AddAttribute(seq++, "width", Width);
+        builder.AddAttribute(seq++, "height", Height);
+        builder.AddAttribute(seq++, "fill", Fill);
         builder.AddElementReferenceCapture(seq, eRef => elementRef = eRef);
         builder.CloseElement();
     }
