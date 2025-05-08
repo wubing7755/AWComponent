@@ -41,9 +41,6 @@ public class Diagram : AWComponentBase
     [Parameter]
     public ColorType ColorType { get; set; } = ColorType.Black;
 
-    //[Parameter]
-    //public RenderFragment? ChildContent { get; set; }
-
     /// <summary>
     /// 显式坐标轴
     /// </summary>
@@ -149,7 +146,9 @@ public class Diagram : AWComponentBase
             foreach (var element in DiagramService.Elements.Where(e => !e.IsDeleted))
             {
                 // 触发子组件的渲染逻辑
-                childBuilder.OpenComponent(seq++, element.GetType());
+                childBuilder.OpenComponent(seq++, element.GetSvgType());
+                builder.AddAttribute(seq++, "key", element.ObjectId);
+                childBuilder.AddAttribute(seq++, "Model", element);
                 childBuilder.CloseComponent();
             }
         });

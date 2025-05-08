@@ -2,6 +2,7 @@
 {
     public enum SVGElementType
     {
+        None,
         Rect,
         Line
     }

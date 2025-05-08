@@ -1,43 +1,35 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
+using SharedLibrary.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SharedLibrary.Components;
 
-public abstract class SvgElementBase : AWComponentBase
+public abstract class SvgElementBase<TValue> : AWComponentBase where TValue : DraggableSvgElementModel
 {
+    /// <summary>
+    /// 数据层
+    /// </summary>
+    [Parameter, NotNull, EditorRequired]
+    public TValue? Model { get; set; }
+
     /// <summary>
     /// 元素引用
     /// </summary>
-    protected ElementReference elementRef;
+    protected ElementReference ElementRef { get; set; }
 
     /// <summary>
     /// dotnet引用
     /// </summary>
-    protected DotNetObjectReference<SvgElementBase> DotNetRef;
-
-    /// <summary>
-    /// 删除
-    /// </summary>
-    public bool IsDeleted { get; set; } = false;
-
-    /// <summary>
-    /// 选中
-    /// </summary>
-    public bool IsSelected { get; set; } = false;
-
-    /// <summary>
-    /// 复制
-    /// </summary>
-    public bool IsCopyed { get; set; } = false;
+    protected DotNetObjectReference<SvgElementBase<TValue>>? DotNetRef { get; private set; }
 
     public abstract void Render(RenderTreeBuilder builder);
+
     protected virtual ValueTask InitializeElementAsync() => ValueTask.CompletedTask;
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
-        if (IsDeleted) return;
-
         Render(builder);
     }
 
@@ -60,7 +52,7 @@ public abstract class SvgElementBase : AWComponentBase
     [JSInvokable]
     public virtual async Task SelectedElement()
     {
-        IsSelected = true;
+        Model.IsSelected = true;
 
         await Task.CompletedTask;
     }
@@ -68,7 +60,7 @@ public abstract class SvgElementBase : AWComponentBase
     [JSInvokable]
     public virtual async Task UnSelectedElement()
     {
-        IsSelected = false;
+        Model.IsSelected = false;
 
         await Task.CompletedTask;
     }

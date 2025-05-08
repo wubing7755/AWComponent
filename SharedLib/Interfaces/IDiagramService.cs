@@ -1,20 +1,20 @@
-﻿using SharedLibrary.Components;
+﻿using SharedLibrary.Models;
 
 namespace SharedLibrary.Interfaces;
 
 public interface IDiagramService
 {
-    IReadOnlyList<SvgElementBase> Elements { get; }
+    IReadOnlyList<DraggableSvgElementModel> Elements { get; }
 
     int ElementCount { get; }
 
-    void Add(SvgElementBase e);
+    void Add(DraggableSvgElementModel e);
 
-    void Remove(SvgElementBase e);
+    void Remove(DraggableSvgElementModel e);
 
     void RemoveAt(int index);
 
-    bool Contains(SvgElementBase e);
+    bool Contains(DraggableSvgElementModel e);
 
     event Action? OnChange;
 }

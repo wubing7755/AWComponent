@@ -1,6 +1,6 @@
 ﻿namespace SharedLibrary.Components;
 
-public static class SVGFactory
+public static class SvgFactory
 {
     
 }

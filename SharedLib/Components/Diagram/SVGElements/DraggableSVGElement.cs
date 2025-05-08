@@ -1,29 +1,25 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using SharedLibrary.Interfaces;
-using SharedLibrary.Services;
+﻿using Microsoft.JSInterop;
+using SharedLibrary.Models;
 
 namespace SharedLibrary.Components;
 
-public abstract class DraggableSvgElement : SvgElementBase
+public abstract class DraggableSvgElement<TValue> : SvgElementBase<TValue> where TValue : DraggableSvgElementModel
 {
-    public double X { get; set; }
-
-    public double Y { get; set; }
+    protected override async ValueTask InitializeElementAsync()
+    {
+        await JsInterop.InitializeDraggableSVGElement(ElementRef, DotNetRef, 0, 0);
+    }
 
     [JSInvokable]
     public virtual async Task UpdatePosition(double x, double y)
     {
-        X = x;
+        Model.X = x;
         // 采用笛卡尔坐标系，与SVG坐标Y轴相反
-        Y = -y;
+        Model.Y = -y;
 
         StateHasChanged();
-    }
 
-    protected override async ValueTask InitializeElementAsync()
-    {
-        await JsInterop.InitializeDraggableSVGElement(elementRef, DotNetRef, X, Y);
+        await Task.Delay(0);
     }
 }
 

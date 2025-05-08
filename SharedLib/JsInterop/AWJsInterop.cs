@@ -147,11 +147,11 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
     /// 为SVG元素添加监听器
     /// </summary>
     /// <returns></returns>
-    public async Task InitializeDraggableSVGElement(
+    public async Task InitializeDraggableSVGElement<TValue>(
         ElementReference inputElement, 
-        DotNetObjectReference<SvgElementBase> dotNetObjRef,
+        DotNetObjectReference<SvgElementBase<TValue>> dotNetObjRef,
         double x,
-        double y)
+        double y) where TValue : DraggableSvgElementModel
     {
         var module = await moduleTask.Value;
         await module.InvokeVoidAsync("initializeDraggableSVGElement", inputElement, dotNetObjRef, x, y);

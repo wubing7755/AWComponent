@@ -1,6 +1,7 @@
 ﻿using SharedLibrary.Components;
 using SharedLibrary.Events;
 using SharedLibrary.Interfaces;
+using SharedLibrary.Models;
 
 namespace SharedLibrary.Services;
 
@@ -10,17 +11,17 @@ public class DiagramService : IDiagramService
     {
         eventBus.Subscribe<DiagramKeyEvent>(DiagramKeyHandle);
 
-        _elements = new List<SvgElementBase>();
+        _elements = new List<DraggableSvgElementModel>();
     }
 
-    private readonly List<SvgElementBase> _elements;
-    public IReadOnlyList<SvgElementBase> Elements => _elements.AsReadOnly();
+    private readonly List<DraggableSvgElementModel> _elements;
+    public IReadOnlyList<DraggableSvgElementModel> Elements => _elements.AsReadOnly();
 
     public int ElementCount => _elements.Count;
 
     public event Action? OnChange;
 
-    public void Add(SvgElementBase e)
+    public void Add(DraggableSvgElementModel e)
     {
         if(!_elements.Contains(e))
         {
@@ -30,12 +31,12 @@ public class DiagramService : IDiagramService
         OnChange?.Invoke();
     }
 
-    public bool Contains(SvgElementBase e)
+    public bool Contains(DraggableSvgElementModel e)
     {
         return _elements.Contains(e);
     }
 
-    public void Remove(SvgElementBase e)
+    public void Remove(DraggableSvgElementModel e)
     {
         _elements.Remove(e);
 
@@ -75,12 +76,12 @@ public class DiagramService : IDiagramService
                 for (int i = ElementCount - 1; i >= 0; i--)
                 {
                     var element = Elements[i];
-                    if (element.IsCopyed)
+                    if (!element.IsDeleted && element.IsCopyed)
                     {
-                        if (element is Rect)
+                        if (element is RectModel)
                         {
-                            var rect = new Rect();
-                            Add(rect);
+                            var rectM = new RectModel();
+                            Add(rectM);
                         }
 
                         element.IsCopyed = false;
