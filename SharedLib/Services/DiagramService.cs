@@ -7,15 +7,20 @@ namespace SharedLibrary.Services;
 
 public class DiagramService : IDiagramService
 {
-    public DiagramService(IEventBus eventBus)
+    private readonly IUndoService _undoService;
+
+    public DiagramService(IEventBus eventBus, IUndoService undoService)
     {
         eventBus.Subscribe<DiagramKeyEvent>(DiagramKeyHandle);
 
         _elements = new List<DraggableSvgElementModel>();
+        _undoService = undoService;
     }
 
     private readonly List<DraggableSvgElementModel> _elements;
     public IReadOnlyList<DraggableSvgElementModel> Elements => _elements.AsReadOnly();
+
+    private ActionUndoItem<DraggableSvgElementModel> undoItem;
 
     public int ElementCount => _elements.Count;
 
@@ -82,6 +87,9 @@ public class DiagramService : IDiagramService
                         {
                             var rectM = new RectModel();
                             Add(rectM);
+
+                            undoItem = UndoFactory.SvgElementUndoItem(rectM);
+                            _undoService.Do(undoItem);
                         }
 
                         element.IsCopyed = false;
@@ -89,8 +97,10 @@ public class DiagramService : IDiagramService
                 }
                 break;
             case "KeyZ" when args.CtrlKey:
+                _undoService.Undo();
                 break;
             case "KeyY" when args.CtrlKey:
+                _undoService.Redo();
                 break;
         }
     }

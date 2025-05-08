@@ -26,10 +26,10 @@ public interface IUndoItem
 
     /// <summary>
     /// Executes the operation
-    /// 执行操作
+    /// 执行恢复操作
     /// </summary>
     /// <returns>Operation result</returns>
-    Result Do();
+    Result Redo();
 
     /// <summary>
     /// Executes the undo operation
@@ -39,10 +39,10 @@ public interface IUndoItem
     Result Undo();
 
     /// <summary>
-    /// Callback after successful Do operation
-    /// Do操作成功后的回调
+    /// Callback after successful Redo operation
+    /// Redo操作成功后的回调
     /// </summary>
-    Action<Result, object?>? AfterDo { get; set; }
+    Action<Result, object?>? AfterRedo { get; set; }
 
     /// <summary>
     /// Callback after successful Undo operation
@@ -76,10 +76,10 @@ public abstract class UndoItem : IUndoItem
     public Guid OperationId => _operationId.Value;
     public DateTime Timestamp => _timestamp.Value;
     public string Description { get; protected set; }
-    public Action<Result, object?>? AfterDo { get; set; }
+    public Action<Result, object?>? AfterRedo { get; set; }
     public Action<Result, object?>? AfterUndo { get; set; }
 
-    public abstract Result Do();
+    public abstract Result Redo();
     public abstract Result Undo();
 
     public virtual bool TryMerge(IUndoItem subsequentOperation) => false;
@@ -101,21 +101,21 @@ public abstract class UndoItem<TValue> : UndoItem
         Value = value;
     }
 
-    protected virtual Result DoFunction(TValue value) => Result.Ok;
+    protected virtual Result RedoFunction(TValue value) => Result.Ok;
     protected virtual Result UndoFunction(TValue value) => Result.Ok;
 
-    public override Result Do()
+    public override Result Redo()
     {
         Result res;
         try
         {
-            res = DoFunction(Value);
+            res = RedoFunction(Value);
         }
         catch (Exception e)
         {
             res = Result.Fail(e.ToString());
         }
-        AfterDo?.Invoke(res, Value);
+        AfterRedo?.Invoke(res, Value);
         return res;
     }
 
@@ -222,19 +222,19 @@ public abstract class UndoItem<TValue> : UndoItem
 /// </remarks>
 public class ActionUndoItem<TValue> : UndoItem<TValue>
 {
-    private readonly Func<TValue, Result> _doFunc;
+    private readonly Func<TValue, Result> _redoFunc;
     private readonly Func<TValue, Result> _undoFunc;
 
     public ActionUndoItem(
         TValue value,
-        Func<TValue, Result> doFunc,
+        Func<TValue, Result> redoFunc,
         Func<TValue, Result> undoFunc,
         string description) : base(value, description)
     {
-        _doFunc = doFunc ?? throw new ArgumentNullException(nameof(doFunc));
+        _redoFunc = redoFunc ?? throw new ArgumentNullException(nameof(redoFunc));
         _undoFunc = undoFunc ?? throw new ArgumentNullException(nameof(undoFunc));
     }
 
-    protected override Result DoFunction(TValue value) => _doFunc(value);
+    protected override Result RedoFunction(TValue value) => _redoFunc(value);
     protected override Result UndoFunction(TValue value) => _undoFunc(value);
 }

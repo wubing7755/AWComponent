@@ -26,6 +26,8 @@ public static class AWComponentServices
 
         builder.Services.AddScoped<AWJsInterop>();
 
+        builder.Services.AddSingleton<IUndoService, UndoService>();
+
         builder.Services.AddSingleton<IDiagramService, DiagramService>();
 
         return builder;
