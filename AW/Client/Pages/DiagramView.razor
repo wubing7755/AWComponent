@@ -4,6 +4,7 @@
 @inject IDiagramService DS
 
 <Button OnClick="AddRect">+ Rect +</Button>
+<Button OnClick="AddCircle">+ Circle +</Button>
 
 <Divider />
 
@@ -15,8 +16,13 @@
     {
         var rectM = new RectModel();
         DS.Add(rectM);
+        return Task.CompletedTask;
+    }
 
-        //Console.WriteLine(rect == DS.Elements[-1]);
+    private Task AddCircle(MouseEventArgs args)
+    {
+        var circleM = new CircleModel();
+        DS.Add(circleM);
         return Task.CompletedTask;
     }
 }

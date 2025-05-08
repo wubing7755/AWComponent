@@ -30,6 +30,7 @@ public abstract class SvgElementModel
         return Type switch
         {
             SVGElementType.Rect => typeof(Rect),
+            SVGElementType.Circle => typeof(Circle),
             _ => throw new NotImplementedException($"SVGElementType {Type} not implemented")
         };
     }

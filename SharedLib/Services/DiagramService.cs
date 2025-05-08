@@ -1,4 +1,5 @@
 ﻿using SharedLibrary.Components;
+using SharedLibrary.Enums;
 using SharedLibrary.Events;
 using SharedLibrary.Interfaces;
 using SharedLibrary.Models;
@@ -82,14 +83,21 @@ public class DiagramService : IDiagramService
                     var element = Elements[i];
                     if (!element.IsDeleted && element.IsCopyed)
                     {
-                        if (element is RectModel)
+                        switch(element.Type)
                         {
-                            var rectM = new RectModel();
-                            Add(rectM);
+                            case SVGElementType.Rect:
+                                var rectM = new RectModel();
+                                Add(rectM);
 
-                            _undoService.Do(UndoFactory.SvgElementPasteUndoItem(rectM));
+                                _undoService.Do(UndoFactory.SvgElementPasteUndoItem(rectM));
+                                break;
+                            case SVGElementType.Circle:
+                                var circleM = new CircleModel();
+                                Add(circleM);
+
+                                _undoService.Do(UndoFactory.SvgElementPasteUndoItem(circleM));
+                                break;
                         }
-
                         element.IsCopyed = false;
                     }
                 }

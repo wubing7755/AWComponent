@@ -4,6 +4,7 @@
     {
         None,
         Rect,
+        Circle,
         Line
     }
 }
