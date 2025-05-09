@@ -28,8 +28,6 @@ public static class AWComponentServices
 
         builder.Services.AddSingleton<IUndoService, UndoService>();
 
-        builder.Services.AddSingleton<IDiagramService, DiagramService>();
-
         return builder;
     }
 }

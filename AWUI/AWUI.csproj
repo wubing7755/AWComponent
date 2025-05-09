@@ -6,8 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<PackageId>AWUI</PackageId>
 	<Title>Blazor AWUI</Title>
-	<PackageVersion>0.0.1</PackageVersion>
-
+	<PackageVersion>0.0.2</PackageVersion>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<PackageProjectUrl>https://github.com/wubing7755/AWComponent</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/wubing7755/AWComponent.git</RepositoryUrl>
+	  
 	<Authors>wubing7755</Authors>
 	<Description>
 		🚀 Blazor Component Library
@@ -18,12 +22,18 @@
 		· Type Safety: Strongly-typed C# components
 	</Description>
 
+	  <PackageReleaseNotes>
+		  ## 0.0.2 (2025-05-09)
+	  </PackageReleaseNotes>
+
+	  <Copyright>Copyright © 2025 wubing7755</Copyright>
+
+	  <PackageTags>Blazor UIComponents</PackageTags>
 	<!-- 禁用默认Content包含 -->
 	<EnableDefaultContentItems>false</EnableDefaultContentItems>
 	<!-- 确保静态资源基础路径正确 -->
 	<StaticWebAssetBasePath>_content/AWUI</StaticWebAssetBasePath>
   </PropertyGroup>
-
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
@@ -56,8 +66,7 @@
 		<Content Include="wwwroot\js\AWUI.js" Pack="true" PackagePath="staticwebassets\wwwroot\js\" />
 	</ItemGroup>
 	
-  <ItemGroup>
-    <Folder Include="Command\" />
-  </ItemGroup>
-
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath=""/>
+	</ItemGroup>
 </Project>
