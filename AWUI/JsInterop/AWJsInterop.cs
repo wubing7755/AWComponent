@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
-using AWUI.Components;
 using AWUI.Models;
 using AWUI.Options;
 
@@ -14,12 +13,12 @@ public interface IJsInterop
 
 public class AWJsInterop : IJsInterop, IAsyncDisposable
 {
-    private readonly Lazy<Task<IJSObjectReference>> moduleTask;
+    protected readonly Lazy<Task<IJSObjectReference>> moduleTask;
 
     public AWJsInterop(IJSRuntime jsRuntime, IOptions<JsModuleOptions> options)
     {
         moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-            "import", options.Value.AWUI).AsTask());
+            "import", "./_content/AWUI/js/AWUI.js").AsTask());
     }
 
     public async Task TestConnection()

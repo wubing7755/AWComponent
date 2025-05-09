@@ -45,7 +45,7 @@ public class Button : AWComponentBase
         if (Disabled)
         {
             builder.AddAttribute(seq++, "aria-disabled", "true");
-            builder.AddAttribute(seq++, "disabled", "true");
+            builder.AddAttribute(seq++, "disabled");
         }
 
         builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async(args) =>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace AWUI.Options;
@@ -22,9 +23,5 @@ public class JsModuleOptions
     /// </summary>
     public const string SectionName = "JsModules";
 
-    /// <summary>
-    /// 共享库模块路径/URL
-    /// Shared library module path/URL
-    /// </summary>
-    public string AWUI { get; set; } = string.Empty;
+    public Dictionary<string, string> AdditionalModules { get; set; } = new();
 }
