@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SharedLib\SharedLibrary.csproj" />
+    <ProjectReference Include="..\..\AWUI\AWUI.csproj" />
     <ProjectReference Include="..\Shared\AW.Shared.csproj" />
   </ItemGroup>
 
@@ -22,7 +22,7 @@
   </ItemGroup>
 
     <ItemGroup>
-		<EmbeddedResource Include="..\..\SharedLibrary\Resources\*.resx">
+		<EmbeddedResource Include="..\..\AWUI\Resources\*.resx">
 			<Link>Resources\%(RecursiveDir)%(Filename)%(Extension)</Link>
 		</EmbeddedResource>
 	</ItemGroup>

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.ResponseCompression;
-using SharedLibrary.Services;
+using AWUI.Services;
 
 namespace AW
 {

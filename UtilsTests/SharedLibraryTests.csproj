@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -24,7 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SharedLib\SharedLibrary.csproj" />
+    <ProjectReference Include="..\AWUI\AWUI.csproj" />
+    <ProjectReference Include="..\SharedLib\AWUI.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

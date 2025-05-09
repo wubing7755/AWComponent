@@ -1,4 +1,4 @@
-﻿using SharedLibrary.Utils;
+﻿using AWUI.Utils;
 using Xunit.Abstractions;
 
 namespace SharedLibraryTests.Utils;

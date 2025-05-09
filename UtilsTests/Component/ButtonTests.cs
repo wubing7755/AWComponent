@@ -1,7 +1,7 @@
 ﻿using Bunit;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components;
-using SharedLibrary.Components;
+using AWUI.Components;
 using Xunit.Abstractions;
 using Moq;
 

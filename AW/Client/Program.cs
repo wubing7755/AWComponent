@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using SharedLibrary.Services;
+using AWUI.Services;
 
 namespace AW.Client
 {

@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<PackageId>AWUI</PackageId>
+	<Title>Blazor AWUI</Title>
+	<PackageVersion>0.0.1</PackageVersion>
+
+	<Authors>wubing7755</Authors>
+	<Description>
+		🚀 Blazor Component Library
+		· Production-Ready: 20+ enterprise UI components
+		· Theming: Dynamic skinning via CSS variables
+		· Optimized Performance: Enhanced virtual DOM rendering
+		· i18n Support: Built-in EN/CN localization
+		· Type Safety: Strongly-typed C# components
+	</Description>
+
+	<!-- 禁用默认Content包含 -->
+	<EnableDefaultContentItems>false</EnableDefaultContentItems>
+	<!-- 确保静态资源基础路径正确 -->
+	<StaticWebAssetBasePath>_content/AWUI</StaticWebAssetBasePath>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BootstrapBlazor.FontAwesome" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.36" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.36" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.36" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\SecureLocalization.zh.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SecureLocalization.zh.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\SecureLocalization.zh.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SecureLocalization.zh.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+	
+	<ItemGroup>
+		<Content Include="wwwroot\js\AWUI.js" Pack="true" PackagePath="staticwebassets\wwwroot\js\" />
+	</ItemGroup>
+	
+  <ItemGroup>
+    <Folder Include="Command\" />
+  </ItemGroup>
+
+</Project>

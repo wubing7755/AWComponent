@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AW.Client", "AW\Client\AW.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AW.Shared", "AW\Shared\AW.Shared.csproj", "{CA2DEF03-BB53-457C-B0BD-4E907BDE5CA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibrary", "SharedLib\SharedLibrary.csproj", "{3B01E180-2A16-4EC3-BF0A-FD19768CC960}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWUI", "AWUI\AWUI.csproj", "{3B01E180-2A16-4EC3-BF0A-FD19768CC960}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibraryTests", "UtilsTests\SharedLibraryTests.csproj", "{C0A6E513-E9D5-4131-AEC2-70FF883C79A9}"
 EndProject
