@@ -424,12 +424,7 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
         }
         finally
         {
-            // 确保即使回调抛出异常也能恢复UI状态
-            // 防止嵌套事件重复渲染
-            if (!_isEventHandling)
-            {
-                StateHasChanged();
-            }
+            StateHasChanged();
         }
     }
 
