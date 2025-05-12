@@ -3,29 +3,64 @@ using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using AWUI.Models;
 using AWUI.Options;
+using System.Collections.Concurrent;
+using AWUI.Interfaces;
 
 namespace AWUI.JsInterop;
 
-public interface IJsInterop
+public class AWJsInterop : IJsInterop
 {
+    private readonly Lazy<Task<IJSObjectReference>> _awModuleTask;
+    protected readonly IJSRuntime jsRuntime;
+    protected readonly JsModuleOptions ops;
+    private readonly ConcurrentDictionary<string, Lazy<Task<IJSObjectReference>>> _modules = new();
 
-}
-
-public class AWJsInterop : IJsInterop, IAsyncDisposable
-{
-    protected readonly Lazy<Task<IJSObjectReference>> moduleTask;
-
-    public AWJsInterop(IJSRuntime jsRuntime, IOptions<JsModuleOptions> options)
+    public AWJsInterop(IJSRuntime jsRuntime, IOptions<JsModuleOptions> ops)
     {
-        moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
+        this.jsRuntime = jsRuntime;
+        this.ops = ops.Value;
+
+        _awModuleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
             "import", "./_content/AWUI/js/AWUI.js").AsTask());
     }
 
     public async Task TestConnection()
     {
-        var module = await moduleTask.Value;
+        var module = await _awModuleTask.Value;
         await module.InvokeVoidAsync("testConnection");
     }
+
+    public async Task<TValue> InvokeAsync<TValue>(string moduleName, string functionName, params object?[]? args)
+    {
+        var module = await GetModuleAsync(moduleName);
+        return await module.InvokeAsync<TValue>(functionName, args);
+    }
+
+    public async Task InvokeVoidAsync(string moduleName, string functionName, params object?[]? args)
+    {
+        var module = await GetModuleAsync(moduleName);
+        await module.InvokeVoidAsync(functionName, args);
+    }
+
+    private async Task<IJSObjectReference> GetModuleAsync(string moduleName)
+    {
+        var lazyTask = _modules.GetOrAdd(
+            moduleName,
+            name =>
+            {
+                var config = ops.Modules.FirstOrDefault(m =>
+                    string.Equals(m.Name, name, StringComparison.OrdinalIgnoreCase)
+                ) ?? throw new ArgumentException($"JS模块 '{name}' 未配置");
+                if (!config.Enable)
+                    throw new InvalidOperationException($"JS模块 '{name}' 已禁用");
+                return new Lazy<Task<IJSObjectReference>>(() =>
+                    jsRuntime.InvokeAsync<IJSObjectReference>("import", config.Path).AsTask()
+                );
+            }
+        );
+        return await lazyTask.Value;
+    }
+
 
     /// <summary>
     /// 获取单个文件信息及文件流（从浏览器本地文件系统）
@@ -45,7 +80,7 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
     /// </remarks>
     public async Task<UpFileInfo> GetLocalFile(ElementReference inputElement)
     {
-        var module = await moduleTask.Value;
+        var module = await _awModuleTask.Value;
         var fileHandler = await module.InvokeAsync<IJSObjectReference>("createFileHandler", inputElement);
         var upFileInfo = await module.InvokeAsync<UpFileInfo>("getFilesInfo", fileHandler);
 
@@ -63,7 +98,7 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
 
     public async Task<IEnumerable<UpFileInfo>> GetLocalFiles(ElementReference inputElement)
     {
-        var module = await moduleTask.Value;
+        var module = await _awModuleTask.Value;
         var fileHandler = await module.InvokeAsync<IJSObjectReference>("createFileHandler", inputElement);
         var upFileInfos = await module.InvokeAsync<UpFileInfo[]>("getFilesInfo", fileHandler);
 
@@ -114,21 +149,21 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
     /// </remarks>
     public async Task DownloadFileAsync(string filename, byte[] data, string? mimeType = null)
     {
-        var module = await moduleTask.Value;
+        var module = await _awModuleTask.Value;
 
         await module.InvokeVoidAsync("downloadFile", filename, data, mimeType);
     }
 
     public async Task DownloadTextAsync(string filename, string text, string? mimeType = null)
     {
-        var module = await moduleTask.Value;
+        var module = await _awModuleTask.Value;
 
         await module.InvokeVoidAsync("downloadFile", filename, text, mimeType);
     }
 
     public async Task UploadFileAsync(ElementReference inputElement, string url)
     {
-        var module = await moduleTask.Value;
+        var module = await _awModuleTask.Value;
         var chunkSize = 1024 * 100;
 
         await module.InvokeVoidAsync("uploadFile", inputElement, url, chunkSize);
@@ -136,19 +171,19 @@ public class AWJsInterop : IJsInterop, IAsyncDisposable
 
     public async Task UploadFilesAsync(ElementReference inputElement, string url)
     {
-        var module = await moduleTask.Value;
+        var module = await _awModuleTask.Value;
         var chunkSize = 1024 * 1024 * 10;
 
         await module.InvokeVoidAsync("uploadFiles", inputElement, url, chunkSize);
     }
 
-    public async ValueTask DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
     {
         try
         {
-            if (moduleTask.IsValueCreated)
+            if (_awModuleTask.IsValueCreated)
             {
-                var module = await moduleTask.Value;
+                var module = await _awModuleTask.Value;
                 await module.DisposeAsync();
             }
         }

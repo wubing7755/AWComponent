@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -23,5 +25,24 @@ public class JsModuleOptions
     /// </summary>
     public const string SectionName = "JsModules";
 
-    public Dictionary<string, string> AdditionalModules { get; set; } = new();
+    [JsonPropertyName("Version")]
+    [RegularExpression(@"^\d+\.\d+\.\d+$")]
+    public string? Version { get; set; }
+
+    [JsonPropertyName("Modules")]
+    public List<JsModuleOption> Modules { get; set; } = new ();
+}
+
+public class JsModuleOption
+{
+    [Required]
+    [JsonPropertyName("Name")]
+    public string Name { get; set; } = default!;
+
+    [Required]
+    [JsonPropertyName("Path")]
+    public string Path { get; set; } = default!;
+
+    [JsonPropertyName("Enable")]
+    public bool Enable { get; set; } = true;
 }
