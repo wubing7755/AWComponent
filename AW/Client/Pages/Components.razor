@@ -14,12 +14,33 @@ ValueChanged="CheckBoxChanged" />
 
 @_inputValue
 
+<Button OnClick="AlertDialog">弹出警告框</Button>
+
+<Alert Type="ColorType.Blue" IsVisible="_alertVisible" OnClose="AlertClose">Hello</Alert>
+
 @code{
     private bool _inputValue = false;
+
+    private bool _alertVisible = false;
 
     private async Task CheckBoxChanged(bool arg)
     {
         _inputValue = !_inputValue;
         StateHasChanged();
+    }
+
+    private Task AlertDialog(MouseEventArgs args)
+    {
+        _alertVisible = true;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task AlertClose()
+    {
+        Task.Delay(3000);
+        _alertVisible = false;
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 }

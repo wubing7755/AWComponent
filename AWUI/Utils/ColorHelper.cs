@@ -8,19 +8,19 @@ public static class ColorHelper
     {
         var colorStyle = colorType switch
         {
-            ColorType.Blue => "blue",
-            ColorType.Red => "red",
-            ColorType.Green => "green",
-            ColorType.Yellow => "yellow",
-            ColorType.Orange => "orange",
-            ColorType.Purple => "purple",
-            ColorType.Black => "black",
-            ColorType.White => "white",
-            ColorType.Gray => "gray",
-            ColorType.Brown => "brown",
-            ColorType.Cyan => "cyan",
-            ColorType.Magenta => "magenta",
-            _ => "Black" // Default color
+            ColorType.Blue => $"rgba(33, 150, 243)",    // Blue 500
+            ColorType.Red => $"rgba(244, 67, 54)",      // Red 500
+            ColorType.Green => $"rgba(76, 175, 80)",    // Green 500
+            ColorType.Yellow => $"rgba(255, 235, 59)",  // Yellow 500
+            ColorType.Orange => $"rgba(255, 152, 0)",   // Orange 500
+            ColorType.Purple => $"rgba(156, 39, 176)",  // Purple 500
+            ColorType.Black => $"rgba(33, 33, 33)",     // Dark Grey 
+            ColorType.White => $"rgba(255, 255, 255)",  // White
+            ColorType.Gray => $"rgba(158, 158, 158)",   // Material Grey 500
+            ColorType.Brown => $"rgba(121, 85, 72)",    // Material Brown 500
+            ColorType.Cyan => $"rgba(0, 188, 212)",     // Material Cyan 500
+            ColorType.Magenta => $"rgba(233, 30, 99)",  // Material Pink 500
+            _ => $"rgba(33, 33, 33)"                    // Deep Grey
         };
 
         return colorStyle;

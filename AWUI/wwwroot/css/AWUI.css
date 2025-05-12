@@ -19,3 +19,36 @@
     height: 50px;
     background-color: aliceblue;
 }
+
+
+.aw-alert {
+    /* 基础布局 */
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%, -20px);
+    z-index: 1000;
+    width: 320px;
+    max-width: 90vw;
+    padding: 16px 20px;
+    box-sizing: border-box;
+    /* 视觉设计 */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: none;
+    /* 文字样式 */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: white;
+    /* 动画效果 */
+    opacity: 0;
+    animation: alert-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes alert-enter {
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
