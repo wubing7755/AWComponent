@@ -82,18 +82,24 @@ AWComponent/
    dotnet add package AWComponent --version 0.0.1-beta
    ```
 
-2. 服务配置(Program.cs)
+2. 服务配置(Program.cs in Client)
 
     ```csharp
     builder.AddAWComponentServices();
     ```
 
-3. 全局配置(appsettings.json)
+3. 全局配置(appsettings.json in Client.wwwroot)
 
     ```json
     {
       "JsModules": {
-        "SharedLib": "./_content/SharedLibrary/js/SharedLib.js"
+        "Modules": [
+          {
+            "Name": "AWUI",
+            "Path": "./_content/AWUI/js/AWUI.js",
+            "Enable": true
+          },
+        ]
       }
     }
     ```
@@ -108,7 +114,7 @@ AWComponent/
 
 |组件类型|组件名|
 |---|---|
-|基础组件|Button、Divider、Input、Label、Select、Modal|
+|基础组件|Alert、Button、Divider、Input、Label、Select、Modal|
 
 ## 📚 文档资源
 

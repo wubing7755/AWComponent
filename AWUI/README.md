@@ -25,7 +25,7 @@ Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and 
 - [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
 - IDE: Visual Studio 2022
 
-## 🔧  Component Demo
+## 🔧 Component Demo
 
 ```csharp
 @using AWUI.Components
@@ -40,42 +40,44 @@ Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and 
 }
 ```
 
-## NuGet Package Integration
+## 📚 NuGet Package Integration
 
 1. Install the AWUI NuGet package
 
    ```bash
-   dotnet add package AWUI --version 0.0.2
+   dotnet add package AWUI --version 0.0.3
    ```
 
-2. Service Configuration(Program.cs)
+2. Service Configuration(Program.cs in Client)
 
-```csharp
-builder.AddClientServices();
-```
+    ```csharp
+    builder.AddClientServices();
+    ```
 
-3. Global Configuration(appsettings.json)
+3. Global Configuration(appsettings.json in Client.wwwroot)
 
-```json
-{
-  "JsModules": {
-    "AWUI": "./_content/AWUI/js/AWUI.js"
-  }
-}
-```
+    ```json
+    {
+      "JsModules": {
+        "Modules": [
+          {
+            "Name": "AWUI",
+            "Path": "./_content/AWUI/js/AWUI.js",
+            "Enable": true
+          },
+        ]
+      }
+    }
+    ```
 
 4. Add namespace in _Imports.razor：
 
-```csharp
-@using AWUI.Components
-```
+    ```csharp
+    @using AWUI.Components
+    ```
 
 ## 🧩 Component List
 
 |Category|Components|
 |---|---|
-|Basic|Button、Divider、Input、Label、Select、Modal|
-
-## 📚 Resources
-
-- [Blazor Official Docs](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-6.0)
+|Basic|Alert、Button、Divider、Input、Label、Select、Modal|

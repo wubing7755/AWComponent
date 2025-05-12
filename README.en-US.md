@@ -82,23 +82,29 @@ AWComponent/
 1. Install the AWComponent NuGet package
 
    ```bash
-   dotnet add package AWComponent --version 0.0.1-beta
+   dotnet add package AWComponent --version 0.0.3
    ```
 
-2. Service Configuration(Program.cs)
+2. Service Configuration(Program.cs in Client)
 
 ```csharp
 builder.AddAWComponentServices();
 ```
 
-3. Global Configuration(appsettings.json)
+3. Global Configuration(appsettings.json in Client.wwwroot)
 
 ```json
-{
-  "JsModules": {
-    "SharedLib": "./_content/SharedLibrary/js/SharedLib.js"
-  }
-}
+    {
+      "JsModules": {
+        "Modules": [
+          {
+            "Name": "AWUI",
+            "Path": "./_content/AWUI/js/AWUI.js",
+            "Enable": true
+          },
+        ]
+      }
+    }
 ```
 
 4. Add namespace in _Imports.razor：
@@ -111,7 +117,7 @@ builder.AddAWComponentServices();
 
 |Category|Components|
 |---|---|
-|Basic|Button、Divider、Input、Label、Select、Modal|
+|Basic|Alert、Button、Divider、Input、Label、Select、Modal|
 
 ## 📚 Resources
 
