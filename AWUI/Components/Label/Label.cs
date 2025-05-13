@@ -56,18 +56,17 @@ public class Label : AWComponentBase
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
-        int seq = 0;
-        builder.OpenElement(seq++, "label");
-        builder.AddAttribute(seq++, "style", $"color: {ColorHelper.ConvertToString(ColorType)};");
-        RenderFilteredAttributes(builder, seq++);
+        builder.OpenElement(0, "label");
+        builder.AddAttribute(1, "style", $"color: {ColorHelper.ConvertToString(ColorType)};");
+        RenderFilteredAttributes(builder, 2);
 
         if (ChildContent is not null)
         {
-            builder.AddContent(seq, ChildContent);
+            builder.AddContent(3, ChildContent);
         }
         else
         {
-            builder.AddContent(seq, Text);
+            builder.AddContent(4, Text);
         }
 
         builder.CloseElement();

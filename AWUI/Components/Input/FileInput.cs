@@ -26,10 +26,10 @@ public class FileInput<TValue>: Input<TValue> where TValue : UpFileInfo, new()
     [Parameter]
     public EventCallback<IEnumerable<TValue>> MultipleValueChanged { get; set; }
 
-    protected override void BuildComponentAttributes(RenderTreeBuilder builder, ref int seq)
+    protected override void BuildComponentAttributes(RenderTreeBuilder builder)
     {
-        builder.AddAttribute(seq++, "type", InputType.File);
-        builder.AddAttribute(seq++, "multiple", Multiple);
+        builder.AddAttribute(0, "type", InputType.File);
+        builder.AddAttribute(1, "multiple", Multiple);
 
         #region Accept Type
 
@@ -43,12 +43,12 @@ public class FileInput<TValue>: Input<TValue> where TValue : UpFileInfo, new()
 
         if (acceptValue != null)
         {
-            builder.AddAttribute(seq++, "accept", acceptValue);
+            builder.AddAttribute(2, "accept", acceptValue);
         }
 
         #endregion
 
-        builder.AddAttribute(seq, "onchange", EventCallback.Factory.Create<ChangeEventArgs>
+        builder.AddAttribute(3, "onchange", EventCallback.Factory.Create<ChangeEventArgs>
             (this, async () => await HandleFileChange()));
     }
 

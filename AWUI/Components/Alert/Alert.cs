@@ -24,14 +24,12 @@ public class Alert : AWComponentBase
     {
         if (!IsVisible) return;
 
-        int seq = 0;
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "aw-alert");
+        builder.AddAttribute(2, "style", $"background-color: {ColorHelper.ConvertToString(Type)}");
+        builder.AddAttribute(3, "role", "alert");
 
-        builder.OpenElement(seq++, "div");
-        builder.AddAttribute(seq++, "class", "aw-alert");
-        builder.AddAttribute(seq++, "style", $"background-color: {ColorHelper.ConvertToString(Type)}");
-        builder.AddAttribute(seq++, "role", "alert");
-
-        builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async () => {
+        builder.AddAttribute(4, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async () => {
             if (OnClose is not null)
             {
                 RequestRenderOnNextEvent();
@@ -39,7 +37,7 @@ public class Alert : AWComponentBase
             }
         }));
 
-        builder.AddContent(seq, ChildContent);
+        builder.AddContent(5, ChildContent);
         builder.CloseElement();
     }
 }

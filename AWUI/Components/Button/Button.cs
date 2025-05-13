@@ -32,32 +32,28 @@ public class Button : AWComponentBase
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
-        int seq = 0;
-
-        builder.OpenElement(seq++, "button");
-
-
-        builder.AddMultipleAttributes(seq++, SafeAttributes);
-        builder.AddAttribute(seq++, "class", ButtonClass);
-        builder.AddAttribute(seq++, "style", ButtonStyle);
-        builder.AddAttribute(seq++, "role", "button");
+        builder.OpenElement(0, "button");
+        builder.AddMultipleAttributes(1, SafeAttributes);
+        builder.AddAttribute(2, "class", ButtonClass);
+        builder.AddAttribute(3, "style", ButtonStyle);
+        builder.AddAttribute(4, "role", "button");
 
         if (Disabled)
         {
-            builder.AddAttribute(seq++, "aria-disabled", "true");
-            builder.AddAttribute(seq++, "disabled");
+            builder.AddAttribute(5, "aria-disabled", "true");
+            builder.AddAttribute(6, "disabled");
         }
 
-        builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async(args) =>
+        builder.AddAttribute(7, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async(args) =>
         {
             await HandleClick(args);
         }));
 
-        builder.AddAttribute(seq++, "onmouseenter", OnMouseEnter);
-        builder.AddAttribute(seq++, "onmouseleave", OnMouseLeave);
-        RenderFilteredAttributes(builder, seq++);
+        builder.AddAttribute(8, "onmouseenter", OnMouseEnter);
+        builder.AddAttribute(9, "onmouseleave", OnMouseLeave);
+        RenderFilteredAttributes(builder, 10);
+        builder.AddContent(11, ChildContent);
 
-        builder.AddContent(seq, ChildContent);
         builder.CloseElement();
     }
 

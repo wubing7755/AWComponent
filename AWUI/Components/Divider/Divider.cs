@@ -19,37 +19,38 @@ public class Divider : AWComponentBase
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
-        int seq = 0;
-
-        builder.OpenElement(seq++, "div");
-        builder.AddMultipleAttributes(seq++, SafeAttributes);
-        builder.AddAttribute(seq++, "class", DividerClass);
-        builder.AddAttribute(seq++, "style", DividerStyle);
+        builder.OpenElement(0, "div");
+        builder.AddMultipleAttributes(1, SafeAttributes);
+        builder.AddAttribute(2, "class", DividerClass);
+        builder.AddAttribute(3, "style", DividerStyle);
 
         // SVG Dotted
-        builder.OpenElement(seq++, "svg");
-        builder.AddAttribute(seq++, "style",
+        builder.OpenElement(4, "svg");
+        builder.AddAttribute(5, "style",
             "width: 100%;" +
             "height: 30%;" +
             "aria-hidden: true;");
-        builder.OpenElement(seq++, "line");
-        builder.AddAttribute(seq++, "x1", "0%");
-        builder.AddAttribute(seq++, "y1", "50%");
-        builder.AddAttribute(seq++, "x2", "100%");
-        builder.AddAttribute(seq++, "y2", "50%");
-        builder.AddAttribute(seq++, "stroke", "black");
-        builder.AddAttribute(seq++, "stroke-width", "1");
-        builder.AddAttribute(seq++, "stroke-dasharray", "5 3");
+        builder.OpenElement(6, "line");
+        builder.AddMultipleAttributes(7, new Dictionary<string, object>
+        {
+            { "x1", "0%" },
+            { "y1", "50%" },
+            { "x2", "100%" },
+            { "y2", "50%" },
+            { "stroke", "black" },
+            { "stroke-width", "1" },
+            { "stroke-dasharray", "5 3" }
+        });
         builder.CloseElement();
         builder.CloseElement();
 
         if (ChildContent is not null)
         {
-            builder.AddMarkupContent(seq++, "<div style=\"text-align:center;margin-top:-15px;\">");
-            builder.OpenElement(seq++, "span");
-            builder.AddContent(seq, ChildContent);
+            builder.AddMarkupContent(8, "<div style=\"text-align:center;margin-top:-15px;\">");
+            builder.OpenElement(9, "span");
+            builder.AddContent(10, ChildContent);
             builder.CloseElement();
-            builder.AddMarkupContent(seq++, "</div>");
+            builder.AddMarkupContent(11, "</div>");
         }
 
         builder.CloseElement();

@@ -40,10 +40,8 @@ public class ModalDialog : AWComponentBase
     {
         if (!IsVisible) return;
 
-        int seq = 0;
-
-        builder.OpenElement(seq++, "div");
-        builder.AddAttribute(seq++, "style",
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "style",
             "position: fixed;" +
             "top: 0;" +
             "left: 0;" +
@@ -53,19 +51,19 @@ public class ModalDialog : AWComponentBase
             "justify-content: center;" +
             "align-items: center;" +
             "z-index: 1000;");
-        builder.OpenElement(seq++, "div");
-        builder.AddAttribute(seq++, "style",
+        builder.OpenElement(2, "div");
+        builder.AddAttribute(3, "style",
             "width: 50vw;" +
             "height: 50vh;" +
             "background: #282c34;" +
             "display: flex;" +
             "flex-direction: column;" +
             "border-radius: 8px;");
-        builder.AddAttribute(seq++, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleKeyDown));
+        builder.AddAttribute(4, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, HandleKeyDown));
 
         // Header
-        builder.OpenElement(seq++, "div");
-        builder.AddAttribute(seq++, "style",
+        builder.OpenElement(5, "div");
+        builder.AddAttribute(6, "style",
             "height: 15%;" +
             "display: flex;" +
             "justify-content: flex-start;" +
@@ -73,26 +71,26 @@ public class ModalDialog : AWComponentBase
             "padding: 0 1.5rem;" +
             "gap: 1rem;" +
             "border-bottom: 1px solid #3d434d;");
-        builder.AddContent(seq++, HeaderTemplate);
+        builder.AddContent(7, HeaderTemplate);
         builder.CloseElement();
 
         // Body
-        builder.OpenElement(seq++, "div");
-        builder.AddAttribute(seq++, "style",
+        builder.OpenElement(8, "div");
+        builder.AddAttribute(9, "style",
             "height: 70%;" +
             "overflow-y: auto;" +
             "min-height: 100px;" +
             "padding: 1.5rem;" +
             "color: white;" +
             "flex-grow: 1;");
-        builder.AddAttribute(seq++, "class", CssClass);
-        builder.AddMultipleAttributes(seq++, AdditionalAttributes);
-        builder.AddContent(seq++, BodyContent);
+        builder.AddAttribute(10, "class", CssClass);
+        builder.AddMultipleAttributes(11, AdditionalAttributes);
+        builder.AddContent(12, BodyContent);
         builder.CloseElement();
 
         // Footer
-        builder.OpenElement(seq++, "div");
-        builder.AddAttribute(seq++, "style",
+        builder.OpenElement(13, "div");
+        builder.AddAttribute(14, "style",
             "height: 15%;" +
             "display: flex;" +
             "justify-content: flex-end;" +
@@ -100,12 +98,12 @@ public class ModalDialog : AWComponentBase
             "padding: 0 1.5rem;" +
             "gap: 1rem;" +
             "border-top: 1px solid #3d434d;");
-        builder.AddContent(seq++, FooterTemplate);
+        builder.AddContent(15, FooterTemplate);
 
         // Close Button
-        builder.OpenElement(seq++, "button");
-        builder.AddAttribute(seq++, "type", "button");
-        builder.AddAttribute(seq++, "style",
+        builder.OpenElement(16, "button");
+        builder.AddAttribute(17, "type", "button");
+        builder.AddAttribute(18, "style",
             "background: #61afef;" +
             "cursor: pointer;" +
             "margin-right: 20px;" +
@@ -113,8 +111,8 @@ public class ModalDialog : AWComponentBase
             "height: 35px;" +
             "width: 110px;" +
             "display: float;");
-        builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, OnCloseClick));
-        builder.AddContent(seq, "Close Dialog");
+        builder.AddAttribute(19, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, OnCloseClick));
+        builder.AddContent(20, "Close Dialog");
         builder.CloseElement();
 
         builder.CloseElement();

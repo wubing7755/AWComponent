@@ -21,13 +21,13 @@ public class SelectTree : AWComponentBase
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
-        int seq = 0;
-
         // 最外层容器
-        builder.OpenElement(seq++, "div");
-        builder.AddMultipleAttributes(seq++, SafeAttributes);
-        builder.AddAttribute(seq++, "class", SelectTreeClass);
-        builder.AddAttribute(seq++, "style", SelectTreeStyle);
+        builder.OpenElement(0, "div");
+        builder.AddMultipleAttributes(1, SafeAttributes);
+        builder.AddAttribute(2, "class", SelectTreeClass);
+        builder.AddAttribute(3, "style", SelectTreeStyle);
+
+        int seq = 5;
 
         BuildLeafNode(builder, TreeNode, ref seq);
         
@@ -36,34 +36,36 @@ public class SelectTree : AWComponentBase
 
     protected virtual void BuildLeafNode(RenderTreeBuilder builder, TreeNode treeNode, ref int seq)
     {
+        builder.OpenRegion(seq++);
         // 节点容器
-        builder.OpenElement(seq++, "div");
-        builder.AddAttribute(seq++, "style", $"margin-left: {treeNode.Level * 20}px"); // 每级缩进20px
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "style", $"margin-left: {treeNode.Level * 20}px"); // 每级缩进20px
 
         // 图标
-        builder.OpenElement(seq++, "span");
-        builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, 
+        builder.OpenElement(2, "span");
+        builder.AddAttribute(3, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, 
             () => {
                 treeNode.Toggle();
                 ForceImmediateRender();
             }));
 
-        builder.OpenElement(seq++, "i");
-        builder.AddAttribute(seq++, "class", treeNode.CurrentIcon);
+        builder.OpenElement(4, "i");
+        builder.AddAttribute(5, "class", treeNode.CurrentIcon);
         builder.CloseElement();
 
         builder.CloseElement();
 
         // 文字
-        builder.OpenElement(seq++, "span");
-        builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this,
+        builder.OpenElement(6, "span");
+        builder.AddAttribute(7, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this,
             () => {
                 OnNodeSelected?.Invoke(treeNode);
             }));
-        builder.AddContent(seq, treeNode.Text);
+        builder.AddContent(8, treeNode.Text);
         builder.CloseElement();
 
         builder.CloseElement();
+        builder.CloseRegion();
 
         // 子节点
         if (treeNode.IsExpanded && treeNode.HasChildren)

@@ -40,50 +40,52 @@ public class Select : AWComponentBase
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
-        int seq = 0;
+        builder.OpenElement(0, "div");
 
-        builder.OpenElement(seq++, "div");
+        builder.OpenElement(1, "select");
 
-        builder.OpenElement(seq++, "select");
+        builder.AddMultipleAttributes(2, SafeAttributes);
+        builder.AddAttribute(3, "class", SelectClass);
+        builder.AddAttribute(4, "style", SelectStyle);
 
-        builder.AddMultipleAttributes(seq++, SafeAttributes);
-        builder.AddAttribute(seq++, "class", SelectClass);
-        builder.AddAttribute(seq++, "style", SelectStyle);
+        builder.AddAttribute(5, "value", Value);
+        builder.AddAttribute(6, "onchange", OnValueChanged);
 
-        builder.AddAttribute(seq++, "value", Value);
-        builder.AddAttribute(seq++, "onchange", OnValueChanged);
+        builder.OpenElement(7, "option");
+        builder.AddAttribute(8, "value", "");
+        builder.AddAttribute(9, "selected", string.IsNullOrEmpty(Value));
+        RenderFilteredAttributes(builder, 10);
 
-        builder.OpenElement(seq++, "option");
-        builder.AddAttribute(seq++, "value", "");
-        builder.AddAttribute(seq++, "selected", string.IsNullOrEmpty(Value));
-        RenderFilteredAttributes(builder, seq++);
-
-        builder.AddContent(seq++, Placeholder);
+        builder.AddContent(11, Placeholder);
         builder.CloseElement();
 
         if (Options.Any())
         {
+            int seq = 12;
             foreach (var option in Options)
             {
-                builder.OpenElement(seq++, "option");
-                builder.AddAttribute(seq++, "value", option);
-                builder.AddAttribute(seq++, "selected", option == Value);
+                builder.OpenRegion(seq);
+                builder.OpenElement(0, "option");
+                builder.AddAttribute(1, "value", option);
+                builder.AddAttribute(2, "selected", option == Value);
 
                 if (OptionTemplate is not null)
                 {
-                    builder.AddContent(seq++, OptionTemplate(option));
+                    builder.AddContent(3, OptionTemplate(option));
                 }
                 else
                 {
-                    builder.AddContent(seq++, option);
+                    builder.AddContent(5, option);
                 }
 
                 builder.CloseElement();
+                builder.CloseRegion();
+
+                seq++;
             }
         }
 
         builder.CloseElement();
-
 
         builder.CloseElement();
 

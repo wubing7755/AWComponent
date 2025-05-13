@@ -50,15 +50,14 @@ public class Input<TValue> : AWComponentBase
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
-        int seq = 0;
-  
-        builder.OpenElement(seq++, "input");
+        builder.OpenElement(0, "input");
 
-        BuildComponentAttributes(builder, ref seq);
-        RenderFilteredAttributes(builder, seq++);
+        BuildComponentAttributes(builder);
+
+        RenderFilteredAttributes(builder, 10);
 
         // add element reference
-        builder.AddElementReferenceCapture(seq, async capturedRef =>
+        builder.AddElementReferenceCapture(11, async capturedRef =>
         {
             inputElement = capturedRef;
 
@@ -72,20 +71,20 @@ public class Input<TValue> : AWComponentBase
         builder.CloseElement();
     }
 
-    protected virtual void BuildComponentAttributes(RenderTreeBuilder builder, ref int seq)
+    protected virtual void BuildComponentAttributes(RenderTreeBuilder builder)
     {
-        builder.AddAttribute(seq++, "type", Type);
-        builder.AddAttribute(seq++, "value", BindConverter.FormatValue(currentValue));
-        builder.AddAttribute(seq++, "oninput", EventCallback.Factory.CreateBinder<TValue>(
+        builder.AddAttribute(1, "type", Type);
+        builder.AddAttribute(2, "value", BindConverter.FormatValue(currentValue));
+        builder.AddAttribute(3, "oninput", EventCallback.Factory.CreateBinder<TValue>(
                     this, __value => currentValue = __value, currentValue ?? default(TValue)!));
-        builder.AddAttribute(seq++, "onblur", EventCallback.Factory.Create<FocusEventArgs>(this, async _ =>
+        builder.AddAttribute(4, "onblur", EventCallback.Factory.Create<FocusEventArgs>(this, async _ =>
         {
             if (OnBlur is not null)
             {
                 await OnBlur.Invoke(currentValue ?? default(TValue)!);
             }
         }));
-        builder.AddAttribute(seq++, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, async args =>
+        builder.AddAttribute(5, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, async args =>
         {
             if (args.Key == "Enter")
             {
@@ -95,11 +94,11 @@ public class Input<TValue> : AWComponentBase
                 }
             }
         }));
-        builder.AddAttribute(seq++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, async args =>
+        builder.AddAttribute(6, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, async args =>
         {
             await ValueChanged.InvokeAsync(currentValue);
         }));
-        builder.AddAttribute(seq++, "autocomplete", AutocompleteFactory.GetAutocomplete(Autocomplete));
+        builder.AddAttribute(7, "autocomplete", AutocompleteFactory.GetAutocomplete(Autocomplete));
     }
 }
 
