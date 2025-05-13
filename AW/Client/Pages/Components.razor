@@ -18,10 +18,52 @@ ValueChanged="CheckBoxChanged" />
 
 <Alert Type="ColorType.Blue" IsVisible="_alertVisible" OnClose="AlertClose">Hello</Alert>
 
+<SelectTree TreeNode="_treeNode" OnNodeSelected="NodeSelected"></SelectTree>
+
+<Divider />
+
+@_selectedTreeNode?.Text
+
 @code{
     private bool _inputValue = false;
 
     private bool _alertVisible = false;
+
+    private TreeNode _treeNode;
+
+    private TreeNode _selectedTreeNode;
+
+    protected override void OnInitialized()
+    {
+        _treeNode = new TreeNode("展开项标题")
+        {
+            Children = new List<TreeNode>
+            {
+                new TreeNode("子项1")
+                {
+                    Children = new List<TreeNode>
+                    {
+                        new TreeNode("子项1-1"),
+                        new TreeNode("子项1-2")
+                    }
+                },
+                new TreeNode("子项2")
+                {
+                    Children = new List<TreeNode>
+                    {
+                        new TreeNode("子项2-1"),
+                        new TreeNode("子项2-2")
+                    }
+                }
+            }
+        };
+    } 
+
+    private void NodeSelected(TreeNode node)
+    {
+        _selectedTreeNode = node;
+        StateHasChanged();
+    }
 
     private async Task CheckBoxChanged(bool arg)
     {

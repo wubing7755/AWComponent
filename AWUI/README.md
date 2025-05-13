@@ -70,7 +70,12 @@ Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and 
     }
     ```
 
-4. Add namespace in _Imports.razor：
+4. CSS Configuration(index.html in Client)
+    ```html
+    <link href="_content/AWUI/css/AWUI.css" rel="stylesheet" />
+    ``` 
+
+5. Add namespace in _Imports.razor：
 
     ```csharp
     @using AWUI.Components
@@ -80,4 +85,4 @@ Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and 
 
 |Category|Components|
 |---|---|
-|Basic|Alert、Button、Divider、Input、Label、Select、Modal|
+|Basic|Alert、Button、Divider、Input、Label、Select、 SelectTree、Modal|

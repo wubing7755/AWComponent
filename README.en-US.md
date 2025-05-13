@@ -82,7 +82,7 @@ AWComponent/
 1. Install the AWComponent NuGet package
 
    ```bash
-   dotnet add package AWComponent --version 0.0.3
+   dotnet add package AWComponent --version 0.0.4
    ```
 
 2. Service Configuration(Program.cs in Client)
@@ -107,7 +107,13 @@ builder.AddAWComponentServices();
     }
 ```
 
-4. Add namespace in _Imports.razor：
+4. Style Configuration(index.html in Client.wwwroot)
+
+    ```html
+        <link href="_content/AWUI/css/AWUI.css" rel="stylesheet" />
+    ```
+
+5. Add namespace in _Imports.razor：
 
 ```csharp
 @using AWComponent.Components
@@ -117,7 +123,7 @@ builder.AddAWComponentServices();
 
 |Category|Components|
 |---|---|
-|Basic|Alert、Button、Divider、Input、Label、Select、Modal|
+|Basic|Alert、Button、Divider、Input、Label、Select、SelectTree、Modal|
 
 ## 📚 Resources
 

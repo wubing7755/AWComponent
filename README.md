@@ -79,7 +79,7 @@ AWComponent/
 1. 安装 AWComponent NuGet 包：
 
    ```bash
-   dotnet add package AWComponent --version 0.0.1-beta
+   dotnet add package AWComponent --version 0.0.4
    ```
 
 2. 服务配置(Program.cs in Client)
@@ -104,7 +104,13 @@ AWComponent/
     }
     ```
 
-4. _Imports.razor 中添加命名空间：
+4. 样式配置(index.html in Client.wwwroot)
+
+    ```html
+        <link href="_content/AWUI/css/AWUI.css" rel="stylesheet" />
+    ```
+
+5. _Imports.razor 中添加命名空间：
 
     ```csharp
     @using AWComponent.Components
@@ -114,7 +120,7 @@ AWComponent/
 
 |组件类型|组件名|
 |---|---|
-|基础组件|Alert、Button、Divider、Input、Label、Select、Modal|
+|基础组件|Alert、Button、Divider、Input、Label、Select、SelectTree、Modal|
 
 ## 📚 文档资源
 

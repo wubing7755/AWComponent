@@ -17,7 +17,7 @@ public static class AWComponentServices
         {
             options.ResourcesPath = "Resources";
         });
-
+        
         builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
         // 从配置文件中读取 JsModules 配置节并将其作为 JsModuleOptions 类型注册到依赖注入系统中，
