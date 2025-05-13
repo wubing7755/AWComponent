@@ -1,0 +1,88 @@
+﻿@page "/components"
+@using AWUI.Components
+@using System.IO.Compression
+@using System.Text
+@inject AWJsInterop awJsInterop
+@inject NavigationManager Navigation
+
+@* 按钮 *@
+<Button OnClick="TestConnection">Test Connection</Button>
+
+<Divider />
+
+<Button CssClass="aw-card" OnClick="ShowDialog">Open Modal</Button>
+
+@* 模态框 *@
+<ModalDialog @ref="_dialog" OnClose="ClosDialog">
+    <BodyContent>
+        <div>组件内容</div>
+    </BodyContent>
+</ModalDialog>
+
+<Divider />
+
+@* 下拉列表 *@
+<Select Options="Options" @bind-Value="@SelectedValue">
+    <OptionTemplate>
+        <span>📌</span>
+        <span>@context</span>
+    </OptionTemplate>
+</Select>
+
+<div>
+    选中项： @SelectedValue
+</div>
+
+<Divider />
+
+@* 输入框 *@
+<Input @ref="_input" TValue="string"
+       Type="InputType.Text"
+       @bind-Value="_inputText"
+       OnEnter="OnTextInput"></Input>
+
+@_inputText
+
+<Divider />
+
+@* 标签 *@
+<Label Text="单选框"></Label>
+
+@* 单选框 *@
+<Input TValue="bool" Type="InputType.Checkbox" Value="_radioValue" ValueChanged="CheckBoxValueChanged" />
+
+@_radioValue
+
+<Divider />
+
+<Button OnClick="AlertWarningBox">弹出警告框</Button>
+
+@* 警告框 *@
+<Alert Type="ColorType.Blue" IsVisible="_alertVisible" OnClose="CloseWarningBox">Hello</Alert>
+
+<Divider />
+
+@* 树形选择 *@
+<SelectTree TreeNode="_treeNode" OnNodeSelected="TreeNodeSelected"></SelectTree>
+
+@_selectedTreeNode?.Text
+
+<Divider />
+
+@* 文件选择框 *@
+<FileInput TValue="UpFileInfo"
+           ValueChanged="OnFileChanged"
+           MIMEType="MIMEType.Archive"
+           InputRefChanged="OnFileInputRefChanged">上传文件</FileInput>
+
+<Button OnClick="UpLoadFile">单文件上传</Button>
+
+<Button OnClick="UpLoadFileSingalR">单文件上传（SignalR）</Button>
+
+<Divider />
+
+<FileInput TValue="UpFileInfo"
+           Multiple="true"
+           InputRefChanged="OnFilesInputRefChanged">上传文件</FileInput>
+
+<Button OnClick="UpLoadFiles">多文件上传</Button>

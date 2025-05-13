@@ -1,0 +1,22 @@
+﻿@page "/experimentGround"
+@inject AWJsInterop awJsInterop
+
+<Button OnClick="ConvertToXML">ConvertToXML</Button>
+
+<Divider Style="@DividerStyle" />
+
+<p>
+    自动检测语言并翻译，中-英。调用谷歌翻译
+</p>
+
+<Input TValue="string"
+       Type=InputType.Text
+       Value="_inputext"
+       OnEnter="TranslateInputText" />
+
+<p>
+    @_translationText
+</p>
+
+<Divider Color="ColorType.Green" Style="@DividerStyle" />
+

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.ResponseCompression;
 using AWUI.Services;
+using AW.Server.Hubs;
 
 namespace AW
 {
@@ -38,6 +39,7 @@ namespace AW
 
             app.UseRouting();
 
+            app.MapHub<FileUploadHub>("/fileUploadHub");
 
             app.MapRazorPages();
             app.MapControllers();

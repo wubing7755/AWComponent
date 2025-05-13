@@ -38,7 +38,7 @@ class FileHandler {
     }
 
     async getFileContent() {
-        const maxBase64Size = 1024 * 100;
+        const maxBase64Size = 1024 * 1000;
 
         if (this._file.size <= maxBase64Size) {
             return new Promise((resolve, reject) => {

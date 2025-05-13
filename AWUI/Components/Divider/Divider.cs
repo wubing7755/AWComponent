@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using AWUI.Enums;
+using AWUI.Utils;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 
 namespace AWUI.Components;
@@ -10,6 +12,9 @@ public class Divider : AWComponentBase
 {
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public ColorType Color { get; set; }
 
     protected sealed override string BaseCssClass => "aw-divider";
 
@@ -37,7 +42,7 @@ public class Divider : AWComponentBase
             { "y1", "50%" },
             { "x2", "100%" },
             { "y2", "50%" },
-            { "stroke", "black" },
+            { "stroke", ColorHelper.ConvertToString(Color) },
             { "stroke-width", "1" },
             { "stroke-dasharray", "5 3" }
         });
