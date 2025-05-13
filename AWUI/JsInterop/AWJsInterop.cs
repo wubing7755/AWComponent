@@ -84,16 +84,56 @@ public class AWJsInterop : IJsInterop
         var fileHandler = await module.InvokeAsync<IJSObjectReference>("createFileHandler", inputElement);
         var upFileInfo = await module.InvokeAsync<UpFileInfo>("getFilesInfo", fileHandler);
 
-        var base64 = await module.InvokeAsync<string>("getFilesContent", fileHandler);
-        
-        if(base64 is not null)
+        var content = await module.InvokeAsync<FileContentResult>("getFilesContent", fileHandler);
+
+        // 小文件预览
+        if(content.IsExLimit is null)
         {
-            var stream = new MemoryStream(Convert.FromBase64String(base64));
-            upFileInfo.SetFileStream(stream);
+            // 处理文件内容
+            if (content.IsChunked && content.FileChunks != null)
+            {
+                // 分块文件处理
+                var combinedBytes = CombineChunks(content.FileChunks);
+                upFileInfo.SetFileStream(new MemoryStream(combinedBytes));
+                upFileInfo.IsChunked = true;
+                upFileInfo.TotalChunks = content.FileChunks.Count;
+            }
+            else if (!string.IsNullOrEmpty(content.Data))
+            {
+                // 小文件处理
+                var bytes = Convert.FromBase64String(content.Data);
+                upFileInfo.SetFileStream(new MemoryStream(bytes));
+                upFileInfo.IsChunked = false;
+            }
         }
 
         await fileHandler.DisposeAsync();
         return upFileInfo;
+    }
+
+    private static byte[] CombineChunks(List<FileChunk> chunks)
+    {
+        // 确保按正确顺序合并
+        var orderedChunks = chunks.OrderBy(c => c.Index).ToList();
+        var totalSize = orderedChunks.Sum(c => Convert.FromBase64String(c.Data).Length);
+        var result = new byte[totalSize];
+        var offset = 0;
+
+        foreach (var chunk in orderedChunks)
+        {
+            var chunkBytes = Convert.FromBase64String(chunk.Data);
+            Buffer.BlockCopy(chunkBytes, 0, result, offset, chunkBytes.Length);
+            offset += chunkBytes.Length;
+        }
+
+        return result;
+    }
+
+    public async Task<FileContentResult> GetLoaclFileBit(ElementReference inputElement)
+    {
+        var module = await _awModuleTask.Value;
+        var content = await module.InvokeAsync<FileContentResult>("chunkFilesUpload", inputElement);
+        return content;
     }
 
     public async Task<IEnumerable<UpFileInfo>> GetLocalFiles(ElementReference inputElement)

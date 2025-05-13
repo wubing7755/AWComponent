@@ -58,11 +58,12 @@ public class FileInput<TValue>: Input<TValue> where TValue : UpFileInfo, new()
         {
             if (!Multiple)
             {
-                var file = await JsInterop.GetLocalFile(inputElement);
+                //var file = await JsInterop.GetLocalFile(inputElement);
+                var file = await JsInterop.GetLoaclFileBit(inputElement);
 
-                if(file is not null)
+                if (file is not null)
                 {
-                    await ValueChanged.InvokeAsync(MapToFileInfo(file));
+                    //await ValueChanged.InvokeAsync(MapToFileInfo(file));
                 }
             }
             else

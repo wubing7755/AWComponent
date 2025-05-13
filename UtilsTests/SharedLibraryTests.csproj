@@ -25,7 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AWUI\AWUI.csproj" />
-    <ProjectReference Include="..\SharedLib\AWUI.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

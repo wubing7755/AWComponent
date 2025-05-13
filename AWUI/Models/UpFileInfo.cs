@@ -25,6 +25,10 @@ public class UpFileInfo : IBrowserFile, ICloneable
 
     private Stream? _stream;
 
+    public bool IsChunked { get; set; } = false;
+
+    public int TotalChunks { get; set; } = 0;
+
     public void SetFileStream(Stream stream)
     {
         _stream = stream ?? throw new ArgumentNullException(nameof(stream), "提供的文件流不能为空。");

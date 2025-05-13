@@ -33,35 +33,77 @@ class FileHandler {
             name: this._file.name,
             size: this._file.size,
             lastModified: new Date(this._file.lastModified).toISOString(),
-            contentType: this._file.type
+            contentType: this._file.type,
+            isChunked: false
         };
     }
 
-    async getFileContent() {
-        const maxBase64Size = 1024 * 1000;
-
-        if (this._file.size <= maxBase64Size) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-
-                // 开始读取文件
-                reader.readAsArrayBuffer(this._file);
-
-                // onload 事件在读取操作完成时触发
-                reader.onload = () => {
-                    const base64 = btoa(
-                        String.fromCharCode(...new Uint8Array(reader.result))
-                    );
-                    resolve(base64);
-                };
-
-                // onerror 事件在读取操作失败时触发
-                reader.onerror = (e) => reject(e);
-            });
-        } else {
-            console.log("File too large to convert to Base64");
-            return null;
+    // 10KB 分块
+    async getFileContent(chunkSize = 10 * 1024) {
+        // 最大 500 KB
+        const MAX_FILESIZE = 500 * 1024;
+        if (this._file.size > MAX_FILESIZE) {
+            return {
+                isExLimit: true
+            }
         }
+
+        if (this._file.size <= chunkSize) {
+            const base64 = await this._readChunk(this._file);
+            return {
+                isChunked: false,
+                data: base64
+            }
+        } else {
+            // 大文件返回分块信息
+            const totalChunks = Math.ceil(this._file.size / chunkSize);
+            const chunkPromises = [];
+
+            // 并行读取所有分块
+            for (let i = 0; i < totalChunks; i++) {
+                const chunk = this._file.slice(i * chunkSize, (i + 1) * chunkSize);
+                chunkPromises.push(
+                    this._readChunk(chunk).then(base64 => ({
+                        index: i,
+                        total: totalChunks,
+                        data: base64,
+                        size: chunk.size
+                    }))
+                );
+            }
+
+            const chunks = await Promise.all(chunkPromises);
+            return {
+                isChunked: true,
+                fileName: this._file.name,
+                fileSize: this._file.size,
+                chunks: chunks
+            };
+        }
+    }
+
+    _readChunk(chunk) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            // onload 事件在读取操作完成时触发
+            reader.onload = () => {
+                const bytes = new Uint8Array(reader.result);
+                let binaryString = '';
+
+                for (const byte of bytes) {
+                    binaryString += String.fromCharCode(byte);
+                }
+
+                resolve(btoa(binaryString));
+            };
+
+            // onerror 事件在读取操作失败时触发
+            reader.onerror = (e) => reject(e);
+            // 开始读取文件
+            reader.readAsArrayBuffer(chunk);
+
+        });
     }
 }
 
@@ -87,8 +129,8 @@ class MultiFileHandler {
         return this._handlers.map(handler => handler.getFileInfo());
     }
 
-    async getFilesContent() {
-        const promises = this._handlers.map(handler => handler.getFileContent());
+    async getFilesContent(chunkSize = 10 * 1024) {
+        const promises = this._handlers.map(handler => handler.getFileContent(chunkSize));
         return await Promise.all(promises);
     }
 }
@@ -113,73 +155,14 @@ export function getFilesInfo(instance) {
     }
 }
 
-export function getFilesContent(instance) {
+export function getFilesContent(instance, chunkSize = 10 * 1024) {
     if (instance instanceof MultiFileHandler) {
-        return instance.getFilesContent();
+        return instance.getFilesContent(chunkSize);
     }
     else {
-        return instance.getFileContent();
+        return instance.getFileContent(chunkSize);
     }
 }
-
-/* ------------------------ FILE UPLOAD ------------------------ */
-
-/* ------------------------ FILE DOWNLOAD ------------------------ */
-export function downloadFile(filename, data, mimeType) {
-    // 1. 自动推断 MIME 类型（如果未显式指定）
-    if (!mimeType) {
-        const ext = filename.split('.').pop().toLowerCase();
-        mimeType = {
-            'txt': 'text/plain',
-            'xml': 'application/xml',
-            'json': 'application/json',
-            'csv': 'text/csv',
-            'png': 'image/png',
-            'jpg': 'image/jpeg',
-            'pdf': 'application/pdf',
-            'zip': 'application/zip'
-        }[ext] || 'application/octet-stream';
-    }
-
-    // 2. 处理不同类型的数据输入
-    let blob;
-    if (data instanceof Blob) {
-        blob = data;
-    } else if (data instanceof Uint8Array) {
-        blob = new Blob([data], { type: mimeType });
-    } else if (typeof data === 'string' && data.startsWith('data:')) {
-        // 已经是 DataURL 格式（如 Base64）
-        const link = document.createElement('a');
-        link.href = data;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        return;
-    } else {
-        // 普通文本或 Base64（无前缀）
-        blob = new Blob([data], { type: mimeType });
-    }
-
-    // 3. 创建下载链接并触发点击
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-
-    // 4. 清理内存
-    setTimeout(() => {
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    }, 100);
-}
-
-/* ------------------------ FILE DOWNLOAD ------------------------ */
-
-/* ------------------------ FILE UPLOAD ------------------------ */
 
 export async function uploadFile(inputElement, url, chunkSize) {
     const files = inputElement.files;
@@ -261,7 +244,97 @@ async function uploadPromisesLimit(uploadPromises, limit) {
     }
 }
 
+// 二进制分块
+export async function chunkFilesUpload(inputElement, chunkSize = 1024 * 1024) {
+    const file = inputElement.files[0];
+    const chunks = [];
+
+    for (let i = 0; i < Math.ceil(file.size / chunkSize); i++) {
+        const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
+        const buffer = await chunk.arrayBuffer();
+
+        chunks.push({
+            index: i,
+            total: Math.ceil(file.size / chunkSize),
+            data: arrayBufferToBase64(buffer),
+            size: chunk.size
+        });
+    }
+
+    return {
+        fileName: file.name,
+        fileSize: file.size,
+        fileChunks: chunks, // 使用专用字段名
+        isChunked: true,
+    };
+}
+
+function arrayBufferToBase64(buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+}
+
 /* ------------------------ FILE UPLOAD ------------------------ */
+
+/* ------------------------ FILE DOWNLOAD ------------------------ */
+export function downloadFile(filename, data, mimeType) {
+    // 1. 自动推断 MIME 类型（如果未显式指定）
+    if (!mimeType) {
+        const ext = filename.split('.').pop().toLowerCase();
+        mimeType = {
+            'txt': 'text/plain',
+            'xml': 'application/xml',
+            'json': 'application/json',
+            'csv': 'text/csv',
+            'png': 'image/png',
+            'jpg': 'image/jpeg',
+            'pdf': 'application/pdf',
+            'zip': 'application/zip'
+        }[ext] || 'application/octet-stream';
+    }
+
+    // 2. 处理不同类型的数据输入
+    let blob;
+    if (data instanceof Blob) {
+        blob = data;
+    } else if (data instanceof Uint8Array) {
+        blob = new Blob([data], { type: mimeType });
+    } else if (typeof data === 'string' && data.startsWith('data:')) {
+        // 已经是 DataURL 格式（如 Base64）
+        const link = document.createElement('a');
+        link.href = data;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+    } else {
+        // 普通文本或 Base64（无前缀）
+        blob = new Blob([data], { type: mimeType });
+    }
+
+    // 3. 创建下载链接并触发点击
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+
+    // 4. 清理内存
+    setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }, 100);
+}
+
+/* ------------------------ FILE DOWNLOAD ------------------------ */
 
 /* ------------------------ SVG Elements Start ------------------------ */
 
