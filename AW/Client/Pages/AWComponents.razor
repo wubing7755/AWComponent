@@ -70,8 +70,7 @@
 <Divider />
 
 @* 文件选择框 *@
-<FileInput TValue="UpFileInfo"
-           ValueChanged="OnFileChanged"
+<FileInput TValue="FileMetaData"
            MIMEType="MIMEType.Archive"
            InputRefChanged="OnFileInputRefChanged">上传文件</FileInput>
 
@@ -81,7 +80,7 @@
 
 <Divider />
 
-<FileInput TValue="UpFileInfo"
+<FileInput TValue="FileMetaData"
            Multiple="true"
            InputRefChanged="OnFilesInputRefChanged">上传文件</FileInput>
 

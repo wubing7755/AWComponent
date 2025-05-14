@@ -39,7 +39,7 @@ public partial class AWComponents
 
     private string _inputText { get; set; } = string.Empty;
 
-    private UpFileInfo _upFileInfo;
+    private FileMetaData _upFileInfo;
 
     private TreeNode _treeNode = new TreeNode("展开项标题")
     {
@@ -104,13 +104,6 @@ public partial class AWComponents
         return Task.CompletedTask;
     }
 
-    private async Task OnFileChanged(UpFileInfo upFileInfo)
-    {
-        _upFileInfo = upFileInfo;
-        var textHelper = new TextFileHelper();
-        await textHelper.DecodingText(upFileInfo);
-    }
-
     private void OnFileInputRefChanged(ElementReference elementRef)
     {
         _fileInputRef = elementRef;
@@ -138,49 +131,7 @@ public partial class AWComponents
 
     private async Task UpLoadFileSingalR(MouseEventArgs args)
     {
-        var stream = _upFileInfo.OpenReadStream();
-        var size = _upFileInfo.Size;
-        var fileName = _upFileInfo.Name;
-        const int chunkSize = 1024 * 1024 * 2;
-        var totalChunks = (int)Math.Ceiling((double)size / chunkSize);
-        var buffer = new byte[chunkSize];
-        var cancellationTokenSource = new CancellationTokenSource();
         
-        try
-        {
-            // 通知服务端开始上传
-            await HubConnection.SendAsync("StartUpload", fileName, size, totalChunks);
-            for (int chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++)
-            {
-                if (cancellationTokenSource.IsCancellationRequested) break;
-                var bytesRead = await stream.ReadAsync(buffer, 0, chunkSize, cancellationTokenSource.Token);
-                var actualChunk = new byte[bytesRead];
-                Array.Copy(buffer, actualChunk, bytesRead);
-                // 上传分块
-                await HubConnection.SendAsync("UploadChunk",
-                    fileName,
-                    chunkIndex,
-                    totalChunks,
-                    actualChunk);
-                // 更新进度 (可选)
-                var progress = (int)((chunkIndex + 1) * 100 / totalChunks);
-                Console.WriteLine($"上传进度: {progress}%");
-            }
-            // 通知服务端完成上传
-            await HubConnection.SendAsync("CompleteUpload", fileName);
-        }
-        catch (Exception ex)
-        {
-            // 错误处理
-            await HubConnection.SendAsync("AbortUpload", fileName);
-            Console.WriteLine($"上传失败: {ex.Message}");
-        }
-        finally
-        {
-            cancellationTokenSource.Dispose();
-            await stream.DisposeAsync();
-        }
-
     }
 
     private async Task UpLoadFiles(MouseEventArgs args)

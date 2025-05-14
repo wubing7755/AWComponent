@@ -15,7 +15,7 @@ namespace AWUI.Components;
  * ⑤ 事件回调
  * ⑥ 流式读取
  */
-public class FileInput<TValue>: Input<TValue> where TValue : UpFileInfo, new()
+public class FileInput<TValue>: Input<TValue> where TValue : FileMetaData, new()
 {
     [Parameter]
     public bool Multiple { get; set; } = false;
@@ -58,12 +58,11 @@ public class FileInput<TValue>: Input<TValue> where TValue : UpFileInfo, new()
         {
             if (!Multiple)
             {
-                //var file = await JsInterop.GetLocalFile(inputElement);
-                var file = await JsInterop.GetLoaclFileBit(inputElement);
+                var file = await JsInterop.GetLocalFile(inputElement);
 
                 if (file is not null)
                 {
-                    //await ValueChanged.InvokeAsync(MapToFileInfo(file));
+                    await ValueChanged.InvokeAsync(MapToFileInfo(file));
                 }
             }
             else
@@ -92,7 +91,7 @@ public class FileInput<TValue>: Input<TValue> where TValue : UpFileInfo, new()
         }
     }
 
-    private static TValue MapToFileInfo(UpFileInfo file)
+    private static TValue MapToFileInfo(FileMetaData file)
     {
         var cloned = file.Clone();
         return (TValue)(object)cloned;

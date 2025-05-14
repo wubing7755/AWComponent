@@ -1,11 +1,14 @@
 ﻿"use strict";
 
-// Test connection
+//#region 测试连通性
+
 export function testConnection() {
     console.log("Test Connection");
 };
 
-/* ------------------------ FILE UPLOAD ------------------------ */
+//#endregion
+
+//#region 文件上传
 // single file upload
 class FileHandler {
     constructor(file) {
@@ -28,82 +31,13 @@ class FileHandler {
         return this._file.contentType;
     }
 
-    getFileInfo() {
+    getMetaData() {
         return {
             name: this._file.name,
             size: this._file.size,
             lastModified: new Date(this._file.lastModified).toISOString(),
             contentType: this._file.type,
-            isChunked: false
         };
-    }
-
-    // 10KB 分块
-    async getFileContent(chunkSize = 10 * 1024) {
-        // 最大 500 KB
-        const MAX_FILESIZE = 500 * 1024;
-        if (this._file.size > MAX_FILESIZE) {
-            return {
-                isExLimit: true
-            }
-        }
-
-        if (this._file.size <= chunkSize) {
-            const base64 = await this._readChunk(this._file);
-            return {
-                isChunked: false,
-                data: base64
-            }
-        } else {
-            // 大文件返回分块信息
-            const totalChunks = Math.ceil(this._file.size / chunkSize);
-            const chunkPromises = [];
-
-            // 并行读取所有分块
-            for (let i = 0; i < totalChunks; i++) {
-                const chunk = this._file.slice(i * chunkSize, (i + 1) * chunkSize);
-                chunkPromises.push(
-                    this._readChunk(chunk).then(base64 => ({
-                        index: i,
-                        total: totalChunks,
-                        data: base64,
-                        size: chunk.size
-                    }))
-                );
-            }
-
-            const chunks = await Promise.all(chunkPromises);
-            return {
-                isChunked: true,
-                fileName: this._file.name,
-                fileSize: this._file.size,
-                chunks: chunks
-            };
-        }
-    }
-
-    _readChunk(chunk) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-
-            // onload 事件在读取操作完成时触发
-            reader.onload = () => {
-                const bytes = new Uint8Array(reader.result);
-                let binaryString = '';
-
-                for (const byte of bytes) {
-                    binaryString += String.fromCharCode(byte);
-                }
-
-                resolve(btoa(binaryString));
-            };
-
-            // onerror 事件在读取操作失败时触发
-            reader.onerror = (e) => reject(e);
-            // 开始读取文件
-            reader.readAsArrayBuffer(chunk);
-
-        });
     }
 }
 
@@ -125,44 +59,102 @@ class MultiFileHandler {
         return this._handlers[index] || null;
     }
 
-    getFilesInfo() {
-        return this._handlers.map(handler => handler.getFileInfo());
-    }
-
-    async getFilesContent(chunkSize = 10 * 1024) {
-        const promises = this._handlers.map(handler => handler.getFileContent(chunkSize));
-        return await Promise.all(promises);
+    getMetaData() {
+        return this._handlers.map(handler => handler.getMetaData());
     }
 }
 
-export function createFileHandler(inputElement) {
+export function getFileMetaData(inputElement) {
     const files = Array.from(inputElement.files || []);
 
     if (files.length > 1) {
-        return new MultiFileHandler(files);
+        const mFileHandler = new MultiFileHandler(files);
+        return mFileHandler.getMetaData();
     }
     else {
-        return new FileHandler(files[0]);
+        const sFileHandler = new FileHandler(files[0]);
+        return sFileHandler.getMetaData();
     }
 }
 
-export function getFilesInfo(instance) {
-    if (instance instanceof MultiFileHandler) {
-        return instance.getFilesInfo();
+//#region 预览小文件内容
+
+async function getFilesContent(chunkSize = 10 * 1024) {
+    const promises = this._handlers.map(handler => handler.getFileContent(chunkSize));
+    return await Promise.all(promises);
+}
+
+// 10KB 分块
+async function getFileContent(chunkSize = 10 * 1024) {
+    // 最大 500 KB
+    const MAX_FILESIZE = 500 * 1024;
+    if (this._file.size > MAX_FILESIZE) {
+        return {
+            isExLimit: true
+        }
     }
-    else {
-        return instance.getFileInfo();
+
+    if (this._file.size <= chunkSize) {
+        const base64 = await this._readChunk(this._file);
+        return {
+            isChunked: false,
+            data: base64
+        }
+    } else {
+        // 大文件返回分块信息
+        const totalChunks = Math.ceil(this._file.size / chunkSize);
+        const chunkPromises = [];
+
+        // 并行读取所有分块
+        for (let i = 0; i < totalChunks; i++) {
+            const chunk = this._file.slice(i * chunkSize, (i + 1) * chunkSize);
+            chunkPromises.push(
+                this._readChunk(chunk).then(base64 => ({
+                    index: i,
+                    total: totalChunks,
+                    data: base64,
+                    size: chunk.size
+                }))
+            );
+        }
+
+        const chunks = await Promise.all(chunkPromises);
+        return {
+            isChunked: true,
+            fileName: this._file.name,
+            fileSize: this._file.size,
+            chunks: chunks
+        };
     }
 }
 
-export function getFilesContent(instance, chunkSize = 10 * 1024) {
-    if (instance instanceof MultiFileHandler) {
-        return instance.getFilesContent(chunkSize);
-    }
-    else {
-        return instance.getFileContent(chunkSize);
-    }
+function _readChunk(chunk) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        // onload 事件在读取操作完成时触发
+        reader.onload = () => {
+            const bytes = new Uint8Array(reader.result);
+            let binaryString = '';
+
+            for (const byte of bytes) {
+                binaryString += String.fromCharCode(byte);
+            }
+
+            resolve(btoa(binaryString));
+        };
+
+        // onerror 事件在读取操作失败时触发
+        reader.onerror = (e) => reject(e);
+        // 开始读取文件
+        reader.readAsArrayBuffer(chunk);
+
+    });
 }
+
+//#endregion
+
+//#region 并发分块上传
 
 export async function uploadFile(inputElement, url, chunkSize) {
     const files = inputElement.files;
@@ -185,11 +177,11 @@ export async function uploadFiles(inputElement, url, chunkSize) {
     }
 }
 
-// 文件分块上传核心逻辑
+// 文件分块
 async function chunkFileUpLoad(file, url, chunkSize) {
-    const totalChunks = Math.ceil(file.size / chunkSize);
+    const totalChunks = Math.ceil(file.size / chunkSize);       // 文件分块数量 = 文件大小 / 分块大小
+    const uploadPromises = [];                                  // 延迟执行的 Promise 任务队列
 
-    const uploadPromises = [];
     for (let i = 0; i < totalChunks; i++) {
         const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
 
@@ -206,18 +198,55 @@ async function chunkFileUpLoad(file, url, chunkSize) {
     await uploadPromisesLimit(uploadPromises, 3);
 }
 
-// 带重试的上传函数
+/**
+ * 限制并发
+ * @param {any} uploadPromises 由函数组成的数组
+ * @param {any} limit
+ */
+async function uploadPromisesLimit(uploadPromises, limit) {
+    let executing = [];   // 当前正在运行的Promise队列
+
+    for (const promise of uploadPromises) {
+        // 执行文件上传
+        const p = promise()
+            .finally(() => {
+                executing = executing.filter(item => item !== p)
+            })
+
+        // 将活跃的Promise加入监控队列
+        executing.push(p);
+
+        // 阻塞直到有空闲槽位
+        if (executing.length >= limit) {
+            await Promise.race(executing);
+        }
+    }
+}
+
+// 重试上传
 async function retryableUpload(url, formData, maxRetries) {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
             const response = await fetch(url, {
                 method: "POST",
-                headers: {
-                    'Accept': 'application/json'
-                },
+                headers: { 'Accept': 'application/json' },
                 body: formData
             });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            if (response.ok) {
+                console.log(`HTTP Status: ${response.status} ${response.statusText}`);
+            } else {
+                // 尝试读取错误信息（如果是JSON）
+                const errorBody = await response.json().catch(() => null);
+
+                if (errorBody) {
+                    console.error('Server error details:', errorBody);
+                    throw new Error(`Server error: ${JSON.stringify(errorBody)}`);
+                }
+
+                throw new Error(`HTTP ${response.status} ${response.statusText}`);
+            }
+
             return;
         } catch (err) {
             if (attempt === maxRetries - 1) throw err;
@@ -226,62 +255,11 @@ async function retryableUpload(url, formData, maxRetries) {
     }
 }
 
-/**
- * 限制并发上传
- * @param {any} uploadPromises 由函数组成的数组
- * @param {any} limit
- */
-async function uploadPromisesLimit(uploadPromises, limit) {
-    const executing = [];
-    for (const promise of uploadPromises) {
-        const p = promise().then(() => {
-            executing.splice(executing.indexOf(p), 1);
-        });
-        executing.push(p);
-        if (executing.length >= limit) {
-            await Promise.race(executing);
-        }
-    }
-}
+//#endregion
 
-// 二进制分块
-export async function chunkFilesUpload(inputElement, chunkSize = 1024 * 1024) {
-    const file = inputElement.files[0];
-    const chunks = [];
+//#endregion
 
-    for (let i = 0; i < Math.ceil(file.size / chunkSize); i++) {
-        const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
-        const buffer = await chunk.arrayBuffer();
-
-        chunks.push({
-            index: i,
-            total: Math.ceil(file.size / chunkSize),
-            data: arrayBufferToBase64(buffer),
-            size: chunk.size
-        });
-    }
-
-    return {
-        fileName: file.name,
-        fileSize: file.size,
-        fileChunks: chunks, // 使用专用字段名
-        isChunked: true,
-    };
-}
-
-function arrayBufferToBase64(buffer) {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return window.btoa(binary);
-}
-
-/* ------------------------ FILE UPLOAD ------------------------ */
-
-/* ------------------------ FILE DOWNLOAD ------------------------ */
+//#region 文件下载
 export function downloadFile(filename, data, mimeType) {
     // 1. 自动推断 MIME 类型（如果未显式指定）
     if (!mimeType) {
@@ -334,9 +312,9 @@ export function downloadFile(filename, data, mimeType) {
     }, 100);
 }
 
-/* ------------------------ FILE DOWNLOAD ------------------------ */
+//#endregion
 
-/* ------------------------ SVG Elements Start ------------------------ */
+//#region SVG Elements
 
 class SVGDragController {
     /**
@@ -514,4 +492,4 @@ export async function cleanUpDraggableSVGElement(inputElement) {
     controllerInstances.delete(inputElement);
 }
 
-/* ------------------------ SVG Elements End ------------------------ */
+//#endregion

@@ -14,7 +14,7 @@ public static class UpFileInfoExtension
         return $"{bytes / Math.Pow(scale, digitGroups):F2} {units[digitGroups]}";
     }
 
-    public static MIMEType GetFileMIMEType(this UpFileInfo upFileInfo)
+    public static MIMEType GetFileMIMEType(this FileMetaData upFileInfo)
     {
         if (string.IsNullOrWhiteSpace(upFileInfo.ContentType))
             return MIMEType.Unknown;
