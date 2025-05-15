@@ -1,5 +1,4 @@
 ﻿@page "/experimentGround"
-@inject AWJsInterop awJsInterop
 
 <Button OnClick="ConvertToXML">ConvertToXML</Button>
 
@@ -20,3 +19,6 @@
 
 <Divider Color="ColorType.Green" Style="@DividerStyle" />
 
+<InputFile OnChange="OnSelectedFileChanged"></InputFile>
+
+<Button OnClick="StartUpLoad">开始上传</Button>

@@ -1,6 +1,6 @@
 ﻿using AWUI.Components;
+using AWUI.JsInterop;
 using AWUI.Models;
-using AWUI.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -10,19 +10,16 @@ namespace AW.Client.Pages;
 public partial class AWComponents
 {
     [Inject]
-    public HubConnection HubConnection { get; set; } = default!;
-
-    [Inject]
     public NavigationManager NavigationManager { get; set; } = default!;
 
+    [Inject]
+    public AWJsInterop AWJsInterop { get; set; }
+
+    private HubConnection _hubConnection { get; set; }
     private bool _radioValue = false;
-
     private bool _alertVisible = false;
-
     private ElementReference _fileInputRef;
-
     private ElementReference _filesInputRef;
-
     private ModalDialog _dialog = new ModalDialog();
 
     private HashSet<string> Options = new HashSet<string>()
@@ -33,6 +30,7 @@ public partial class AWComponents
         "option 4",
         "option 5"
     };
+
     public string SelectedValue { get; set; } = string.Empty;
 
     private Input<string> _input = new Input<string>();
@@ -74,7 +72,7 @@ public partial class AWComponents
 
     private async Task TestConnection(MouseEventArgs args)
     {
-        await awJsInterop.TestConnection();
+        await AWJsInterop.TestConnection();
     }
 
     private async Task CheckBoxValueChanged(bool arg)
@@ -116,28 +114,14 @@ public partial class AWComponents
 
     private async Task UpLoadFile(MouseEventArgs args)
     {
-        var url = $"{Navigation.BaseUri}api/upload/chunk";
-        await awJsInterop.UploadFileAsync(_fileInputRef, url);
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        HubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/fileUploadHub"))
-            .Build();
-       
-        await HubConnection.StartAsync();
-    }
-
-    private async Task UpLoadFileSingalR(MouseEventArgs args)
-    {
-        
+        var url = $"{NavigationManager.BaseUri}api/upload/chunk";
+        await AWJsInterop.UploadFileAsync(_fileInputRef, url);
     }
 
     private async Task UpLoadFiles(MouseEventArgs args)
     {
-        var url = $"{Navigation.BaseUri}api/upload/chunk";
-        await awJsInterop.UploadFilesAsync(_filesInputRef, url);
+        var url = $"{NavigationManager.BaseUri}api/upload/chunk";
+        await AWJsInterop.UploadFilesAsync(_filesInputRef, url);
     }
 
     private Task ShowDialog(MouseEventArgs args)

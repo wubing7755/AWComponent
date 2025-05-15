@@ -2,8 +2,6 @@
 @using AWUI.Components
 @using System.IO.Compression
 @using System.Text
-@inject AWJsInterop awJsInterop
-@inject NavigationManager Navigation
 
 @* 按钮 *@
 <Button OnClick="TestConnection">Test Connection</Button>
@@ -75,8 +73,6 @@
            InputRefChanged="OnFileInputRefChanged">上传文件</FileInput>
 
 <Button OnClick="UpLoadFile">单文件上传</Button>
-
-<Button OnClick="UpLoadFileSingalR">单文件上传（SignalR）</Button>
 
 <Divider />
 
