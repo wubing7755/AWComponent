@@ -1,8 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AWUI.Models;
 
-public class TreeNode
+public class TreeNode : IEnumerable<TreeNode>
 {
     /// <summary>
     /// 节点唯一标识符 (不可为空)
@@ -113,6 +114,14 @@ public class TreeNode
     public void Toggle() => IsExpanded = !IsExpanded;
 
     /// <summary>
+    /// 添加子节点（支持集合初始化器语法）
+    /// </summary>
+    public void Add(TreeNode node)
+    {
+        AddChild(node);
+    }
+
+    /// <summary>
     /// 添加子节点
     /// </summary>
     /// <param name="node">要添加的节点</param>
@@ -169,4 +178,14 @@ public class TreeNode
     }
 
     public override string ToString() => $"{Text} (Level: {Level}, Children: {Children.Count})";
+
+    public IEnumerator<TreeNode> GetEnumerator()
+    {
+        return Children.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 }

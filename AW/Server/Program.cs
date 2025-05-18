@@ -1,4 +1,5 @@
 using AW.Server.Hubs;
+using AW.Server.Middlewares;
 
 namespace AW;
 
@@ -36,6 +37,16 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+
+        // add 自定义中间件
+        app.Use(async (context, next) =>
+        {
+            // Do work that can write to the Response.
+            await next.Invoke();
+            // Do logging or other work that doesn't write to the Response.
+        });
+
+        app.UseMiddleware<LoggingMiddleware>();
 
         app.UseBlazorFrameworkFiles();
         app.UseStaticFiles();
