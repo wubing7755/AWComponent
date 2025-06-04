@@ -25,8 +25,11 @@ public class ModalDialog : AWComponentBase
     [Parameter]
     public bool ShowCloseButton { get; set; } = true;
 
-    [Parameter, NotNull, EditorRequired]
-    public Func<Task>? OnClose { get; set; }
+    [Parameter, EditorRequired]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnConfirm { get; set; }
 
     private bool IsVisible { get; set; } = false;
 
@@ -35,6 +38,15 @@ public class ModalDialog : AWComponentBase
     protected virtual string ModalClass => BuildCssClass();
 
     protected virtual string ModalStyle => BuildStyle();
+
+    private readonly string _btnStyle = 
+            "background: #61afef;" +
+            "cursor: pointer;" +
+            "margin-right: 20px;" +
+            "margin-top: 2px;" +
+            "height: 35px;" +
+            "width: 110px;" +
+            "display: float;";
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
@@ -103,16 +115,17 @@ public class ModalDialog : AWComponentBase
         // Close Button
         builder.OpenElement(16, "button");
         builder.AddAttribute(17, "type", "button");
-        builder.AddAttribute(18, "style",
-            "background: #61afef;" +
-            "cursor: pointer;" +
-            "margin-right: 20px;" +
-            "margin-top: 2px;" +
-            "height: 35px;" +
-            "width: 110px;" +
-            "display: float;");
+        builder.AddAttribute(18, "style", _btnStyle);
         builder.AddAttribute(19, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, OnCloseClick));
-        builder.AddContent(20, "Close Dialog");
+        builder.AddContent(20, "Close");
+        builder.CloseElement();
+
+        // Confirm Button
+        builder.OpenElement(21, "button");
+        builder.AddAttribute(22, "type", "button");
+        builder.AddAttribute(23, "style", _btnStyle);
+        builder.AddAttribute(24, "onclick", EventCallback.Factory.Create(this, OnConfirmClick));
+        builder.AddContent(25, "Confirm");
         builder.CloseElement();
 
         builder.CloseElement();
@@ -131,7 +144,15 @@ public class ModalDialog : AWComponentBase
     {
         if (ShowCloseButton)
         {
-            await OnClose();
+            await OnClose.InvokeAsync();
+        }
+    }
+
+    private async Task OnConfirmClick()
+    {
+        if (OnConfirm.HasDelegate)
+        {
+            await OnConfirm.InvokeAsync("confirmed");
         }
     }
 
@@ -140,7 +161,7 @@ public class ModalDialog : AWComponentBase
         switch (arg.Key)
         {
             case "escape":
-                await OnClose();
+                await OnClose.InvokeAsync();
                 break;
         }
     }
