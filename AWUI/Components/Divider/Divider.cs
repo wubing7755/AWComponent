@@ -1,7 +1,7 @@
-﻿using AWUI.Enums;
-using AWUI.Utils;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
+using AWUI.Enums;
+using AWUI.Helper;
 
 namespace AWUI.Components;
 
@@ -18,6 +18,8 @@ public class Divider : AWComponentBase
 
     protected sealed override string BaseClass => "aw-divider";
 
+    private readonly string _svgStyle = "width: 100%; height: 30%; aria-hidden: true;";
+
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         builder.OpenElement(0, "div");
@@ -27,10 +29,8 @@ public class Divider : AWComponentBase
 
         // SVG Dotted
         builder.OpenElement(4, "svg");
-        builder.AddAttribute(5, "style",
-            "width: 100%;" +
-            "height: 30%;" +
-            "aria-hidden: true;");
+
+        builder.AddAttribute(5, "style", _svgStyle);
         builder.OpenElement(6, "line");
         builder.AddMultipleAttributes(7, new Dictionary<string, object>
         {

@@ -1,4 +1,4 @@
-﻿using AWUI.Components;
+﻿using AWUI.Interfaces;
 using System.Collections.Concurrent;
 
 namespace AWUI.Events;

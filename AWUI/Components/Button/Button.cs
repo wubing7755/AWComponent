@@ -1,28 +1,20 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
-using Microsoft.AspNetCore.Components.Web;
 using AWUI.Events;
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace AWUI.Components;
 
 public class Button : AWComponentBase
 {
-    /**
-     * 小知识：隐式子内容
-     * Blazor 会自动将组件标签内的内容（如文本、HTML 或其他组件）赋值给它
-     */
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    [Parameter, NotNull]
-    public Func<MouseEventArgs, Task>? OnClick { get; set; }
+    [Parameter]
+    public EventCallback OnClick { get; set; }
 
     [Parameter]
-    public Action<MouseEventArgs>? OnMouseEnter { get; set; }
-
-    [Parameter]
-    public Action<MouseEventArgs>? OnMouseLeave { get; set; }
+    public EventCallback OnMouseLeave { get; set; }
 
     protected sealed override string BaseClass => "aw-btn";
 
@@ -41,25 +33,38 @@ public class Button : AWComponentBase
             builder.AddAttribute(6, "disabled");
         }
 
-        builder.AddAttribute(7, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async(args) =>
+        builder.AddAttribute(7, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async _ =>
         {
-            await HandleClick(args);
+            await HandleClick();
         }));
 
-        builder.AddAttribute(8, "onmouseenter", OnMouseEnter);
-        builder.AddAttribute(9, "onmouseleave", OnMouseLeave);
-        builder.AddContent(10, ChildContent);
+        builder.AddAttribute(8, "onmouseleave", EventCallback.Factory.Create<MouseEventArgs>(this, async _ =>
+        {
+            await HandleMouseEnter();
+        }));
+
+        builder.AddContent(9, ChildContent);
 
         builder.CloseElement();
     }
 
-    private async Task HandleClick(MouseEventArgs args)
+    private async Task HandleClick()
     {
-        if (OnClick is not null)
+        if (OnClick.HasDelegate)
         {
-            await OnClick.Invoke(args);
+            await OnClick.InvokeAsync();
         }
 
+#if DEBUG
         EventBus.Publish<ButtonClickedEvent>(new(this.Id.ToString()));
+#endif
+    }
+
+    private async Task HandleMouseEnter()
+    {
+        if(OnMouseLeave.HasDelegate)
+        {
+            await OnMouseLeave.InvokeAsync();
+        }
     }
 }

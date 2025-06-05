@@ -22,7 +22,7 @@ public partial class ExprGround
     private string _translationText = string.Empty;
     private const string DividerStyle = "display: block; height: 30px; color:green;";
 
-    private async Task ConvertToXML(MouseEventArgs args)
+    private async Task ConvertToXML()
     {
         var xmlWriter = new XmlWriter(AWJsInterop);
 
@@ -48,7 +48,7 @@ public partial class ExprGround
         _selectedFile = args.File;
     }
 
-    private async Task StartUpLoad(MouseEventArgs args)
+    private async Task StartUpLoad()
     {
         try
         {

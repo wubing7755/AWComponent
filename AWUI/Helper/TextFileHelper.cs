@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using System.Text;
 
-namespace AWUI.Utils;
+namespace AWUI.Helper;
 
 public class TextFileHelper
 {

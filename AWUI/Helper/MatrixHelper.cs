@@ -1,4 +1,4 @@
-﻿namespace AWUI.Utils;
+﻿namespace AWUI.Helper;
 
 /// <summary>
 /// 通用矩阵类，支持任意维度的矩阵运算
@@ -29,7 +29,7 @@ public class Matrix
         data = new double[rows, cols];
     }
 
-    public Matrix(double[,] array)
+    private Matrix(double[,] array)
     {
         if (array == null)
             throw new ArgumentNullException(nameof(array));

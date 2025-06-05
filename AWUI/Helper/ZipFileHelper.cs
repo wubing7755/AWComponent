@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 
-namespace AWUI.Utils;
+namespace AWUI.Helper;
 
 public class ZipFileHelper
 {

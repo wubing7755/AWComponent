@@ -3,7 +3,7 @@ using AWUI.Services;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace AWUI.Utils;
+namespace AWUI.Helper;
 
 public class XmlWriter
 {

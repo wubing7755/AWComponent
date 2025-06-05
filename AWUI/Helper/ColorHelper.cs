@@ -1,6 +1,6 @@
 ﻿using AWUI.Enums;
 
-namespace AWUI.Utils;
+namespace AWUI.Helper;
 
 public static class ColorHelper
 {

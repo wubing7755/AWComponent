@@ -56,12 +56,12 @@
 <Button OnClick="AlertWarningBox">弹出警告框</Button>
 
 @* 警告框 *@
-<Alert Type="ColorType.Blue" IsVisible="_alertVisible" OnClose="CloseWarningBox">Hello</Alert>
+<Alert Type="ColorType.Blue" IsVisible="_alertVisible" OnClose="CloseWarningBox"></Alert>
 
 <Divider />
 
 @* 树形选择 *@
-<SelectTree TreeNode="_treeNode" OnNodeSelected="TreeNodeSelected"></SelectTree>
+<Tree TreeNode="_treeNode" OnNodeSelected="TreeNodeSelected"></Tree>
 
 @_selectedTreeNode?.Text
 

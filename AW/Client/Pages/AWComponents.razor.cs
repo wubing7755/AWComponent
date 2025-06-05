@@ -70,7 +70,7 @@ public partial class AWComponents
         StateHasChanged();
     }
 
-    private async Task TestConnection(MouseEventArgs args)
+    private async Task TestConnection()
     {
         await AWJsInterop.TestConnection();
     }
@@ -87,16 +87,14 @@ public partial class AWComponents
         return Task.CompletedTask;
     }
 
-    private Task AlertWarningBox(MouseEventArgs args)
+    private void AlertWarningBox()
     {
         _alertVisible = true;
         StateHasChanged();
-        return Task.CompletedTask;
     }
 
     private Task CloseWarningBox()
     {
-        Task.Delay(3000);
         _alertVisible = false;
         StateHasChanged();
         return Task.CompletedTask;
@@ -112,27 +110,25 @@ public partial class AWComponents
         _filesInputRef = elementRef;
     }
 
-    private async Task UpLoadFile(MouseEventArgs args)
+    private async Task UpLoadFile()
     {
         var url = $"{NavigationManager.BaseUri}api/upload/chunk";
         await AWJsInterop.UploadFileAsync(_fileInputRef, url);
     }
 
-    private async Task UpLoadFiles(MouseEventArgs args)
+    private async Task UpLoadFiles()
     {
         var url = $"{NavigationManager.BaseUri}api/upload/chunk";
         await AWJsInterop.UploadFilesAsync(_filesInputRef, url);
     }
 
-    private Task ShowDialog(MouseEventArgs args)
+    private void ShowDialog()
     {
         _dialog.SetVisible(true);
-        return Task.CompletedTask;
     }
 
-    private Task ClosDialog()
+    private void ClosDialog()
     {
         _dialog.SetVisible(false);
-        return Task.CompletedTask;
     }
 }

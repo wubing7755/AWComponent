@@ -11,11 +11,10 @@
 @code{
     private bool _renderProgress = true;
 
-    private Task ToggleRender (MouseEventArgs args)
+    private void ToggleRender ()
     {
         _renderProgress = !_renderProgress;
 
-        StateHasChanged();
-        return Task.CompletedTask;
+        //StateHasChanged();
     }
 }

@@ -1,8 +1,8 @@
-﻿using AWUI.Enums;
-using AWUI.Utils;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
+using AWUI.Enums;
 using Microsoft.AspNetCore.Components.Web;
+using AWUI.Helper;
 
 namespace AWUI.Components;
 
@@ -12,7 +12,7 @@ public class Alert : AWComponentBase
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
-    public Func<Task>? OnClose { get; set; }
+    public EventCallback OnClose { get; set; }
 
     [Parameter]
     public ColorType Type { get; set; } = ColorType.Green;
@@ -24,15 +24,19 @@ public class Alert : AWComponentBase
         builder.AddAttribute(2, "style", $"background-color: {ColorHelper.ConvertToString(Type)}");
         builder.AddAttribute(3, "role", "alert");
 
-        builder.AddAttribute(4, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async () => {
-            if (OnClose is not null)
-            {
-                MarkForRenderOnNextEvent();
-                await OnClose.Invoke();
-            }
+        builder.AddAttribute(4, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async _ => {
+            await HandleClose();
         }));
 
         builder.AddContent(5, ChildContent);
         builder.CloseElement();
+    }
+
+    private async Task HandleClose()
+    {
+        if(OnClose.HasDelegate)
+        {
+            await OnClose.InvokeAsync();
+        }
     }
 }
