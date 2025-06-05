@@ -49,20 +49,18 @@
 
 ```text
 AWComponent/
-├── SharedLibrary/         # 共享组件库
+├── AWUI/                  # 组件库
 │   ├── Components/        # 可复用组件
 │   └── ...
 │
-├── AW.Client/...
-├── AW.Server/...
-├── AW.Shared/...
+├── AW
 └── AWComponent.sln        # 解决方案文件
 ```
 
 ## 🔧 组件使用示例
 
 ```csharp
-@using SharedLibrary.Components
+@using AWUI.Components
 
 <Button OnClick="HandleClick">PlaceHolder</Button>
 
@@ -79,7 +77,7 @@ AWComponent/
 1. 安装 AWComponent NuGet 包：
 
    ```bash
-   dotnet add package AWComponent --version 0.0.4
+   dotnet add package AWComponent --version 0.0.5
    ```
 
 2. 服务配置(Program.cs in Client)
@@ -107,20 +105,20 @@ AWComponent/
 4. 样式配置(index.html in Client.wwwroot)
 
     ```html
-        <link href="_content/AWUI/css/AWUI.css" rel="stylesheet" />
+    <link href="_content/AWUI/css/AWUI.css" rel="stylesheet" />
     ```
 
 5. _Imports.razor 中添加命名空间：
 
     ```csharp
-    @using AWComponent.Components
+    @using AWUI.Components
     ```
 
 ## 🧩 支持组件
 
 |组件类型|组件名|
 |---|---|
-|基础组件|Alert、Button、Divider、Input、Label、Select、SelectTree、Modal|
+|Basic|Alert、Button、Divider、Input、Label、Modal、Progress、Select、Tree|
 
 ## 📚 文档资源
 
