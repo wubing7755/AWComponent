@@ -31,7 +31,7 @@
 	  <PackageTags>Blazor UIComponents</PackageTags>
 	<!-- 禁用默认Content包含 -->
 	<EnableDefaultContentItems>false</EnableDefaultContentItems>
-	<!-- 确保静态资源基础路径正确 -->
+	<!-- 静态资源基础路径 -->
 	<StaticWebAssetBasePath>_content/AWUI</StaticWebAssetBasePath>
   </PropertyGroup>
 
@@ -66,4 +66,9 @@
 		<Content Include="wwwroot\css\AWUI.css" Pack="true" PackagePath="staticwebassets\wwwroot\css\" />
 		<Content Include="wwwroot\js\AWUI.js" Pack="true" PackagePath="staticwebassets\wwwroot\js\" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
 </Project>
