@@ -1,7 +1,7 @@
-﻿
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using AWUI.Interfaces;
 
-namespace AWUI.Services;
+namespace AWUI.Helper;
 
 public static class ResultExtensions
 {
@@ -9,18 +9,18 @@ public static class ResultExtensions
     {
         if (result.IsSuccess && result.Data is T)
         {
-            data = (T)result.Data;
+            data = result.Data;
             return true;
         }
 
-        data = default(T);
+        data = default;
         return false;
     }
 
     public static bool TryGetData<T>(this IError<T> error, [MaybeNullWhen(false)] out T data)
     {
         data = error.Data is T t ? t : default;
-        return data is not null || (error.Data is T && error.Data == null);
+        return data is not null || error.Data is T && error.Data == null;
     }
 
     public static Result<T> OnSuccess<T>(this Result<T> result, Action<T> handleResult)

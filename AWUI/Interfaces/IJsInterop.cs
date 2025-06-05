@@ -1,6 +1,6 @@
 ﻿namespace AWUI.Interfaces;
 
-public interface IJsInterop : IAsyncDisposable
+public interface IJSInterop : IAsyncDisposable
 {
     /// <summary>
     /// 调用指定JS模块的方法（无返回值）

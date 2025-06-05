@@ -11,8 +11,6 @@ public class Progress : AWComponentBase
     [Parameter]
     public bool ShowValue { get; set; } = true;
 
-    private string _text = string.Empty;
-
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         builder.OpenElement(0, "div");

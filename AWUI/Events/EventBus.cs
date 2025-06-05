@@ -1,5 +1,5 @@
-﻿using AWUI.Interfaces;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+using AWUI.Interfaces;
 
 namespace AWUI.Events;
 

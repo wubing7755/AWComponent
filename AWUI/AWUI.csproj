@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<PackageId>AWUI</PackageId>
 	<Title>Blazor AWUI</Title>
-	<PackageVersion>0.0.4</PackageVersion>
+	<PackageVersion>0.0.5</PackageVersion>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<PackageProjectUrl>https://github.com/wubing7755/AWComponent</PackageProjectUrl>
@@ -23,7 +23,7 @@
 	</Description>
 
 	  <PackageReleaseNotes>
-		  ## 0.0.4 (2025-05-13)
+		  ## 0.0.5 (2025-06-05)
 	  </PackageReleaseNotes>
 
 	  <Copyright>Copyright © 2025 wubing7755</Copyright>
@@ -65,9 +65,5 @@
 	<ItemGroup>
 		<Content Include="wwwroot\css\AWUI.css" Pack="true" PackagePath="staticwebassets\wwwroot\css\" />
 		<Content Include="wwwroot\js\AWUI.js" Pack="true" PackagePath="staticwebassets\wwwroot\js\" />
-	</ItemGroup>
-	
-	<ItemGroup>
-		<None Include="README.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 </Project>

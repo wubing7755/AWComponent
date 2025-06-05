@@ -1,64 +1,7 @@
-﻿namespace AWUI.Services;
+﻿using AWUI.Enums;
+using AWUI.Interfaces;
 
-#region EnumType
-
-/// <summary> Result 类型 </summary>
-public enum ResultType
-{
-    /// <summary> 操作成功 </summary>
-    Ok,
-    /// <summary> 操作失败 </summary>
-    Error
-}
-
-/// <summary> Error 类型 </summary>
-public enum ErrorType
-{
-    /// <summary> 未知错误 </summary>
-    Unknown,
-    /// <summary> 一般性错误 </summary>
-    Custom,
-    /// <summary> 系统错误 </summary>
-    System
-}
-
-#endregion
-
-#region Interface
-
-public interface IResult
-{
-    ResultType Type { get; }
-
-    IError? Error { get; }
-
-    bool IsSuccess { get; }
-}
-
-public interface IResult<out T> : IResult
-{
-    T Data { get; }
-}
-
-public interface IError
-{
-    string Message { get; }
-
-    ErrorType Code { get; }
-
-    IReadOnlyCollection<IError> Errors { get; }
-
-    Exception? Exception { get; }
-}
-
-public interface IError<out T> : IError
-{
-    T Data { get; }
-}
-
-#endregion
-
-#region Implement
+namespace AWUI.Helper;
 
 public readonly struct Error : IError
 {
@@ -235,5 +178,3 @@ public readonly struct Result<T> : IResult<T>
                 default!,
                 new Error(message ?? ex.Message, ErrorType.System, exception: ex));
 }
-
-#endregion

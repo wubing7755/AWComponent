@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components;
-using AWUI.Models;
 using Microsoft.JSInterop;
+using AWUI.Models;
 using AWUI.Enums;
 
 namespace AWUI.Components;

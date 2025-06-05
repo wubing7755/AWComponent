@@ -1,7 +1,7 @@
-﻿using AWUI.Models;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
+using AWUI.Models;
 
 namespace AWUI.Components;
 
@@ -11,7 +11,7 @@ public class Tree : AWComponentBase
     public TreeNode TreeNode { get; set; } = default!;
 
     [Parameter]
-    public Action<TreeNode>? OnNodeSelected { get; set; }
+    public EventCallback<TreeNode> OnNodeSelected { get; set; }
 
     protected sealed override string BaseClass => "aw-selectTree";
 
@@ -53,10 +53,10 @@ public class Tree : AWComponentBase
 
         // 文字
         builder.OpenElement(6, "span");
-        builder.AddAttribute(7, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this,
-            () => {
-                OnNodeSelected?.Invoke(treeNode);
-            }));
+        builder.AddAttribute(7, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async _ =>
+        {
+            await HandleNodeSelected(treeNode);
+        }));
         builder.AddContent(8, treeNode.Text);
         builder.CloseElement();
 
@@ -70,6 +70,14 @@ public class Tree : AWComponentBase
             {
                 BuildLeafNode(builder, child, ref seq);
             }
+        }
+    }
+
+    private async Task HandleNodeSelected(TreeNode node)
+    {
+        if(OnNodeSelected.HasDelegate)
+        {
+            await OnNodeSelected.InvokeAsync(node);
         }
     }
 }

@@ -1,20 +1,4 @@
 ﻿@page "/"
 @using AWUI.Components;
 
-@if(_renderProgress)
-{
-    <Progress></Progress>
-}
-
-<Button OnClick="ToggleRender">toggle render</Button>
-
-@code{
-    private bool _renderProgress = true;
-
-    private void ToggleRender ()
-    {
-        _renderProgress = !_renderProgress;
-
-        //StateHasChanged();
-    }
-}
+<Progress></Progress>

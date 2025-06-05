@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using AWUI.Models;
 using AWUI.Options;
-using System.Collections.Concurrent;
 using AWUI.Interfaces;
 
 namespace AWUI.JsInterop;
 
-public class AWJsInterop : IJsInterop
+public class AWJsInterop : IJSInterop
 {
     private readonly Lazy<Task<IJSObjectReference>> _awModuleTask;
     protected readonly IJSRuntime jsRuntime;

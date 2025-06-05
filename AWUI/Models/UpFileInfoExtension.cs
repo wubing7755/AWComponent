@@ -1,5 +1,4 @@
-﻿
-using AWUI.Enums;
+﻿using AWUI.Enums;
 
 namespace AWUI.Models;
 
