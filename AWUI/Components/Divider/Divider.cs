@@ -16,18 +16,14 @@ public class Divider : AWComponentBase
     [Parameter]
     public ColorType Color { get; set; }
 
-    protected sealed override string BaseCssClass => "aw-divider";
-
-    protected virtual string DividerClass => BuildCssClass();
-
-    protected virtual string DividerStyle => BuildStyle();
+    protected sealed override string BaseClass => "aw-divider";
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         builder.OpenElement(0, "div");
         builder.AddMultipleAttributes(1, SafeAttributes);
-        builder.AddAttribute(2, "class", DividerClass);
-        builder.AddAttribute(3, "style", DividerStyle);
+        builder.AddAttribute(2, "class", ComputedClass);
+        builder.AddAttribute(3, "style", ComputedStyle);
 
         // SVG Dotted
         builder.OpenElement(4, "svg");

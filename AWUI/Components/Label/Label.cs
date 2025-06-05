@@ -24,7 +24,7 @@ public class Label : AWComponentBase
     {
         EventBus.Subscribe<ButtonClickedEvent>(e =>
         {
-            RequestRenderOnNextEvent();
+            MarkForRenderOnNextEvent();
             HandleButtonClick(e);
         });
 
@@ -44,7 +44,7 @@ public class Label : AWComponentBase
                     Text = $"{_time} - {_id}";
                 }
 
-                RequestRenderOnNextEvent();
+                MarkForRenderOnNextEvent();
 
                 /*
                     取消订阅，只有第一次单击按钮才会触发事件
@@ -57,8 +57,8 @@ public class Label : AWComponentBase
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         builder.OpenElement(0, "label");
-        builder.AddAttribute(1, "style", $"color: {ColorHelper.ConvertToString(ColorType)};");
-        RenderFilteredAttributes(builder, 2);
+        builder.AddMultipleAttributes(1, SafeAttributes);
+        builder.AddAttribute(2, "style", $"color: {ColorHelper.ConvertToString(ColorType)};");
 
         if (ChildContent is not null)
         {
@@ -66,7 +66,7 @@ public class Label : AWComponentBase
         }
         else
         {
-            builder.AddContent(4, Text);
+            builder.AddContent(3, Text);
         }
 
         builder.CloseElement();

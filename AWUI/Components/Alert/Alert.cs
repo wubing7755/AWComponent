@@ -15,15 +15,10 @@ public class Alert : AWComponentBase
     public Func<Task>? OnClose { get; set; }
 
     [Parameter]
-    public bool IsVisible { get; set; } = false;
-
-    [Parameter]
     public ColorType Type { get; set; } = ColorType.Green;
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
-        if (!IsVisible) return;
-
         builder.OpenElement(0, "div");
         builder.AddAttribute(1, "class", "aw-alert");
         builder.AddAttribute(2, "style", $"background-color: {ColorHelper.ConvertToString(Type)}");
@@ -32,7 +27,7 @@ public class Alert : AWComponentBase
         builder.AddAttribute(4, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async () => {
             if (OnClose is not null)
             {
-                RequestRenderOnNextEvent();
+                MarkForRenderOnNextEvent();
                 await OnClose.Invoke();
             }
         }));

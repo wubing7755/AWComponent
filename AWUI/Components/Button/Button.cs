@@ -24,21 +24,18 @@ public class Button : AWComponentBase
     [Parameter]
     public Action<MouseEventArgs>? OnMouseLeave { get; set; }
 
-    protected sealed override string BaseCssClass => "aw-btn";
-
-    protected virtual string ButtonClass => BuildCssClass();
-
-    protected virtual string ButtonStyle => BuildStyle();
+    protected sealed override string BaseClass => "aw-btn";
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         builder.OpenElement(0, "button");
+        
         builder.AddMultipleAttributes(1, SafeAttributes);
-        builder.AddAttribute(2, "class", ButtonClass);
-        builder.AddAttribute(3, "style", ButtonStyle);
+        builder.AddAttribute(2, "class", ComputedClass);
+        builder.AddAttribute(3, "style", ComputedStyle);
         builder.AddAttribute(4, "role", "button");
 
-        if (Disabled)
+        if (IsDisabled)
         {
             builder.AddAttribute(5, "aria-disabled", "true");
             builder.AddAttribute(6, "disabled");
@@ -51,34 +48,18 @@ public class Button : AWComponentBase
 
         builder.AddAttribute(8, "onmouseenter", OnMouseEnter);
         builder.AddAttribute(9, "onmouseleave", OnMouseLeave);
-        RenderFilteredAttributes(builder, 10);
-        builder.AddContent(11, ChildContent);
+        builder.AddContent(10, ChildContent);
 
         builder.CloseElement();
     }
 
-    protected override bool IsAttributeAllowed(string attributeName)
-    {
-        // 允许 aria-* 和无障碍属性
-        if (attributeName.StartsWith("aria-", StringComparison.OrdinalIgnoreCase) ||
-            attributeName.Equals("role", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-        // 允许父类允许的属性和以下按钮专用属性
-        return base.IsAttributeAllowed(attributeName) ||
-               attributeName.Equals("type", StringComparison.OrdinalIgnoreCase) ||
-               attributeName.Equals("autofocus", StringComparison.OrdinalIgnoreCase);
-    }
-
     private async Task HandleClick(MouseEventArgs args)
     {
-        RequestRenderOnNextEvent();
-
         if (OnClick is not null)
         {
             await OnClick.Invoke(args);
         }
-        EventBus.Publish<ButtonClickedEvent>(new(this.ObjectId.ToString()));
+
+        EventBus.Publish<ButtonClickedEvent>(new(this.Id.ToString()));
     }
 }

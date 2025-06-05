@@ -120,4 +120,7 @@
   <data name="bingbing" xml:space="preserve">
     <value>冰冰</value>
   </data>
+  <data name="TestKEY" xml:space="preserve">
+    <value />
+  </data>
 </root>

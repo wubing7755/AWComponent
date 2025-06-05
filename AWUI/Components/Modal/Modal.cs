@@ -31,13 +31,10 @@ public class ModalDialog : AWComponentBase
     [Parameter]
     public EventCallback<string> OnConfirm { get; set; }
 
-    private bool IsVisible { get; set; } = false;
+    [Parameter]
+    public override bool IsVisible { get; set; } = false;
 
-    protected sealed override string BaseCssClass => "aw-modal";
-
-    protected virtual string ModalClass => BuildCssClass();
-
-    protected virtual string ModalStyle => BuildStyle();
+    protected sealed override string BaseClass => "aw-modal";
 
     private readonly string _btnStyle = 
             "background: #61afef;" +
@@ -50,8 +47,6 @@ public class ModalDialog : AWComponentBase
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
-        if (!IsVisible) return;
-
         builder.OpenElement(0, "div");
         builder.AddAttribute(1, "style",
             "position: fixed;" +
@@ -95,8 +90,8 @@ public class ModalDialog : AWComponentBase
             "padding: 1.5rem;" +
             "color: white;" +
             "flex-grow: 1;");
-        builder.AddAttribute(10, "class", CssClass);
-        builder.AddMultipleAttributes(11, AdditionalAttributes);
+        builder.AddAttribute(10, "class", Class);
+        builder.AddMultipleAttributes(11, SafeAttributes);
         builder.AddContent(12, BodyContent);
         builder.CloseElement();
 

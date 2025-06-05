@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.Localization;
 using AWUI.JsInterop;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using AWUI.Interfaces;
+using AWUI.Helper;
 
 namespace AWUI.Components;
 
@@ -25,18 +29,19 @@ Component Hierarchy Feature Matrix:
 ================================================================================
 | Base Class              | Key Features                                       |
 |-------------------------|----------------------------------------------------|
-| SecureComponentBase     | - Theme management                                 |
-|                         | - Localization services (Localizer)                |
+| SecureComponentBase     | - Localization services (Localizer)                |
 |                         | - Attribute security filtering (SafeAttributes)    |
+|                         | - Dispose management                               |   
 |-------------------------|----------------------------------------------------|
 | ResponsiveComponentBase | - CSS class composition (CssClass)                 |
 |                         | - Inline style handling (Style)                    |
+|                         | - JavaScript interoperability (JsInterop)          |
+|                         | - Theme management                                 |
 |                         | - Disabled state management                        |
 |                         | - Component building pipeline (BuildComponent)     |
 |-------------------------|----------------------------------------------------|
 | AWComponentBase         | - Form validation context (EditContext)            |
 |                         | - Cross-component communication (EventBus)         |
-|                         | - JavaScript interoperability (JsInterop)          |
 |                         | - Debounce                                         |
 ================================================================================
 
@@ -56,22 +61,21 @@ Component Hierarchy Feature Matrix:
 /// - Attribute safety filtering
 /// - Resource disposal management
 /// </remarks>
-public abstract class SecureComponentBase : ComponentBase, IDisposable, IAsyncDisposable
+public abstract class SecureComponentBase : ComponentBase, IDisposable, IAsyncDisposable, ISecurityPolicy
 {
-    public SecureComponentBase()
+    protected SecureComponentBase()
     {
-        ObjectId = Guid.NewGuid();
+        Id = Guid.NewGuid();
     }
 
     private bool _disposed;
     private bool _disposedAsync;
-    private IReadOnlyDictionary<string, object>? _safeAttributes;
 
     /// <summary>
     /// Unique identifier for component instance tracking
     /// 组件实例唯一标识符
     /// </summary>
-    public Guid ObjectId { get; protected set; }
+    public Guid Id { get; init; }
 
     /// <summary>
     /// Gets the localized string resources for this component.
@@ -80,14 +84,8 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable, IAsyncDi
     /// <remarks>
     /// usage: Localizer["bingbing"]
     /// </remarks>
-    [Inject]
+    [Inject, NotNull]
     protected IStringLocalizer<SecureComponentBase>? Localizer { get; set; }
-
-    /// <summary>
-    /// Cascading parameter providing theme settings to descendant components.
-    /// </summary>
-    [CascadingParameter]
-    protected ThemeSettings? Theme { get; set; }
 
     #region Attributes
 
@@ -112,59 +110,36 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable, IAsyncDi
     /// <see cref="IsAttributeAllowed"/> policy.
     /// </value>
     protected virtual IReadOnlyDictionary<string, object>? SafeAttributes
-        => _safeAttributes ??= FilterAttributes(AdditionalAttributes);
+        => ((ISecurityPolicy)this).Filter(AdditionalAttributes);
 
-    /// <summary>
-    /// Filters raw attributes according to component security policy.
-    /// </summary>
-    /// <param name="attributes">Original attribute collection</param>
-    /// <returns>Filtered attributes meeting safety criteria</returns>
-    /// <seealso cref="IsAttributeAllowed"/>
-    protected virtual IReadOnlyDictionary<string, object>? FilterAttributes(IReadOnlyDictionary<string, object>? attributes)
+    /// <inheritdoc />
+    IReadOnlyDictionary<string, object>? ISecurityPolicy.Filter(IReadOnlyDictionary<string, object>? attributes)
     {
-
         if (attributes is null) return null;
+
         var filtered = new Dictionary<string, object>();
-        foreach (var attr in attributes)
+
+        foreach (var (attrK, attrV) in attributes)
         {
-            if (IsAttributeAllowed(attr.Key))
+            if (((ISecurityPolicy)this).IsAttributeAllowed(attrK, attrV))
             {
-                filtered[attr.Key] = attr.Value;
+                filtered[attrK] = attrV;
             }
         }
         return new ReadOnlyDictionary<string, object>(filtered);
     }
 
-    /// <summary>
-    /// Determines if a given attribute is allowed to be rendered.
-    /// 判断属性是否通过安全策略
-    /// </summary>
-    /// <param name="attributeName">Name of the HTML attribute</param>
-    /// <returns>
-    /// True if the attribute is permitted by security rules, false otherwise.
-    /// </returns>
-    /// <remarks>
-    /// Base implementation blocks:
-    /// - All event handlers (attributes starting with "on")
-    /// </remarks>
-    protected virtual bool IsAttributeAllowed(string attributeName)
+    /// <inheritdoc />
+    bool ISecurityPolicy.IsAttributeAllowed(string attributeName, object attributeValue)
     {
         // Security: Block all event handlers to prevent XSS
         // 安全措施：阻止所有事件处理器属性防止XSS
-        return !attributeName.StartsWith("on", StringComparison.OrdinalIgnoreCase);
-    }
 
-    /// <summary>
-    /// Renders filtered attributes to the specified render tree builder.
-    /// </summary>
-    /// <param name="builder">Target render tree builder</param>
-    /// <param name="sequence">Sequence number for rendering</param>
-    protected void RenderFilteredAttributes(RenderTreeBuilder builder, int seq)
-    {
-        if (SafeAttributes is not null)
-        {
-            builder.AddMultipleAttributes(seq, SafeAttributes);
-        }
+        return !attributeName.StartsWith("on", StringComparison.OrdinalIgnoreCase) 
+            || attributeName.Equals("class", StringComparison.OrdinalIgnoreCase) 
+            || attributeName.Equals("style", StringComparison.OrdinalIgnoreCase) 
+            || attributeName.Equals("type", StringComparison.OrdinalIgnoreCase) 
+            || attributeName.Equals("autofocus", StringComparison.OrdinalIgnoreCase);
     }
 
     #endregion
@@ -222,28 +197,45 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable, IAsyncDi
     /// </remarks>
     public void Dispose()
     {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
         if (_disposed) return;
-        DisposeManagedResources();
+
+        if (disposing)
+        {
+            DisposeManagedResources();
+        }
+
         DisposeUnmanagedResources();
         _disposed = true;
-        GC.SuppressFinalize(this);
     }
 
     public async ValueTask DisposeAsync()
     {
         if (_disposedAsync) return;
 
+#if DEBUG
+        Console.WriteLine($"DisposeAsync called for {Id}. Was disposed properly: {_disposedAsync}.");
+#endif
+
         await DisposeManagedResourcesAsync().ConfigureAwait(false);
         await DisposeUnmanagedResourcesAsync().ConfigureAwait(false);
 
-        _disposedAsync = true;
         GC.SuppressFinalize(this);
+        _disposedAsync = true;
     }
 
     /// <summary>
     /// Finalizer ensuring unmanaged resources are released
     /// </summary>
-    ~SecureComponentBase() => DisposeUnmanagedResources();
+    ~SecureComponentBase()
+    {
+        Dispose(false);
+    }
 
     #endregion
 }
@@ -264,17 +256,56 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable, IAsyncDi
 /// </remarks>
 public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEvent
 {
-    private bool _shouldRenderAfterEvent = false;
-    private bool _isEventHandling;
+    private bool _renderScheduled = false;
 
-    protected virtual string BaseCssClass => string.Empty;
+    protected virtual string BaseClass => string.Empty;
     protected virtual string BaseStyle => string.Empty;
 
     /// <summary>
-    /// Indicates whether to enable render optimization for event handling.
-    /// 开启自定义渲染
+    /// Constructs a combined CSS class string from multiple sources.
     /// </summary>
-    protected virtual bool EnableRenderOptimization => true;
+    /// <param name="baseClass">Base class defined by the component</param>
+    /// <returns>
+    /// Merged class string containing (in order):
+    /// 1. Component base classes
+    /// 2. Explicit CssClass parameter
+    /// 3. AdditionalAttributes class values
+    /// </returns>
+    protected string ComputedClass => CssBuilder.Default
+            .AddClass(BaseClass)
+            .AddClass(Class)
+            .AddClassFromAttributes(AdditionalAttributes)
+            .Build();
+
+    /// <summary>
+    /// Constructs a combined inline style string from multiple sources.
+    /// </summary>
+    /// <param name="baseStyle">Base style defined by the component</param>
+    /// <returns>
+    /// Merged style string containing (in order):
+    /// 1. Component base styles
+    /// 2. Explicit Style parameter
+    /// 3. Breakpoint constraints
+    /// 4. AdditionalAttributes style values
+    /// </returns>
+    protected string ComputedStyle => StyleBuilder.Default
+            .AddStyle(BaseStyle)
+            .AddStyle(Style)
+            .AddStyleFromAttributes(AdditionalAttributes)
+            .AddStyle("display:none", IsDisabled)
+            .Build();
+
+    /// <summary>
+    /// Indicates whether to enable render optimization for event handling.
+    /// 开启自定义优化渲染
+    /// </summary>
+    protected bool EnableRenderOptimization { get; set; } = true;
+
+    /// <summary>
+    /// Provides JavaScript interop functionality for the component.
+    /// </summary>
+    [Inject]
+    protected AWJsInterop JsInterop { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the CSS class string applied to the root element.
@@ -283,7 +314,7 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
     /// Will be combined with base classes and additional attribute classes.
     /// </remarks>
     [Parameter]
-    public string? CssClass { get; set; }
+    public string? Class { get; set; }
 
     /// <summary>
     /// Gets or sets the inline style string applied to the root element.
@@ -298,84 +329,12 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
     /// Disabled Component
     /// </summary>
     [Parameter]
-    public bool Disabled { get; set; }
+    public bool IsDisabled { get; set; } = false;
 
-    /// <summary>
-    /// Controls the minimum viewport width at which this component becomes active.
-    /// </summary>
     [Parameter]
-    public Breakpoint Breakpoint { get; set; }
+    public virtual bool IsVisible { get; set; } = true;
 
-    /// <summary>
-    /// Constructs a combined CSS class string from multiple sources.
-    /// </summary>
-    /// <param name="baseClass">Base class defined by the component</param>
-    /// <returns>
-    /// Merged class string containing (in order):
-    /// 1. Component base classes
-    /// 2. Explicit CssClass parameter
-    /// 3. AdditionalAttributes class values
-    /// </returns>
-    protected string BuildCssClass()
-    {
-        var sb = new StringBuilder(BaseCssClass);
-
-        if (!string.IsNullOrEmpty(CssClass))
-        {
-            sb.Append(' ').Append(CssClass);
-        }
-
-        if (AdditionalAttributes?.TryGetValue("class", out var extraClass) == true)
-        {
-            sb.Append(' ').Append(extraClass);
-        }
-
-        return sb.ToString().Trim();
-    }
-
-    /// <summary>
-    /// Constructs a combined inline style string from multiple sources.
-    /// </summary>
-    /// <param name="baseStyle">Base style defined by the component</param>
-    /// <returns>
-    /// Merged style string containing (in order):
-    /// 1. Component base styles
-    /// 2. Explicit Style parameter
-    /// 3. Breakpoint constraints
-    /// 4. AdditionalAttributes style values
-    /// </returns>
-    protected string BuildStyle()
-    {
-        var sb = new StringBuilder(BaseStyle);
-
-        if (!string.IsNullOrEmpty(Style))
-        {
-            sb.Append(';').Append(Style);
-        }
-
-        if (Breakpoint != Breakpoint.None)
-        {
-            sb.Append($";min-width:{(int)Breakpoint}px");
-        }
-
-        if (AdditionalAttributes?.TryGetValue("style", out var extraStyle) == true)
-        {
-            sb.Append(';').Append(extraStyle);
-        }
-
-        return sb.ToString().Trim(';');
-    }
-
-    /// <inheritdoc/>
-    /// <remarks>
-    /// UI components allow class and style attributes from AdditionalAttributes
-    /// </remarks>
-    protected override bool IsAttributeAllowed(string attributeName)
-    {
-        return base.IsAttributeAllowed(attributeName) ||
-               attributeName.Equals("class", StringComparison.OrdinalIgnoreCase) ||
-               attributeName.Equals("style", StringComparison.OrdinalIgnoreCase);
-    }
+    #region Render
 
     /// <summary>
     /// Template method for component-specific rendering
@@ -384,65 +343,90 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
     /// <param name="builder">Blazor render tree builder</param>
     protected sealed override void BuildRenderTree(RenderTreeBuilder builder)
     {
+        if (!IsVisible) return;
+
         BuildComponent(builder);
     }
 
     protected abstract void BuildComponent(RenderTreeBuilder builder);
 
+    /// <summary>
+    /// 优化渲染
+    /// </summary>
+    /// <param name="item"></param>
+    /// <param name="arg"></param>
+    /// <returns></returns>
     Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem item, object? arg)
     {
-        // 1. 标记事件处理中状态
-        _isEventHandling = true;
+        // 同步处理，无渲染
+        if (TryHandleSynchronous(item, arg, out var task))
+        {
+            return task;
+        }
+
+        // 异步处理，根据条件决定渲染
+        return TryHandleAsync(item, arg);
+    }
+
+    private bool TryHandleSynchronous(EventCallbackWorkItem item, object? arg, out Task task)
+    {
+        task = null!;
+
+        // 开启延迟渲染 || 未开启优化渲染
+        if (_renderScheduled || !EnableRenderOptimization)
+        {
+            return false;
+        }
+
         try
         {
-            // 2. 执行原始回调
-            var task = item.InvokeAsync(arg);
+            var syncTask = item.InvokeAsync(arg);
 
-            // 3. 根据条件决定是否触发渲染
-            if (EnableRenderOptimization && !_shouldRenderAfterEvent)
+            if (syncTask.IsCompletedSuccessfully)
             {
-                // 跳过渲染
-                return task;
+                task = Task.CompletedTask;
+
+                return true;
+            }
+        }
+        catch
+        {
+            _renderScheduled = true;
+            throw;
+        }
+
+        return false;
+    }
+
+    private async Task TryHandleAsync(EventCallbackWorkItem item, object? arg)
+    {
+        try
+        {
+            await item.InvokeAsync(arg).ConfigureAwait(false);
+        }
+        finally
+        {
+            if (_renderScheduled || !EnableRenderOptimization)
+            {
+                await InvokeAsync(StateHasChanged).ConfigureAwait(false);
             }
 
-            // 4. 异步等待回调完成后触发渲染
-            return HandleEventWithRendering(task);
-        }
-        finally
-        {
-            // 5. 重置标记
-            _isEventHandling = false;
-            _shouldRenderAfterEvent = false;
-        }
-    }
-
-    private async Task HandleEventWithRendering(Task originalTask)
-    {
-        try
-        {
-            await originalTask;
-        }
-        finally
-        {
-            StateHasChanged();
+            _renderScheduled = false;
         }
     }
 
     /// <summary>
-    /// 标记下一次事件处理需要触发渲染
+    /// 延迟渲染直到下次事件触发
     /// </summary>
-    protected void RequestRenderOnNextEvent()
+    /// <remarks>
+    /// 减少不必要的渲染
+    /// </remarks>
+    protected void MarkForRenderOnNextEvent()
     {
-        _shouldRenderAfterEvent = true;
+        _renderScheduled = true;
     }
 
-    /// <summary>
-    /// 强制立即渲染
-    /// </summary>
-    protected void ForceImmediateRender()
-    {
-        StateHasChanged();
-    }
+    #endregion
 }
 
 #endregion
@@ -463,28 +447,10 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
 public abstract class AWComponentBase : ResponsiveComponentBase
 {
     /// <summary>
-    /// Cascading parameter providing form validation context.
-    /// </summary>
-    [CascadingParameter]
-    protected EditContext? EditContext { get; set; }
-
-    /// <summary>
     /// Event bus for cross-component communication.
     /// </summary>
     [Inject]
     protected IEventBus EventBus { get; set; } = null!;
-
-    /// <summary>
-    /// Provides JavaScript interop functionality for the component.
-    /// </summary>
-    [Inject]
-    protected AWJsInterop JsInterop { get; set; } = null!;
-
-    /// <summary>
-    /// Indicates whether the current form has validation errors.
-    /// </summary>
-    protected bool HasValidationErrors =>
-        EditContext?.GetValidationMessages().Any() ?? false;
 
     #region Event
 
@@ -543,7 +509,7 @@ public abstract class AWComponentBase : ResponsiveComponentBase
     /// <remarks>
     /// Implement using proper async debounce pattern in actual implementation
     /// </remarks>
-    protected Action Debounce(Action action, int milliseconds = 300)
+    protected static Action Debounce(Action action, int milliseconds = 300)
     {
         return Debouncer.Execute(action, milliseconds);
     }
@@ -552,7 +518,7 @@ public abstract class AWComponentBase : ResponsiveComponentBase
     /// Creates a debounced version of the specified generic action.
     /// </summary>
     /// <typeparam name="T">Type of action parameter</typeparam>
-    protected Action<T> Debounce<T>(Action<T> action, int milliseconds = 300)
+    protected static Action<T> Debounce<T>(Action<T> action, int milliseconds = 300)
     {
         return Debouncer.Execute(action, milliseconds);
     }
@@ -572,129 +538,6 @@ public abstract class AWComponentBase : ResponsiveComponentBase
         EventBus.UnsubscribeAll(this);
         await base.DisposeManagedResourcesAsync().ConfigureAwait(false);
     }
-}
-
-#endregion
-
-#region Helper Classes
-
-/// <summary>
-/// Provides debounce functionality for high-frequency events.
-/// 使用CancellationTokenSource实现防抖模式
-/// </summary>
-/// /// <remarks>
-/// Usage example (使用示例):
-/// <code>
-/// var debouncedSave = Debouncer.Execute(SaveData, 1000);
-/// input.OnChange += debouncedSave;
-/// </code>
-/// </remarks>
-public static class Debouncer
-{
-    /// <summary>
-    /// Wraps an action to prevent frequent execution.
-    /// </summary>
-    /// <param name="action">Target action</param>
-    /// <param name="milliseconds">Minimum interval between executions</param>
-    public static Action Execute(Action action, int milliseconds)
-    {
-        CancellationTokenSource? cts = null;
-
-        return () =>
-        {
-            cts?.Cancel();
-            cts = new CancellationTokenSource();
-
-            Task.Delay(milliseconds, cts.Token).ContinueWith(t =>
-            {
-                if (t.IsCanceled) return;
-
-                action.Invoke();
-            }, TaskScheduler.Default);
-        };
-    }
-
-    /// <inheritdoc cref="Execute(Action, int)"/>
-    public static Action<T> Execute<T>(Action<T> action, int milliseconds)
-    {
-        CancellationTokenSource? cts = null;
-        T? lastArg = default;
-
-        return arg =>
-        {
-            lastArg = arg;
-            cts?.Cancel();
-            cts = new CancellationTokenSource();
-            Task.Delay(milliseconds, cts.Token).ContinueWith(t =>
-            {
-                if (t.IsCanceled) return;
-
-                action.Invoke(lastArg);
-            }, TaskScheduler.Default);
-        };
-    }
-}
-
-/// <summary>
-/// Defines a contract for event-based communication between components.
-/// </summary>
-public interface IEventBus
-{
-    void Publish<TEvent>(TEvent @event) where TEvent : class;
-
-    /// <summary>
-    /// Registers a handler for events of type <typeparamref name="T"/>.
-    /// </summary>
-    void Subscribe<TEvent>(Action<TEvent> handler)where TEvent : class;
-
-    /// <summary>
-    /// Unregisters all event handlers from the specified subscriber.
-    /// </summary>
-    /// <param name="subscriber">Subscriber to remove</param>
-    void UnsubscribeAll(object subscriber);
-
-    /// <summary>
-    /// Unsubscribes a previously registered event handler for the specified event type.
-    /// </summary>
-    /// <typeparam name="TEvent">The type of the event to unsubscribe from.</typeparam>
-    /// <param name="handler">The event handler delegate to remove.</param>
-    void Unsubscribe<TEvent>(Action<TEvent> handler);
-}
-
-#endregion
-
-#region Utils
-
-/// <summary>
-/// Layout Breakpoint. Defines responsive breakpoints for UI components.
-/// 布局断裂点。定义响应式布局的标准断点。
-/// </summary>
-/// <remarks>
-/// Values represent minimum viewport widths in pixels.
-/// </remarks>
-public enum Breakpoint
-{
-    None = 0,
-    ExtraSmall = 256,
-    Small = 512,
-    Medium = 640,
-    Large = 1024,
-    ExtraLarge = 2048,
-    Custom
-}
-
-/// <summary>
-/// Contains theme configuration settings for component styling.
-/// 主题配置容器
-/// </summary>
-public class ThemeSettings
-{
-    /// <summary>
-    /// Primary brand color
-    /// </summary>
-    public string PrimaryColor { get; set; } = "#2563eb";
-
-    public string FontFamily { get; set; } = "Fira Code";
 }
 
 #endregion
