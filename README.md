@@ -1,4 +1,4 @@
-﻿# AWComponent - Blazor 自定义组件库
+﻿# AWUI - Blazor 自定义组件库
 
 ![.NET Version](https://img.shields.io/badge/.NET-6.0-blueviolet)
 [![Blazor Version](https://img.shields.io/badge/Blazor-WebAssembly%20.NET%206.0-blue)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
@@ -74,10 +74,10 @@ AWComponent/
 
 ## NuGet 包集成
 
-1. 安装 AWComponent NuGet 包：
+1. 安装 AWUI NuGet 包：
 
    ```bash
-   dotnet add package AWComponent --version 0.0.5
+   dotnet add package AWUI --version 0.0.5
    ```
 
 2. 服务配置(Program.cs in Client)

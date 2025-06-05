@@ -1,4 +1,4 @@
-# AWComponent - Blazor Component Library
+# AWUI - Blazor Component Library
 
 ![.NET Version](https://img.shields.io/badge/.NET-6.0-blueviolet)
 [![Blazor Version](https://img.shields.io/badge/Blazor-WebAssembly%20.NET%206.0-blue)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
@@ -77,10 +77,10 @@ AWComponent/
 
 ## NuGet Package Integration
 
-1. Install the AWComponent NuGet package
+1. Install the AWUI NuGet package
 
    ```bash
-   dotnet add package AWComponent --version 0.0.5
+   dotnet add package AWUI --version 0.0.5
    ```
 
 2. Service Configuration(Program.cs in Client)
