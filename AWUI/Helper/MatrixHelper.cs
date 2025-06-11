@@ -1,9 +1,11 @@
-﻿namespace AWUI.Helper;
+﻿using System.Collections;
+
+namespace AWUI.Helper;
 
 /// <summary>
 /// 通用矩阵类，支持任意维度的矩阵运算
 /// </summary>
-public class Matrix
+public class Matrix : IEnumerable<double>
 {
     private readonly double[,] data;
 
@@ -15,6 +17,22 @@ public class Matrix
     {
         get => data[row, col];
         set => data[row, col] = value;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    public IEnumerator<double> GetEnumerator()
+    {
+        for (int i = 0; i < data.GetLength(0); i++)
+        {
+            for (int j = 0; j < data.GetLength(1); j++)
+            {
+                yield return data[i, j];
+            }
+        }
     }
 
     #region 构造函数
@@ -29,14 +47,14 @@ public class Matrix
         data = new double[rows, cols];
     }
 
-    private Matrix(double[,] array)
-    {
-        if (array == null)
-            throw new ArgumentNullException(nameof(array));
+    #endregion
 
-        Rows = array.GetLength(0);
-        Columns = array.GetLength(1);
-        data = (double[,])array.Clone();
+    #region 赋值
+
+    public Matrix Fill(int row, int col, double value)
+    {
+        this[row, col] = value;
+        return this;
     }
 
     #endregion
@@ -58,9 +76,22 @@ public class Matrix
         return new Matrix(rows, cols);
     }
 
-    public static Matrix From2DArray(double[,] array)
+    public static Matrix From2DArray(double[] array, int rows, int cols)
     {
-        return new Matrix(array);
+        if (array == null)
+            throw new ArgumentNullException(nameof(array));
+        if (array.Length != rows * cols)
+            throw new ArgumentException("数组长度必须等于rows*cols");
+
+        var matrix = new Matrix(rows, cols);
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                matrix[i, j] = array[i * cols + j];
+            }
+        }
+        return matrix;
     }
 
     #endregion
@@ -136,6 +167,58 @@ public class Matrix
     public static Matrix operator *(double scalar, Matrix matrix)
     {
         return matrix * scalar;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is not Matrix other)
+            return false;
+        if (Rows != other.Rows || Columns != other.Columns)
+            return false;
+        for (int i = 0; i < Rows; i++)
+        {
+            for (int j = 0; j < Columns; j++)
+            {
+                if (!this[i, j].Equals(other[i, j]))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public static bool operator ==(Matrix left, Matrix right)
+    {
+        if (ReferenceEquals(left, right))
+            return true;
+        if (left is null || right is null)
+            return false;
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Matrix left, Matrix right)
+    {
+        return !(left == right);
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked // 允许整数溢出而不抛出异常
+        {
+            int hash = 17;
+            hash = hash * 23 + Rows.GetHashCode();
+            hash = hash * 23 + Columns.GetHashCode();
+
+            // 只计算部分元素以提高性能，同时保持合理的哈希分布
+            int elementsToHash = Math.Min(10, Rows * Columns);
+            for (int i = 0; i < elementsToHash; i++)
+            {
+                int row = i / Columns;
+                int col = i % Columns;
+                hash = hash * 23 + this[row, col].GetHashCode();
+            }
+
+            return hash;
+        }
     }
 
     #endregion
@@ -264,6 +347,40 @@ public class Matrix
         return sb.ToString();
     }
 
+    // 按行优先
+    public double[] RowFlatten()
+    {
+        int rows = this.Rows;
+        int cols = this.Columns;
+        double[] flattened = new double[rows * cols];
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                flattened[i * cols + j] = this[i, j];
+            }
+        }
+        return flattened;
+    }
+
+    // 按列优先
+    public double[] ColumnFlatten()
+    {
+        int rows = this.Rows;
+        int cols = this.Columns;
+        double[] flattened = new double[rows * cols];
+
+        for (int j = 0; j < cols; j++)
+        {
+            for (int i = 0; i < rows; i++)
+            {
+                flattened[j * rows + i] = this[i, j];
+            }
+        }
+
+        return flattened;
+    }
+
     #endregion
 }
 
@@ -288,8 +405,8 @@ public class Matrix2x2 : Matrix
         M22 = m22;
     }
 
-    public static Matrix2x2 Identity => new Matrix2x2(1, 0, 0, 1);
-    public static Matrix2x2 Zero => new Matrix2x2(0, 0, 0, 0);
+    public static Matrix2x2 Identity2x2 => new Matrix2x2(1, 0, 0, 1);
+    public static Matrix2x2 Zero2x2 => new Matrix2x2(0, 0, 0, 0);
 
     public override double Determinant()
     {
@@ -337,12 +454,12 @@ public class Matrix3x3 : Matrix
         M31 = m31; M32 = m32; M33 = m33;
     }
 
-    public static Matrix3x3 Identity => new Matrix3x3(
+    public static Matrix3x3 Identity3x3 => new Matrix3x3(
         1, 0, 0,
         0, 1, 0,
         0, 0, 1);
 
-    public static Matrix3x3 Zero => new Matrix3x3(
+    public static Matrix3x3 Zero3x3 => new Matrix3x3(
         0, 0, 0,
         0, 0, 0,
         0, 0, 0);

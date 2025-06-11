@@ -1,12 +1,9 @@
-﻿using System.Text;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.Localization;
 using AWUI.JsInterop;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using AWUI.Interfaces;
 using AWUI.Helper;
 
