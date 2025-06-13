@@ -27,25 +27,65 @@
     content: "\e60a";
 }
 
+/*
+ * 分割线
+ */
 .aw-divider {
-    display: block;
-    height: 30px;
+    height: var(--divider-height);
 }
 
+/*
+ * 按钮
+ */
 .aw-btn {
-    width: 100px;
+    min-width: 100px;
     height: 50px;
+    padding: 0 24px;
+    color: var(--btn-fontColor);
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-family: 'Cascadia Mono', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
+    /* 点击状态 */
+    .aw-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 聚焦状态 */
+    .aw-btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.5);
+    }
+
+    /* 禁用状态 */
+    .aw-btn:disabled {
+        background: #e0e0e0;
+        color: #9e9e9e;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+/*
+ * 卡片
+ */
 .aw-card {
     width: 100px;
     height: 50px;
     background-color: aliceblue;
 }
 
-
+/*
+ * 提示弹窗
+ */
 .aw-alert {
-    /* 基础布局 */
     position: fixed;
     top: 15%;
     left: 50%;
@@ -55,16 +95,13 @@
     max-width: 90vw;
     padding: 16px 20px;
     box-sizing: border-box;
-    /* 视觉设计 */
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border: none;
-    /* 文字样式 */
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     line-height: 1.5;
     color: white;
-    /* 动画效果 */
     opacity: 0;
     animation: alert-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -75,3 +112,44 @@
         transform: translate(-50%, 0);
     }
 }
+
+/*
+ * 进度条
+ */
+.aw-progress {
+    height: 20px;
+    width: 100%;
+    padding: 2px 2px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+    /* 进度条填充部分 */
+    .aw-progress::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: var(--progress-width, 0%);
+        background: linear-gradient(90deg, var(--progress-colorFrom) 0%, var(--progress-colorTo) 100%);
+        border-radius: 10px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+    }
+
+    /* 文本样式 */
+    .aw-progress > span {
+        position: relative;
+        z-index: 1;
+        color: #333;
+        font-weight: bold;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }

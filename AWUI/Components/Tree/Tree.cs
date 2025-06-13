@@ -19,11 +19,11 @@ public class Tree : AWComponentBase
     {
         // 最外层容器
         builder.OpenElement(0, "div");
-        builder.AddMultipleAttributes(1, SafeAttributes);
-        builder.AddAttribute(2, "class", ComputedClass);
-        builder.AddAttribute(3, "style", ComputedStyle);
+        builder.AddAttribute(1, "class", ComputedClass);
+        builder.AddAttribute(2, "style", ComputedStyle);
+        builder.AddAttribute(3, "role", "Tree");
 
-        int seq = 5;
+        int seq = 4;
 
         BuildLeafNode(builder, TreeNode, ref seq);
         

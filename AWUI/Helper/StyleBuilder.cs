@@ -56,6 +56,18 @@ public sealed class StyleBuilder
         return AddStyle(classObj.ToString());
     }
 
+    public StyleBuilder AddCSSVariables(IDictionary<string, string> variables)
+    {
+        string? vars = null;
+
+        if (variables?.Any() == true)
+        {
+            vars = string.Join("; ", variables.Select(v => $"{v.Key}:{v.Value}"));
+        }
+
+        return vars is not null ? AddStyle(vars) : this;
+    }
+
     /// <summary>
     /// 生成最终Style字符串
     /// </summary>

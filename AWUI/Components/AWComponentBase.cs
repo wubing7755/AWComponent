@@ -135,8 +135,7 @@ public abstract class SecureComponentBase : ComponentBase, IDisposable, IAsyncDi
         return !attributeName.StartsWith("on", StringComparison.OrdinalIgnoreCase) 
             || attributeName.Equals("class", StringComparison.OrdinalIgnoreCase) 
             || attributeName.Equals("style", StringComparison.OrdinalIgnoreCase) 
-            || attributeName.Equals("type", StringComparison.OrdinalIgnoreCase) 
-            || attributeName.Equals("autofocus", StringComparison.OrdinalIgnoreCase);
+            || attributeName.Equals("type", StringComparison.OrdinalIgnoreCase);
     }
 
     #endregion
@@ -257,6 +256,13 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
 
     protected virtual string BaseClass => string.Empty;
     protected virtual string BaseStyle => string.Empty;
+    protected string FontStyle => $"font-family: {FontFamily};";
+
+    /*
+     * CSS 变量
+     * --component-color
+     */
+    protected Dictionary<string, string> CssVariables { get; } = new();
 
     /// <summary>
     /// Constructs a combined CSS class string from multiple sources.
@@ -271,7 +277,7 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
     protected string ComputedClass => CssBuilder.Default
             .AddClass(BaseClass)
             .AddClass(Class)
-            .AddClassFromAttributes(AdditionalAttributes)
+            .AddClassFromAttributes(SafeAttributes)
             .Build();
 
     /// <summary>
@@ -286,9 +292,11 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
     /// 4. AdditionalAttributes style values
     /// </returns>
     protected string ComputedStyle => StyleBuilder.Default
+            .AddCSSVariables(CssVariables)
             .AddStyle(BaseStyle)
             .AddStyle(Style)
-            .AddStyleFromAttributes(AdditionalAttributes)
+            .AddStyle(FontStyle)
+            .AddStyleFromAttributes(SafeAttributes)
             .AddStyle("display:none", IsDisabled)
             .Build();
 
@@ -330,6 +338,9 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
 
     [Parameter]
     public virtual bool IsVisible { get; set; } = true;
+
+    [Parameter]
+    public string FontFamily { get; set; } = "Cascadia Mono, system-ui, sans-serif";
 
     #region Render
 

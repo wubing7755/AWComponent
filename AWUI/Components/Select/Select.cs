@@ -40,9 +40,9 @@ public class Select : AWComponentBase
 
         builder.OpenElement(1, "select");
 
-        builder.AddMultipleAttributes(2, SafeAttributes);
-        builder.AddAttribute(3, "class", ComputedClass);
-        builder.AddAttribute(4, "style", ComputedStyle);
+        builder.AddAttribute(2, "class", ComputedClass);
+        builder.AddAttribute(3, "style", ComputedStyle);
+        builder.AddAttribute(4, "role", "select");
 
         builder.AddAttribute(5, "value", Value);
         builder.AddAttribute(6, "onchange", OnValueChanged);

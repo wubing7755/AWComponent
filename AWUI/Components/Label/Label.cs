@@ -23,16 +23,17 @@ public class Label : AWComponentBase
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         builder.OpenElement(0, "label");
-        builder.AddMultipleAttributes(1, SafeAttributes);
-        builder.AddAttribute(2, "style", $"color: {ColorHelper.ConvertToString(ColorType)};");
+        builder.AddAttribute(1, "class", ComputedClass);
+        builder.AddAttribute(2, "style", $"color: {ColorHelper.ConvertToString(ColorType)};" + ComputedStyle);
+        builder.AddAttribute(3, "role", "label");
 
         if (ChildContent is not null)
         {
-            builder.AddContent(3, ChildContent);
+            builder.AddContent(4, ChildContent);
         }
         else
         {
-            builder.AddContent(3, Text);
+            builder.AddContent(4, Text);
         }
 
         builder.CloseElement();

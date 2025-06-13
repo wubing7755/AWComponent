@@ -54,7 +54,9 @@ public class Input<TValue> : AWComponentBase
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         builder.OpenElement(0, "input");
-        builder.AddMultipleAttributes(1, SafeAttributes);
+        builder.AddAttribute(1, "class", ComputedClass);
+        builder.AddAttribute(2, "style", ComputedStyle);
+        builder.AddAttribute(3, "role", "input");
 
         BuildComponentAttributes(builder);
 
@@ -75,28 +77,28 @@ public class Input<TValue> : AWComponentBase
 
     protected virtual void BuildComponentAttributes(RenderTreeBuilder builder)
     {
-        builder.AddAttribute(2, "type", Type);
-        builder.AddAttribute(3, "value", BindConverter.FormatValue(currentValue));
+        builder.AddAttribute(4, "type", Type);
+        builder.AddAttribute(5, "value", BindConverter.FormatValue(currentValue));
 
-        builder.AddAttribute(4, "oninput", EventCallback.Factory.CreateBinder<TValue>(
+        builder.AddAttribute(6, "oninput", EventCallback.Factory.CreateBinder<TValue>(
                     this, __value => currentValue = __value, currentValue ?? default(TValue)!));
 
-        builder.AddAttribute(5, "onblur", EventCallback.Factory.Create<FocusEventArgs>(this, async _ =>
+        builder.AddAttribute(7, "onblur", EventCallback.Factory.Create<FocusEventArgs>(this, async _ =>
         {
             await HandleBlur(currentValue);
         }));
 
-        builder.AddAttribute(6, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, async args =>
+        builder.AddAttribute(8, "onkeydown", EventCallback.Factory.Create<KeyboardEventArgs>(this, async args =>
         {
             await HandleEnter(currentValue, args);
         }));
 
-        builder.AddAttribute(7, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, async _ =>
+        builder.AddAttribute(9, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, async _ =>
         {
             await ValueChanged.InvokeAsync(currentValue);
         }));
 
-        builder.AddAttribute(8, "autocomplete", AutocompleteFactory.GetAutocomplete(Autocomplete));
+        builder.AddAttribute(10, "autocomplete", AutocompleteFactory.GetAutocomplete(Autocomplete));
     }
 
     private async Task HandleBlur(TValue? value)

@@ -16,34 +16,38 @@ public class Button : AWComponentBase
     [Parameter]
     public EventCallback OnMouseLeave { get; set; }
 
+    [Parameter]
+    public string FontColor { get; set; } = "black";
+
     protected sealed override string BaseClass => "aw-btn";
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
+        CssVariables["--btn-fontColor"] = FontColor;
+
         builder.OpenElement(0, "button");
         
-        builder.AddMultipleAttributes(1, SafeAttributes);
-        builder.AddAttribute(2, "class", ComputedClass);
-        builder.AddAttribute(3, "style", ComputedStyle);
-        builder.AddAttribute(4, "role", "button");
+        builder.AddAttribute(1, "class", ComputedClass);
+        builder.AddAttribute(2, "style", ComputedStyle);
+        builder.AddAttribute(3, "role", "button");
 
         if (IsDisabled)
         {
-            builder.AddAttribute(5, "aria-disabled", "true");
-            builder.AddAttribute(6, "disabled");
+            builder.AddAttribute(4, "aria-disabled", "true");
+            builder.AddAttribute(5, "disabled");
         }
 
-        builder.AddAttribute(7, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async _ =>
+        builder.AddAttribute(4, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async _ =>
         {
             await HandleClick();
         }));
 
-        builder.AddAttribute(8, "onmouseleave", EventCallback.Factory.Create<MouseEventArgs>(this, async _ =>
+        builder.AddAttribute(5, "onmouseleave", EventCallback.Factory.Create<MouseEventArgs>(this, async _ =>
         {
             await HandleMouseEnter();
         }));
 
-        builder.AddContent(9, ChildContent);
+        builder.AddContent(6, ChildContent);
 
         builder.CloseElement();
     }

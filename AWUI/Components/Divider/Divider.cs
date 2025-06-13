@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using AWUI.Enums;
-using AWUI.Helper;
 
 namespace AWUI.Components;
 
@@ -16,42 +15,34 @@ public class Divider : AWComponentBase
     [Parameter]
     public ColorType Color { get; set; }
 
-    protected sealed override string BaseClass => "aw-divider";
+    [Parameter]
+    public GraphType GraphType { get; set; } = GraphType.Line;
 
-    private readonly string _svgStyle = "width: 100%; height: 30%; aria-hidden: true;";
+    [Parameter]
+    public float Height { get; set; } = 30.0f;
+
+    protected sealed override string BaseClass => "aw-divider";
 
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
+        CssVariables["--divider-height"] = Height + "px";
+
         builder.OpenElement(0, "div");
-        builder.AddMultipleAttributes(1, SafeAttributes);
-        builder.AddAttribute(2, "class", ComputedClass);
-        builder.AddAttribute(3, "style", ComputedStyle);
-
-        // SVG Dotted
-        builder.OpenElement(4, "svg");
-
-        builder.AddAttribute(5, "style", _svgStyle);
-        builder.OpenElement(6, "line");
-        builder.AddMultipleAttributes(7, new Dictionary<string, object>
-        {
-            { "x1", "0%" },
-            { "y1", "50%" },
-            { "x2", "100%" },
-            { "y2", "50%" },
-            { "stroke", ColorHelper.ConvertToString(Color) },
-            { "stroke-width", "1" },
-            { "stroke-dasharray", "5 3" }
-        });
-        builder.CloseElement();
-        builder.CloseElement();
+        builder.AddAttribute(1, "class", ComputedClass);
+        builder.AddAttribute(2, "style", ComputedStyle);
 
         if (ChildContent is not null)
         {
-            builder.AddMarkupContent(8, "<div style=\"text-align:center;margin-top:-15px;\">");
-            builder.OpenElement(9, "span");
-            builder.AddContent(10, ChildContent);
+            builder.OpenElement(3, "div");
+            builder.AddAttribute(4, "style", "text-align:center;");
+            builder.OpenElement(5, "span");
+            builder.AddAttribute(6, "style",
+                "display: inline-block; text-align: center; line-height: 1em; font-size: white-space: nowrap; overflow: hidden;");
+
+            builder.AddContent(7, ChildContent);
+
             builder.CloseElement();
-            builder.AddMarkupContent(11, "</div>");
+            builder.CloseElement();
         }
 
         builder.CloseElement();

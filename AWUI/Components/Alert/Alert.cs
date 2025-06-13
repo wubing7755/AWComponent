@@ -17,18 +17,25 @@ public class Alert : AWComponentBase
     [Parameter]
     public ColorType Type { get; set; } = ColorType.Green;
 
+    protected sealed override string BaseClass => "aw-alert";
+
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         builder.OpenElement(0, "div");
-        builder.AddAttribute(1, "class", "aw-alert");
-        builder.AddAttribute(2, "style", $"background-color: {ColorHelper.ConvertToString(Type)}");
+
+        builder.AddAttribute(1, "class", ComputedClass);
+        builder.AddAttribute(2, "style", $"background-color: {ColorHelper.ConvertToString(Type)}" + ComputedStyle);
         builder.AddAttribute(3, "role", "alert");
 
         builder.AddAttribute(4, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, async _ => {
             await HandleClose();
         }));
 
-        builder.AddContent(5, ChildContent);
+        if(ChildContent is not null)
+        {
+            builder.AddContent(5, ChildContent);
+        }
+
         builder.CloseElement();
     }
 

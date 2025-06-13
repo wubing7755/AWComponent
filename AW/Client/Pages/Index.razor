@@ -1,4 +1,19 @@
 ﻿@page "/"
 @using AWUI.Components;
 
-<Progress></Progress>
+<Progress Value="_value"></Progress>
+
+<Divider>+-+</Divider>
+
+<Button OnClick="InscreaseValue">进度 + 1</Button>
+
+@code{
+    private float _value = 0.0f;
+
+    private void InscreaseValue()
+    {
+        _value++;
+
+        StateHasChanged();
+    }
+}
