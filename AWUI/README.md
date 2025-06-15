@@ -4,19 +4,19 @@
 [![Blazor Version](https://img.shields.io/badge/Blazor-WebAssembly%20.NET%206.0-blue)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE.txt)
 [![EN](https://img.shields.io/badge/Language-English-blue)](README.en-US.md)
-[![CN](https://img.shields.io/badge/����-����-red)](README.md)
+[![CN](https://img.shields.io/badge/语言-中文-red)](README.md)
 
-?? **Choose Language**: 
+🌐 **Choose Language**: 
 [English](README.en-US.md) | 
-[����](README.md)
+[中文](README.md)
 
 Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and high performance
 
 ---
 
-## ?? Key Features
+## 🚀 Key Features
 
-- **Production-Ready**: 20+ enterprise UI components
+- **Production-Ready**: enterprise UI components
 - **Theming**: Dynamic skinning via CSS variables
 - **Optimized Performance**: Enhanced virtual DOM rendering
 - **i18n Support**: Built-in EN/CN localization
@@ -24,7 +24,7 @@ Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and 
 
 ---
 
-## ?? Quick Start
+## 📦 Quick Start
 
 ### Prerequisites
 
@@ -33,10 +33,10 @@ Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and 
 
 ### Installation
 
-1. **Clone Repository**��
+1. **Clone Repository**：
 
    ```bash
-   git clone https://github.com/your-username/AWComponent.git
+   git clone https://github.com/wubing7755/AWComponent.git
    ```
 
 2. **Run Server**:
@@ -48,19 +48,19 @@ Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and 
 
     Visit`https://localhost:7208`for demo
 
-## ?? Project Structure
+## 📂 Project Structure
 
 ```text
 AWComponent/
-������ AWUI/                  # Component Library
-��   ������ Components/        # Base Components
-��   ������ ...
-��
-������ AW
-������ AWComponent.sln        # Solution File
+├── AWUI/                  # Component Library
+│   ├── Components/        # Base Components
+│   └── ...
+│
+├── AW
+└── AWComponent.sln        # Solution File
 ```
 
-## ??  Component Demo
+## 🔧  Component Demo
 
 ```csharp
 @using AWUI.Components
@@ -86,7 +86,7 @@ AWComponent/
 2. Service Configuration(Program.cs in Client)
 
     ```csharp
-    builder.AddAWComponentServices();
+    builder.AddClientServices();
     ```
 
 3. Global Configuration(appsettings.json in Client.wwwroot)
@@ -111,18 +111,18 @@ AWComponent/
     <link href="_content/AWUI/css/AWUI.css" rel="stylesheet" />
     ```
 
-5. Add namespace in _Imports.razor��
+5. Add namespace in _Imports.razor：
 
     ```csharp
     @using AWUI.Components
     ```
 
-## ?? Component List
+## 🧩 Component List
 
 |Category|Components|
 |---|---|
-|Basic|Alert��Button��Divider��Input��Label��Modal��Progress��Select��Tree|
+|Basic|Alert、Button、Divider、Input、Label、Modal、Progress、Select、Tree|
 
-## ?? Resources
+## 📚 Resources
 
 - [Blazor Official Docs](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-6.0)

@@ -16,7 +16,7 @@ Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and 
 
 ## 🚀 Key Features
 
-- **Production-Ready**: 20+ enterprise UI components
+- **Production-Ready**: enterprise UI components
 - **Theming**: Dynamic skinning via CSS variables
 - **Optimized Performance**: Enhanced virtual DOM rendering
 - **i18n Support**: Built-in EN/CN localization
@@ -36,7 +36,7 @@ Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and 
 1. **Clone Repository**：
 
    ```bash
-   git clone https://github.com/your-username/AWComponent.git
+   git clone https://github.com/wubing7755/AWComponent.git
    ```
 
 2. **Run Server**:
@@ -86,7 +86,7 @@ AWComponent/
 2. Service Configuration(Program.cs in Client)
 
     ```csharp
-    builder.AddAWComponentServices();
+    builder.AddClientServices();
     ```
 
 3. Global Configuration(appsettings.json in Client.wwwroot)

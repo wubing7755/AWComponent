@@ -33,7 +33,7 @@
 1. **克隆仓库**：
 
    ```bash
-   git clone https://github.com/your-username/AWComponent.git
+   git clone https://github.com/wubing7755/AWComponent.git
    ```
 
 2. **运行程序**:
@@ -83,7 +83,7 @@ AWComponent/
 2. 服务配置(Program.cs in Client)
 
     ```csharp
-    builder.AddAWComponentServices();
+    builder.AddClientServices();
     ```
 
 3. 全局配置(appsettings.json in Client.wwwroot)
