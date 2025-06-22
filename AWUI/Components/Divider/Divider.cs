@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using AWUI.Enums;
+using AWUI.Helper;
 
 namespace AWUI.Components;
 
@@ -31,19 +32,22 @@ public class Divider : AWComponentBase
         builder.AddAttribute(1, "class", ComputedClass);
         builder.AddAttribute(2, "style", ComputedStyle);
 
+        builder.OpenElement(3, "div");
+        builder.AddAttribute(4, "style", $"background-color: {ColorHelper.ConvertToString(Color)};text-align:center;");
+        builder.OpenElement(5, "span");
+        builder.AddAttribute(6, "style", "display: inline-block; text-align: center; line-height: 1em; font-size: white-space: nowrap; overflow: hidden;");
+
         if (ChildContent is not null)
         {
-            builder.OpenElement(3, "div");
-            builder.AddAttribute(4, "style", "text-align:center;");
-            builder.OpenElement(5, "span");
-            builder.AddAttribute(6, "style",
-                "display: inline-block; text-align: center; line-height: 1em; font-size: white-space: nowrap; overflow: hidden;");
-
             builder.AddContent(7, ChildContent);
-
-            builder.CloseElement();
-            builder.CloseElement();
         }
+        else
+        {
+            builder.AddContent(7, string.Empty);
+        }
+
+        builder.CloseElement();
+        builder.CloseElement();
 
         builder.CloseElement();
     }

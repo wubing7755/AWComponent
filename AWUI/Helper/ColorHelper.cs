@@ -20,7 +20,7 @@ public static class ColorHelper
             ColorType.Brown => $"rgba(121, 85, 72)",    // Material Brown 500
             ColorType.Cyan => $"rgba(0, 188, 212)",     // Material Cyan 500
             ColorType.Magenta => $"rgba(233, 30, 99)",  // Material Pink 500
-            _ => $"rgba(33, 33, 33)"                    // Deep Grey
+            _ => $"rgba(255, 255, 255)"                 // None
         };
 
         return colorStyle;
