@@ -152,7 +152,7 @@ public readonly struct Result<T> : IResult<T>
 
     public static Result<T> FromException(Exception ex, string? message = null)
     {
-        T? t = default;
+        T t = default(T)!;
         return new Result<T>(ResultType.Error, t, new Error(
                 message ?? ex.Message,
                 ErrorType.Unknown,
@@ -163,7 +163,7 @@ public readonly struct Result<T> : IResult<T>
 
     public static implicit operator Result<T>(Error error) => Fail(error);
 
-    public static implicit operator Result<T>(Exception ex) => FromException<T>(ex);
+    public static implicit operator Result<T>(Exception ex) => FromException(ex);
 
     public void Deconstruct(out bool isSuccess, out T? data, out IError? error)
     {
@@ -171,10 +171,4 @@ public readonly struct Result<T> : IResult<T>
         data = IsSuccess ? Data : default;
         error = Error ?? (IsSuccess ? null : new Error("Unknown error"));
     }
-
-    public static Result<T> FromException<T>(Exception ex, string? message = null)
-            => new Result<T>(
-                ResultType.Error,
-                default!,
-                new Error(message ?? ex.Message, ErrorType.System, exception: ex));
 }

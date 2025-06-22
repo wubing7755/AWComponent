@@ -169,7 +169,7 @@ public class Matrix : IEnumerable<double>
         return matrix * scalar;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is not Matrix other)
             return false;
@@ -464,7 +464,7 @@ public class Matrix3x3 : Matrix
         0, 0, 0,
         0, 0, 0);
 
-    public virtual double Determinant()
+    public override double Determinant()
     {
         return M11 * (M22 * M33 - M23 * M32)
              - M12 * (M21 * M33 - M23 * M31)

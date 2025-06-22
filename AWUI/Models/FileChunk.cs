@@ -4,7 +4,7 @@ public class FileChunk
 {
     public int Index { get; }
     public int Total { get; }
-    public string Data { get;}
+    public string? Data { get;}
     public long Size { get; }
     public bool IsLastChunk { get; }
 }

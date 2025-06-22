@@ -1,7 +1,13 @@
-﻿namespace AWUI.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
+
+namespace AWUI.Models;
 
 public class Person
 {
-    public string Name;
-    public string Age;
+    [Required, NotNull]
+    public string? Name { get; set; }
+
+    [Required, NotNull]
+    public string? Age { get; set; }
 }

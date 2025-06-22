@@ -16,7 +16,7 @@ Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and 
 
 ## 🚀 Key Features
 
-- **Production-Ready**: enterprise UI components
+- **Production-Ready**: some enterprise UI components
 - **Theming**: Dynamic skinning via CSS variables
 - **Optimized Performance**: Enhanced virtual DOM rendering
 - **i18n Support**: Built-in EN/CN localization
@@ -50,37 +50,37 @@ Enterprise-grade UI components for **Blazor (.NET 6.0)** with modern design and 
 
 ## 📂 Project Structure
 
-```text
-AWComponent/
-├── AWUI/                  # Component Library
-│   ├── Components/        # Base Components
-│   └── ...
-│
-├── AW
-└── AWComponent.sln        # Solution File
-```
+    ```text
+    AWComponent/
+    ├── AWUI/                  # Component Library
+    │   ├── Components/        # Base Components
+    │   └── ...
+    │
+    ├── AW
+    └── AWComponent.sln        # Solution File
+    ```
 
 ## 🔧  Component Demo
 
-```csharp
-@using AWUI.Components
+    ```csharp
+    @using AWUI.Components
 
-<Button OnClick="HandleClick">PlaceHolder</Button>
+    <Button OnClick="HandleClick">PlaceHolder</Button>
 
-@code{
-    private void HandleClick(MouseEventArgs args)
-    {
-        // add your code
+    @code{
+        private void HandleClick(MouseEventArgs args)
+        {
+            // add your code
+        }
     }
-}
-```
+    ```
 
 ## NuGet Package Integration
 
 1. Install the AWUI NuGet package
 
    ```bash
-   dotnet add package AWUI --version 0.0.5
+   dotnet add package AWUI --version 0.1.0
    ```
 
 2. Service Configuration(Program.cs in Client)

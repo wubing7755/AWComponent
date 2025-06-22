@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<PackageId>AWUI</PackageId>
 	<Title>Blazor AWUI</Title>
-	<PackageVersion>0.0.5</PackageVersion>
+	<PackageVersion>0.1.0</PackageVersion>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<PackageProjectUrl>https://github.com/wubing7755/AWComponent</PackageProjectUrl>
@@ -15,7 +15,7 @@
 	<Authors>wubing7755</Authors>
 	<Description>
 		🚀 Blazor Component Library
-		· Production-Ready: 20+ enterprise UI components
+		· Production-Ready: some enterprise UI components
 		· Theming: Dynamic skinning via CSS variables
 		· Optimized Performance: Enhanced virtual DOM rendering
 		· i18n Support: Built-in EN/CN localization
@@ -23,7 +23,7 @@
 	</Description>
 
 	  <PackageReleaseNotes>
-		  ## 0.0.5 (2025-06-05)
+		  ## 0.1.0 (2025-06-22)
 	  </PackageReleaseNotes>
 
 	  <Copyright>Copyright © 2025 wubing7755</Copyright>

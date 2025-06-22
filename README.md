@@ -47,37 +47,37 @@
 
 ## 📂 项目架构
 
-```text
-AWComponent/
-├── AWUI/                  # 组件库
-│   ├── Components/        # 可复用组件
-│   └── ...
-│
-├── AW
-└── AWComponent.sln        # 解决方案文件
-```
+    ```text
+    AWComponent/
+    ├── AWUI/                  # 组件库
+    │   ├── Components/        # 可复用组件
+    │   └── ...
+    │
+    ├── AW
+    └── AWComponent.sln        # 解决方案文件
+    ```
 
 ## 🔧 组件使用示例
 
-```csharp
-@using AWUI.Components
+    ```csharp
+    @using AWUI.Components
 
-<Button OnClick="HandleClick">PlaceHolder</Button>
+    <Button OnClick="HandleClick">PlaceHolder</Button>
 
-@code{
-    private void HandleClick(MouseEventArgs args)
-    {
-        // add your code
+    @code{
+        private void HandleClick(MouseEventArgs args)
+        {
+            // add your code
+        }
     }
-}
-```
+    ```
 
 ## NuGet 包集成
 
 1. 安装 AWUI NuGet 包：
 
    ```bash
-   dotnet add package AWUI --version 0.0.5
+   dotnet add package AWUI --version 0.1.0
    ```
 
 2. 服务配置(Program.cs in Client)
