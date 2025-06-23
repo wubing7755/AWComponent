@@ -77,7 +77,7 @@
 1. 安装 AWUI NuGet 包：
 
    ```bash
-   dotnet add package AWUI --version 0.1.1
+   dotnet add package AWUI --version 9.0.1
    ```
 
 2. 服务配置(Program.cs in Client)

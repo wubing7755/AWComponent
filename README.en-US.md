@@ -80,7 +80,7 @@ Enterprise-grade UI components for **Blazor (.NET 9.0)** with modern design and 
 1. Install the AWUI NuGet package
 
    ```bash
-   dotnet add package AWUI --version 0.1.1
+   dotnet add package AWUI --version 9.0.1
    ```
 
 2. Service Configuration(Program.cs in Client)
