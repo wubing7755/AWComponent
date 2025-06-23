@@ -1,7 +1,7 @@
 ﻿# AWUI - Blazor 自定义组件库
 
-![.NET Version](https://img.shields.io/badge/.NET-6.0-blueviolet)
-[![Blazor Version](https://img.shields.io/badge/Blazor-WebAssembly%20.NET%206.0-blue)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
+![.NET Version](https://img.shields.io/badge/.NET-9.0-blueviolet)
+[![Blazor Version](https://img.shields.io/badge/Blazor-WebAssembly%20.NET%209.0-blue)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE.txt)
 [![EN](https://img.shields.io/badge/Language-English-blue)](README.en-US.md)
 [![CN](https://img.shields.io/badge/语言-中文-red)](README.md)
@@ -9,7 +9,7 @@
 🌐 **Choose Language**: 
 [English](README.en-US.md) | [中文](README.md) 
 
-基于 **Blazor (.NET 6.0)** 的高质量自定义组件库，提供可复用的 UI 组件和模块化解决方案。
+基于 **Blazor (.NET 9.0)** 的高质量自定义组件库，提供可复用的 UI 组件和模块化解决方案。
 
 ---
 
@@ -17,7 +17,7 @@
 
 - **开箱即用**：预置多种企业级 UI 组件
 - **主题定制**：通过 CSS 变量轻松自定义样式
-- **高性能**：基于 .NET 6.0 优化渲染逻辑
+- **高性能**：基于 .NET 9.0 优化渲染逻辑
 - **完整文档**：内置示例页面和代码片段
 
 ---
@@ -25,7 +25,7 @@
 ## 📦 快速开始
 
 ### 前置条件
-- [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - IDE: Visual Studio 2022
 
 ### 安装与运行
@@ -77,7 +77,7 @@
 1. 安装 AWUI NuGet 包：
 
    ```bash
-   dotnet add package AWUI --version 0.1.0
+   dotnet add package AWUI --version 0.1.1
    ```
 
 2. 服务配置(Program.cs in Client)
@@ -122,4 +122,4 @@
 
 ## 📚 文档资源
 
-- [Blazor 官方文档](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-6.0)
+- [Blazor 官方文档](https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-9.0)
