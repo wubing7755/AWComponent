@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<PackageId>AWUI</PackageId>
 	<Title>Blazor AWUI</Title>
-	<PackageVersion>0.1.0</PackageVersion>
+	<PackageVersion>6.0.1</PackageVersion>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<PackageProjectUrl>https://github.com/wubing7755/AWComponent</PackageProjectUrl>
@@ -23,7 +23,7 @@
 	</Description>
 
 	  <PackageReleaseNotes>
-		  ## 0.1.0 (2025-06-22)
+		  ## 6.0.1 (2025-06-23)
 	  </PackageReleaseNotes>
 
 	  <Copyright>Copyright © 2025 wubing7755</Copyright>
