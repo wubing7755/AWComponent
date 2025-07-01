@@ -27,27 +27,20 @@ public class Divider : AWComponentBase
     protected override void BuildComponent(RenderTreeBuilder builder)
     {
         CssVariables["--divider-height"] = Height + "px";
+        CssVariables["--divider-bgColor"] = ColorHelper.ConvertToString(Color);
 
         builder.OpenElement(0, "div");
         builder.AddAttribute(1, "class", ComputedClass);
         builder.AddAttribute(2, "style", ComputedStyle);
 
-        builder.OpenElement(3, "div");
-        builder.AddAttribute(4, "style", $"background-color: {ColorHelper.ConvertToString(Color)};text-align:center;");
-        builder.OpenElement(5, "span");
-        builder.AddAttribute(6, "style", "display: inline-block; text-align: center; line-height: 1em; font-size: white-space: nowrap; overflow: hidden;");
-
         if (ChildContent is not null)
         {
-            builder.AddContent(7, ChildContent);
+            builder.AddContent(3, ChildContent);
         }
         else
         {
-            builder.AddContent(7, string.Empty);
+            builder.AddContent(3, string.Empty);
         }
-
-        builder.CloseElement();
-        builder.CloseElement();
 
         builder.CloseElement();
     }
