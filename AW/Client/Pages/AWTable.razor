@@ -1,0 +1,21 @@
+﻿@page "/awtable"
+
+<Table Data="_fakeData" IsFixedHeader="_isFixedHead">
+    <Caption><div> 表格 - test </div></Caption>
+</Table>
+
+<Button OnClick="ToggleFixedHead">ToggleFixedHead</Button>
+@code
+{
+    private bool _isFixedHead = false;
+    
+    public List<string> _fakeData = new()
+    {
+        "a","b","c","d","e"
+    };
+
+    private void ToggleFixedHead()
+    {
+        _isFixedHead = !_isFixedHead;
+    }
+}

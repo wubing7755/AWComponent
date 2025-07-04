@@ -256,7 +256,7 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
 
     protected virtual string BaseClass => string.Empty;
     protected virtual string BaseStyle => string.Empty;
-    protected string FontStyle => $"font-family: {FontFamily};";
+    private string FontStyle => $"font-family: {FontFamily};";
 
     /*
      * CSS 变量
@@ -267,7 +267,7 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
     /// <summary>
     /// Constructs a combined CSS class string from multiple sources.
     /// </summary>
-    /// <param name="baseClass">Base class defined by the component</param>
+    /// <param name="BaseClass">Base class defined by the component</param>
     /// <returns>
     /// Merged class string containing (in order):
     /// 1. Component base classes
@@ -283,7 +283,7 @@ public abstract class ResponsiveComponentBase : SecureComponentBase, IHandleEven
     /// <summary>
     /// Constructs a combined inline style string from multiple sources.
     /// </summary>
-    /// <param name="baseStyle">Base style defined by the component</param>
+    /// <param name="BaseStyle">Base style defined by the component</param>
     /// <returns>
     /// Merged style string containing (in order):
     /// 1. Component base styles

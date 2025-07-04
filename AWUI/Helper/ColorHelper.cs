@@ -16,7 +16,7 @@ public static class ColorHelper
             ColorType.Purple => $"rgba(156, 39, 176)",  // Purple 500
             ColorType.Black => $"rgba(33, 33, 33)",     // Dark Grey 
             ColorType.White => $"rgba(255, 255, 255)",  // White
-            ColorType.Gray => $"rgba(158, 158, 158)",   // Material Grey 500
+            ColorType.Grey => $"rgba(158, 158, 158)",   // Material Grey 500
             ColorType.Brown => $"rgba(121, 85, 72)",    // Material Brown 500
             ColorType.Cyan => $"rgba(0, 188, 212)",     // Material Cyan 500
             ColorType.Magenta => $"rgba(233, 30, 99)",  // Material Pink 500

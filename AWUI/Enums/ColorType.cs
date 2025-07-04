@@ -11,7 +11,7 @@ public enum ColorType
     Purple,
     Black,
     White,
-    Gray,
+    Grey,
     Brown,
     Cyan,
     Magenta
